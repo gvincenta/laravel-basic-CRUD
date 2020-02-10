@@ -11,6 +11,23 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::put('/', function () {
+//    return view('welcome');
+    return "hello world";
 });
+
+/**
+ *  gets a list of books.
+ */
+Route::get('/book', 'BookController@getBooks');
+
+/**
+ *  adds a book to the list.
+ */
+Route::post('/book','BookController@addBook'  );
+
+/**
+ *  deletes a book from the list.
+ */
+Route::delete('/book','BookController@deleteBook'  );
+
