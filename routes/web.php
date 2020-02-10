@@ -31,3 +31,9 @@ Route::post('/book','BookController@addBook'  );
  */
 Route::delete('/book','BookController@deleteBook'  );
 
+/**
+ *  change an author's name.
+ */
+Route::put('/author','AuthorController@changeName'  );
+
+
