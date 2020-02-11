@@ -50,4 +50,11 @@ Route::get('/author','AuthorController@getAuthor'  );
  */
 Route::put('/author','AuthorController@changeName'  );
 
+/**
+ *  exports a list of books and/or authors to csv and/or xml.
+ */
+Route::get('/export', function (){
+    //TODO: to be implemented with mySQL.
+    return "unimplemented";
+});
 
