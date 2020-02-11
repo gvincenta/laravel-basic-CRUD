@@ -45,4 +45,16 @@ class BookController extends Controller
         //TODO : handle success and failure scenarios.
         return $this->books;
     }
+    //returns a list of sorted books alongside their authors.
+    public function getSortedBooks(){
+        return  $this->books;
+    }
+    public function getBook(Request $request){
+        $len = count($this->books);
+         $index = (int) $request->input("index") ;
+        if ( ($len > $index) && ( $index >= 0)){
+            return $this->books[$index];
+        }
+        return "index out of bounds";
+    }
 }

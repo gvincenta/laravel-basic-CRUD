@@ -15,12 +15,22 @@ Route::put('/', function () {
 //    return view('welcome');
     return "hello world";
 });
-
 /**
- *  gets a list of books.
+ *  gets a book alongside its author.
  */
-Route::get('/book', 'BookController@getBooks');
-
+Route::get('/book', 'BookController@getBook');
+/**
+ *  gets a list of books with their authors.
+ */
+Route::get('/book/list', 'BookController@getBooks');
+/**
+ *  gets a sorted list of books by its title.
+ */
+Route::get('/book/sorted/title', 'BookController@getSortedBooks');
+/**
+ *  gets a sorted list of books by its author.
+ */
+Route::get('/book/sorted/author', 'AuthorController@getSortedAuthors');
 /**
  *  adds a book to the list.
  */
@@ -30,7 +40,11 @@ Route::post('/book','BookController@addBook'  );
  *  deletes a book from the list.
  */
 Route::delete('/book','BookController@deleteBook'  );
-
+/**
+ *  get an author, alongside its books.
+ */
+//TODO : using query parameters instead of request.body is still buggy.
+Route::get('/author','AuthorController@getAuthor'  );
 /**
  *  change an author's name.
  */
