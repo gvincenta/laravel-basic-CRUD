@@ -2,59 +2,66 @@
 
 namespace App\Http\Controllers;
 
+use App\Authors;
+use App\Books;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /** Controls book on database.
  *  A book has a title and an author.
 */
 class BookController extends Controller
 {
-    //TODO: data management with DB instead of static list.
-    private   $books;
+    /**
+     * Store a newly created book in database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'title' => 'required'
+        ]);
 
-    public function __construct() {
-        $this->books = [];
+        $book = DB::insert('INSERT INTO books (title) VALUES (?);', [$validatedData['title']]);
 
-        //populate data into static list:
-        $data1 = array("author"=>"Hans Christian Andersen", "title"=>"Ugly Duckling" );
-        $data2 = array("author"=>"William Shakespeare", "title"=>"Romeo And Juliet" );
-        $data3 = array("author"=>"Kohei Horikoshi", "title"=>"My Hero Academia" );
-
-        array_push($this->books,  $data1);
-        array_push($this->books, $data2);
-        array_push($this->books, $data3);
+        return response()->json('Project created!');
+    }
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $validatedData = $request->validate([
+            'bookID' => 'required'
+        ]);
+        return json_encode( DB::delete('DELETE FROM books WHERE bookID = ?',[$validatedData['bookID']]));
 
     }
 
-    //Get a list of books.
-    public function getBooks(){
-        return $this->books;
-    }
-
-    //Get a list of books.
-    //TODO : implement with database later.
-    public function deleteBook(Request $request){
-         return "data does not exist";
-    }
-    //Adds a book into the list.
-    public function addBook(Request $request){
-        //TODO : validate request format.
-        array_push($this->books, $request->input());
 
 
-        //TODO : handle success and failure scenarios.
-        return $this->books;
-    }
+
+
+
     //returns a list of sorted books alongside their authors.
     public function getSortedBooks(){
-        return  $this->books;
+        //TODO : JOIN WITH author
+        $result = Books::with('authors')->orderBy('title')->get();
+        return $result->toJson();
+//        return  json_encode(DB::table('books')->orderBy('title')->get());
     }
-    public function getBook(Request $request){
-        $len = count($this->books);
-         $index = (int) $request->input("index") ;
-        if ( ($len > $index) && ( $index >= 0)){
-            return $this->books[$index];
-        }
-        return "index out of bounds";
+    public function index(Request $request){
+        $validatedData = $request->validate([
+            'title' => 'required'
+        ]);
+         return json_encode(DB::table('books')->where("title","=",$validatedData['title'])->get());
+
+
     }
+
 }
