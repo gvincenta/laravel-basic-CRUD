@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Authors;
 use App\Books;
+use Faker\Provider\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -12,12 +13,12 @@ use Illuminate\Support\Facades\DB;
 */
 class BookController extends Controller
 {
-    public function exportBooksToXML(Request $request)
+    public function exportToXML(Request $request)
     {
 
 
         $results = Books::all();
-        return parent::exportToXMLHelper($results,["books"],[],[['bookID','title','created_at','updated_at']],"data");
+        return FileExportController::exportToXML($results,[Books::TABLE_NAME],[],[Books::FIELDS],FileExportController::XML_DATA_TAG);
 
     }
         /**

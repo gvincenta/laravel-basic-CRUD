@@ -42,11 +42,11 @@ Route::get('/export/XML', function (Request $request){
     ]);
     if ($validatedData['authors']){
         $authorController = new AuthorController();
-        return  $authorController->exportAuthorsToXML($request);
+        return  $authorController->exportToXML($request);
      }
     else if ($validatedData['titles'] && !$validatedData['authors'] ){
         $bookController = new BookController();
-        return  $bookController->exportBooksToXML($request);
+        return  $bookController->exportToXML($request);
 
     }
 });

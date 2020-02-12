@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Authors;
 use App\Books;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use XMLWriter;
 use FetchLeo\LaravelXml\Facades\Xml;
@@ -35,9 +36,8 @@ class AuthorController extends Controller
         return $result->toJson();
 
     }
-    //function adapted from : https://stackoverflow.com/questions/30014960/how-can-i-store-data-from-mysql-to-xml-in-laravel-5
     //for exporting author only / with book titles to xml
-    public function exportAuthorsToXML(Request $request){
+    public function exportToXML(Request $request){
 
         $validatedData = $request->validate([
             'titles' => 'required',
@@ -51,22 +51,25 @@ class AuthorController extends Controller
         //for exporting both titles and authors:
          if ($validatedData['titles'] && $validatedData['authors'] ){
 
-            $results = Authors::with('books')->get();
-            $xml->startElement('authors-with-books');
+             if ($request->input('variation') == FileExportController::XML_AUTHORS_WITH_BOOKS){
+                $results = Authors::with('books')->get();
+                return FileExportController::exportToXML($results,[FileExportController::XML_AUTHORS_WITH_BOOKS,Books::TABLE_NAME],
+                 [Books::TABLE_NAME], [Authors::FIELDS,Books::FIELDS], FileExportController::XML_DATA_TAG);
+            }
+             else if ($request->input('variation') == "books-with-authors"){
+                 $results = Books::with('authors')->get();
+                  return FileExportController::exportToXML($results,[FileExportController::XML_BOOKS_WITH_AUTHORS, Authors::TABLE_NAME],
+                      [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], FileExportController::XML_DATA_TAG);
+             }
 
-
-
-             return parent::exportToXMLHelper($results,["authors-with-books","books"],["books"],
-                [['authorID','name','created_at','updated_at'],['bookID','title','created_at','updated_at']],
-                "data");
 
              }
              //for exporting authors only:
           else if ($validatedData['authors'] && !$validatedData['titles'] ){
               $results = Authors::all();
 
-              return parent::exportToXMLHelper($results,["authors"],[],
-                  [['authorID','name','created_at','updated_at']],"data");
+              return FileExportController::exportToXML($results,[$authorsDB],[],
+                  [$authorsFields],$dataTag);
          }
         //encloses the xml tags and return it:
 
