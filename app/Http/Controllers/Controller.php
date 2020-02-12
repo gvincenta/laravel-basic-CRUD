@@ -74,10 +74,9 @@ class Controller extends BaseController
     {
         $xml->startElement($tag);
 
-        //parse each attribute:
+        //parse each attribute of the data as a new element:
         foreach($attributes as $attribute) {
-            $xml->writeAttribute($attribute, $data->$attribute);
-
+            $xml->writeElement($attribute,$data->$attribute);
         }
         if ($closeTag){
             $xml->endElement();
