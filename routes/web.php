@@ -11,6 +11,10 @@
 |
 */
 
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\BookController;
+use Illuminate\Http\Request;
+
 Route::put('/', function () {
 //    return view('welcome');
     return "hello world";
@@ -29,12 +33,24 @@ Route::get('/book/list', 'BookController@getBooks');
 
 
 /**
- *  exports a list of books and/or authors to csv and/or xml.
+ *  exports a list of books and/or authors to xml.
  */
-Route::get('/export', function (){
-    //TODO: to be implemented with mySQL.
-    return "unimplemented";
+Route::get('/export/XML', function (Request $request){
+    $validatedData = $request->validate([
+        'titles' => 'required',
+        'authors' => 'required'
+    ]);
+    if ($validatedData['authors']){
+        $authorController = new AuthorController();
+        return  $authorController->exportAuthorsToXML($request);
+     }
+    else if ($validatedData['titles'] && !$validatedData['authors'] ){
+        $bookController = new BookController();
+        return  $bookController->exportBooksToXML($request);
+
+    }
 });
+
 /**
  *  adds a book to the list.
  */

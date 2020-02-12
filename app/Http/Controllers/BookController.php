@@ -12,7 +12,35 @@ use Illuminate\Support\Facades\DB;
 */
 class BookController extends Controller
 {
-    /**
+    public function exportBooksToXML(Request $request)
+    {
+
+        $xml = new XMLWriter();
+        $xml->openMemory();
+        $xml->startDocument();
+        $results = Books::all();
+        $xml->startElement('books');
+
+        foreach($results as $res) {
+            $xml->startElement('data');
+            $xml->writeAttribute('bookID', $res->bookID);
+            $xml->writeAttribute('title', $res->title);
+            $xml->writeAttribute('created_at', $res->created_at);
+            $xml->writeAttribute('updated_at', $res->updated_at);
+            $xml->endElement();
+        }
+
+        //encloses the xml tags and return it:
+
+        $xml->endElement();
+        $xml->endDocument();
+
+        $content = $xml->outputMemory();
+        $xml = null;
+
+        return response($content)->header('Content-Type', 'text/xml');
+    }
+        /**
      * Store a newly created book in database.
      *
      * @param  \Illuminate\Http\Request  $request
