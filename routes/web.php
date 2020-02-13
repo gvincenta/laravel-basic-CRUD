@@ -26,8 +26,6 @@ Route::put('/', function () {
 Route::get('/book/list', 'BooksController@getBooks');
 
 
-
-
 ////TODO : using query parameters instead of request.body is still buggy.
 //Route::get('/author','AuthorsController@getAuthor'  );
 
@@ -45,27 +43,11 @@ Route::get('/export/XML', function (Request $request){
     else if ($validatedData['titles'] && !$validatedData['authors'] ){
         $bookController = new BooksController();
         return  $bookController->exportToXML($request);
-
     }
 });
 
 /** exports a list of books and/or authors to csv. */
-Route::get('/export/CSV', 'FileExportController@exportToCSV'
-// function (Request $request){
-//    $validatedData = $request->validate([
-//        'titles' => 'required',
-//        'authors' => 'required'
-//    ]);
-//    if ($validatedData['authors']){
-//        $authorController = new AuthorsController();
-//        return  $authorController->exportToXML($request);
-//    }
-//    else if ($validatedData['titles'] && !$validatedData['authors'] ){
-//        $bookController = new BooksController();
-//        return  $bookController->exportToXML($request);
-//
-//    }}
-);
+Route::get('/export/CSV', 'FileExportController@exportToCSV');
 
 /**
  *  adds a book to the list.

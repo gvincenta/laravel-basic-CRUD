@@ -2,14 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
+ use App\Books;
+ use App\Exports\AuthorsAndBooksExport;
+ use App\Exports\AuthorsExport;
+ use App\Exports\BooksExport;
+ use App\Exports\DBExport;
+ use Illuminate\Http\Request;
+ use Maatwebsite\Excel\Facades\Excel;
+ /**
+ * handles exporting database files into CSV and XML.
+*/
 class FileExportController extends Controller
 {
     public const XML_DATA_TAG = 'data';
     public const XML_BOOKS_WITH_AUTHORS = 'books-with-authors';
     public const XML_AUTHORS_WITH_BOOKS = 'authors-with-books';
-    
+    private $export = null;
+
+    public function decideExportClass($titles, $authors){
+
+        if ($titles && $authors  ){
+            $this->export = new AuthorsAndBooksExport();
+        }
+        else if (!$titles && $authors){
+            $this->export = new AuthorsExport();
+        }
+        else if ($titles && !$authors){
+            $this->export = new BooksExport();
+        }
+    }
+     public function exportToCSV(Request $request)
+    {
+        $validatedData = $request->validate([
+            'titles' => 'required',
+            'authors' => 'required'
+        ]);
+        $this->decideExportClass($validatedData['titles'],$validatedData['authors']);
+        $data = Excel::download($this->export, 'disney.csv' );
+        return $data;
+
+    }
+
 
     //function adapted from : https://stackoverflow.com/questions/30014960/how-can-i-store-data-from-mysql-to-xml-in-laravel-5
     public function exportToXML($array, $nestedTags, $childKeys, $attributes, $dataTag)

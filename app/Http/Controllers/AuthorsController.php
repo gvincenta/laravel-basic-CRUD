@@ -44,10 +44,6 @@ class AuthorsController extends Controller
             'authors' => 'required'
         ]);
 
-        $xml = new XMLWriter();
-        $xml->openMemory();
-        $xml->startDocument();
-        $results = "";
         //for exporting both titles and authors:
          if ($validatedData['titles'] && $validatedData['authors'] ){
 
@@ -60,16 +56,14 @@ class AuthorsController extends Controller
                  $results = Books::with('authors')->get();
                   return FileExportController::exportToXML($results,[FileExportController::XML_BOOKS_WITH_AUTHORS, Authors::TABLE_NAME],
                       [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], FileExportController::XML_DATA_TAG);
-             }
-
-
+                }
              }
              //for exporting authors only:
           else if ($validatedData['authors'] && !$validatedData['titles'] ){
               $results = Authors::all();
 
-              return FileExportController::exportToXML($results,[$authorsDB],[],
-                  [$authorsFields],$dataTag);
+              return FileExportController::exportToXML($results,[Authors::TABLE_NAME],[], [Authors::FIELDS],
+                  FileExportController::XML_DATA_TAG);
          }
         //encloses the xml tags and return it:
 

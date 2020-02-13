@@ -10,10 +10,9 @@
     "require": {
         "php": "^7.2",
         "fideloper/proxy": "^4.0",
-        "grpc/grpc": "^v1.1.0",
         "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
-        "ext-json": "*"
+        "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
         "filp/whoops": "^2.0",
