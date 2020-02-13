@@ -9,6 +9,8 @@ use App\Exports\DBExport;
 use Faker\Provider\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 /** Controls the books stored on database.
  *  A book has a title and at least 1 author.
@@ -34,28 +36,31 @@ class BooksController extends Controller
     /**exports all books stored in the database to CSV.
      * @returns CSV file.
      */
-    public function exportToCSV(){
+    public function exportToCSV(Request $request){
+        if ( Str::contains($request->path(), PivotController::XML_BOOKS_AND_AUTHORS_PATH )){
+            $results = Books::with('authors')->get();
+            return $this->exportUtility->exportToXML($results,[PivotController::XML_BOOKS_AND_AUTHORS_PATH, Authors::TABLE_NAME],
+                [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], ExportUtilityController::XML_DATA_TAG);
+
+        }
         $data = Books::all();
         $this->export = new DBExport( $data , $this->exportUtility->extractHeadings($data));
         return $this->exportUtility->exportToCSV($this->export,'books.csv');
 
     }
+
+
         /**
      * Store a newly created book in database.
      *
-     * @param  \Illuminate\Http\Request  $request['title'], the title of the book.
-     * @return \Illuminate\Http\Response
+     * @param   String $title, the title of the book.
+     * @return Integer,   id of the book
      */
-    public function store(Request $request)
+    public function store($title  )
     {
-        $validatedData = $request->validate([
-            'title' => 'required'
-         ]);
-        $book = new Books;
-        $book->title = $validatedData['title'];
-        $book->save();
+         return DB::table(Books::TABLE_NAME)->insertGetId(["title" => $title ]);
 
-        return response()->json('Book created!');
+
     }
     /**
      * Remove the specified book from storage.
@@ -65,27 +70,26 @@ class BooksController extends Controller
      */
     public function destroy(Request $request)
     {
-        $validatedData = $request->validate([
-            'ID' => 'required'
+        $validator = Validator::make($request->all(), [
+            'ID' => 'required|numeric'
         ]);
-        return json_encode( DB::delete('DELETE FROM books WHERE ID = ?',[$validatedData['ID']]));
+        if ($validator->fails()) {
+            return ["message" => "invalid request", "code"=>400];
+        }
+
+        $affectedRows= DB::table(Books::TABLE_NAME)
+            ->where("ID", "=", $request->input('ID'))
+            ->delete();
+        return ["code" => 200,  "affectedRows" => $affectedRows] ;
 
     }
 
     //returns a list of sorted books alongside their authors.
-    public function getSortedBooks(){
-        //TODO : JOIN WITH author
-        $result = Books::with('authors')->orderBy('title')->get();
+    public function getSortedBooks()
+    {
+         $result = Books::with('authors')->orderBy('title')->get();
         return $result->toJson();
-//        return  json_encode(DB::table('books')->orderBy('title')->get());
-    }
-    public function index(Request $request){
-        $validatedData = $request->validate([
-            'title' => 'required'
-        ]);
-         return json_encode(DB::table('books')->where("title","=",$validatedData['title'])->get());
+     }
 
-
-    }
 
 }

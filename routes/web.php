@@ -33,8 +33,8 @@ Route::get('/book/list', 'BooksController@getBooks');
 /** exports a list of books and/or authors to XML. */
 Route::get('/export/XML/books', 'BooksController@exportToXML');
 Route::get('/export/XML/authors','AuthorsController@exportToXML');
-Route::get('/export/XML/books-and-authors','PivotController@exportToXML');
-Route::get('/export/XML/authors-and-books','PivotController@exportToXML');
+Route::get('/export/XML/books-and-authors','BooksController@exportToXML');
+Route::get('/export/XML/authors-and-books','AuthorsController@exportToXML');
 
 /** exports a list of books and/or authors to CSV. */
 Route::get('/export/CSV/authors-and-books','PivotController@exportToCSV');
@@ -43,13 +43,10 @@ Route::get('/export/CSV/books','BooksController@exportToCSV');
 
 
 /**
- *  adds a book to the list.
+ *  adds a book to the database, along with its respective new/existing authors,
+ * and authors are assigned to the book directly.
  */
-Route::post('/books','PivotController@store'  );
-/**
- * stores a new author.
-*/
-Route::post('/authors', 'AuthorsController@store');
+Route::post('/books','PivotController@createNewBook'  );
 
 /**
  *  deletes a book from the list.
@@ -66,7 +63,7 @@ Route::get('/books/sorted/authors', 'AuthorsController@getSortedAuthors');
 /**
  *  gets a sorted list of books by its title.
  */
-Route::get('/books/sorted/titles', 'BooksController@getSortedBooks');
+Route::get('/books/sorted/titles', 'PivotController@getSortedBooks');
 /**
  *  gets an author's list of books.
  */

@@ -8,6 +8,8 @@ use App\Exports\DBExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use XMLWriter;
 use FetchLeo\LaravelXml\Facades\Xml;
 
@@ -21,14 +23,21 @@ class AuthorsController extends Controller
     }
 
     public function update(Request $request){
-        $validatedData = $request->validate([
-            'firstName' => 'required',
-            'lastName' => 'required',
-            'ID' => 'required'
-        ]);
-        //TODO: FIND HOW TO CHANGE MULTIPLE VALS
 
-        return json_encode(DB::update('UPDATE authors SET firstName = "' . $validatedData['firstName'] . '" WHERE ID =' . $validatedData['authorID']  ));
+        $validator = Validator::make($request->all(), [
+            'firstName' => 'required|string',
+            'lastName' => 'required|string',
+            'ID' => 'required|numeric'
+        ]);
+        if ($validator->fails()) {
+            return ["message" => "invalid request", "code"=>400];
+        }
+        $updateData = ["firstName" => $request->input("firstName"),"lastName" => $request->input("lastName") ];
+        $affectedRows = DB::table(Authors::TABLE_NAME)
+            ->where('ID', '=',$request->input('ID'))
+            ->update($updateData);
+        return ["code" => 200, "affectedRows" => $affectedRows ];
+
     }
     public function getSortedAuthors()
     {
@@ -48,33 +57,25 @@ class AuthorsController extends Controller
     //for exporting author only / with book titles to xml
     public function exportToXML(Request $request)
     {
+        if(Str::contains($request->path(), PivotController::XML_AUTHORS_AND_BOOKS_PATH )){
+            $results = Authors::with('books')->get();
+            return $this->exportUtility->exportToXML($results,[PivotController::XML_AUTHORS_AND_BOOKS_PATH,Books::TABLE_NAME],
+                [Books::TABLE_NAME], [Authors::FIELDS,Books::FIELDS], ExportUtilityController::XML_DATA_TAG);
+        }
 
         return $this->exportUtility->exportToXML(Authors::all(),[Authors::TABLE_NAME],[], [Authors::FIELDS],
          ExportUtilityController::XML_DATA_TAG);
     }
 
     /**
-     * Store a newly created book in database.
+     * Store a newly created author in database.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param array  $newAuthor, containing author's firstName and lastName
+     * @return the id of the author
      */
-    public function store(Request $request)
+    public function store($newAuthor)
     {
-        $validatedData = $request->validate([
-            'firstName' => 'required',
-            'lastName' => 'required',
-            'ID' => 'required'
-        ]);
-
-        $author = new Authors;
-        $author->firstName = $validatedData['firstName'];
-        $author->lastName = $validatedData['lastName'];
-
-        $author->save();
-
-
-        return response()->json('author created!');
+         return DB::table(Authors::TABLE_NAME)->insertGetId($newAuthor);
     }
 
 
