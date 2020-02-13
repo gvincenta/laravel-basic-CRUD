@@ -30,9 +30,16 @@ class PivotController extends Controller
         $this->authorsController = new AuthorsController();
 
     }
-    //returns an author alongside his/her books.
-    public function show(Request $request)
+    /**
+     * handles searching for a book through its title/author.
+     * @param Illuminate\Http\Request $request, containing the title of the new book and its authors.
+     * @return  Illuminate\Http\Response  the book(s) according to title/author, if request is valid.
+     * @return Illuminate\Http\Response  invalid request message, if request is not valid.
+     */
+     public function show(Request $request)
     {
+        /* for authors, we need their firstName and lastName.
+         * for titles, we need the book's titles. */
         $validator = Validator::make($request->all(), [
             'firstName' => 'required_without:title|string',
             'lastName' =>'required_without:title|string',
@@ -42,32 +49,42 @@ class PivotController extends Controller
         if ($validator->fails()) {
             return ["message" => "invalid request", "code"=>400];
         }
+        //search by authors:
          if ($request->get("lastName")){
              return    $this->index()->where('authors.firstName' , '=', $request['firstName'])
                 ->where('authors.lastName' , '=', $request['lastName'] )->get();
-        } else if ($request->get("title")){
+        }
+         //search by titles:
+         else if ($request->get("title")){
              return    $this->index()->where('books.title' , '=', $request['title'])->get();
         }
     }
-
+    /**
+     * assigns an author to a book.
+     */
     public function store($authorID, $bookID  )
     {
         DB::table(PivotController::TABLE_NAME)->insert(["authors_ID" => $authorID,
             "books_ID" => $bookID]);
     }
+    /**
+     * creates a new book, and also assigns author(s) to it with database's transaction method.
+     * if the author(s) don't exist yet in the database, then we also add them to the database.
+     * @param Illuminate\Http\Request $request, containing the title of the new book and its authors.
+     * @return  Illuminate\Http\Response  success / invalid request message.
+     */
     public function createNewBook(Request $request){
 
         /* validation:
          * for existing author(s), we only need their ID
          * for new author(s) to be created, we need their firstName and lastName
          * we also need the book's title to create the new book
-         * note: the "string" keyword implicitly eliminates empty string.
-         * if validation failed, code does not proceed to the next step. */
+         * note: the "string" keyword implicitly eliminates empty string. */
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
-            'authors' => 'required_without:newAuthors',
-            'newAuthors'=>'required_without:authors',
+            'authors' => 'required_without:newAuthors', //for existing authors
+            'newAuthors'=>'required_without:authors', //for new authors to be added to DB.
             'newAuthors.*.firstName' => 'required_without:authors|string',
             'newAuthors.*.lastName' => 'required_without:authors|string',
             'authors.*.ID' => 'required_without:newAuthors|numeric'
@@ -75,7 +92,7 @@ class PivotController extends Controller
         if ($validator->fails()) {
             return ["message" => "invalid request", "code"=>400];
         }
-
+        //start transaction:
         return DB::transaction(function () use ($request) {
              //firstly, create new book:
             $bookID = $this->booksController->store($request->get("title"));
@@ -93,20 +110,26 @@ class PivotController extends Controller
                     $this->store($existingAuthor["ID"],$bookID);
                 }
             }
-            return ["message" => "books with their associated authors created successfully", "code"=>"200"] ;
+            return ["message" => "books with their associated authors created successfully", "code"=>200] ;
 
          });
 
     }
-
+    /**
+     * Joins the authors and their books together, and also includes authors that do not have books assigned to them.
+     * @return Illuminate\Database\Query\Builder the query.
+     */
     public function index(){
-        //note : authors_books.books_ID is selected to avoid same columns "ID" clashing.
+        //note : authors_books.books_ID is selected to avoid same columns "ID" clashing bug.
         return DB::table('authors_books')
             ->rightJoin(Authors::TABLE_NAME, 'authors.ID', '=', 'authors_books.authors_ID')
             ->leftJoin(Books::TABLE_NAME, 'books.ID', '=', 'authors_books.books_ID')
             ->select('authors.ID', 'authors.firstName', 'authors.lastName', 'authors_books.books_ID', 'books.title');
-    }
-
+     }
+    /**
+     * exports authors and their books into CSV file.
+     * @return CSV file.
+     */
     public function exportToCSV(){
         $query = $this->index();
         $this->export = new DBExport( $query->get(),$query->columns);

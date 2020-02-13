@@ -19,9 +19,14 @@ class AuthorsController extends Controller
     public function __construct()
     {
         $this->exportUtility = new ExportUtilityController();
-
     }
 
+    /**
+     * Updates an author's firstName and lastName.
+     * @param  \Illuminate\Http\Request  $request, containing ID of the author to be updated.
+     * @return \Illuminate\Http\Response the number of rows deleted, if request is valid.
+     * @return \Illuminate\Http\Response invalid request, if request is invalid.
+     */
     public function update(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -39,37 +44,47 @@ class AuthorsController extends Controller
         return ["code" => 200, "affectedRows" => $affectedRows ];
 
     }
+    /**
+     * Returns a list of sorted authors, alongside their books.
+     * @return \Illuminate\Http\Response  a nested json object of authors with books, sorted by authors' last name.
+     */
     public function getSortedAuthors()
     {
         $result = Authors::with('books')->orderBy('lastName')->get();
         return $result->toJson();
-
     }
 
-
-    public function exportToCSV(){
+    /**
+     * Exports all authors to csv file.
+     * @return  CSV file.
+     */
+    public function exportToCSV()
+    {
         $data = Authors::all();
         $this->export = new DBExport( $data , $this->exportUtility->extractHeadings($data));
         return $this->exportUtility->exportToCSV($this->export,'authors.csv');
-
     }
 
-    //for exporting author only / with book titles to xml
+    /**
+     * for exporting author only / with book titles from database to XML file.
+      * @param  Illuminate\Http\Request $request, containing the URL to identify which file is wanted.
+     * @return the CSV file requested.
+     */
     public function exportToXML(Request $request)
     {
+        //exports all authors, along with their books, from database to XML file:
         if(Str::contains($request->path(), PivotController::XML_AUTHORS_AND_BOOKS_PATH )){
             $results = Authors::with('books')->get();
             return $this->exportUtility->exportToXML($results,[PivotController::XML_AUTHORS_AND_BOOKS_PATH,Books::TABLE_NAME],
                 [Books::TABLE_NAME], [Authors::FIELDS,Books::FIELDS], ExportUtilityController::XML_DATA_TAG);
         }
-
+        //exports all authors from database  to XML file:
         return $this->exportUtility->exportToXML(Authors::all(),[Authors::TABLE_NAME],[], [Authors::FIELDS],
          ExportUtilityController::XML_DATA_TAG);
     }
 
     /**
      * Store a newly created author in database.
-     *
      * @param array  $newAuthor, containing author's firstName and lastName
      * @return the id of the author
      */
