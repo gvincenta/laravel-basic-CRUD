@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use XMLWriter;
 use FetchLeo\LaravelXml\Facades\Xml;
 
-class AuthorController extends Controller
+class AuthorsController extends Controller
 {
 
 

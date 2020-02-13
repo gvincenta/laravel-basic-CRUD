@@ -11,12 +11,10 @@ use Illuminate\Support\Facades\DB;
 /** Controls book on database.
  *  A book has a title and an author.
 */
-class BookController extends Controller
+class BooksController extends Controller
 {
     public function exportToXML(Request $request)
     {
-
-
         $results = Books::all();
         return FileExportController::exportToXML($results,[Books::TABLE_NAME],[],[Books::FIELDS],FileExportController::XML_DATA_TAG);
 
