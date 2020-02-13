@@ -49,29 +49,29 @@ Route::post('/books','PivotController@store'  );
 /**
  * stores a new author.
 */
-Route::post('/author', 'AuthorsController@store');
+Route::post('/authors', 'AuthorsController@store');
 
 /**
  *  deletes a book from the list.
  */
-Route::delete('/book','BooksController@destroy'  );
+Route::delete('/books','BooksController@destroy'  );
 /**
  *  change an author's name (firstName and lastName).
  */
-Route::put('/author','AuthorsController@update'  );
+Route::put('/authors','AuthorsController@update'  );
 /**
  *  gets a sorted list of books by its author.
  */
-Route::get('/book/sorted/author', 'AuthorsController@getSortedAuthors');
+Route::get('/books/sorted/authors', 'AuthorsController@getSortedAuthors');
 /**
  *  gets a sorted list of books by its title.
  */
-Route::get('/book/sorted/title', 'BooksController@getSortedBooks');
+Route::get('/books/sorted/titles', 'BooksController@getSortedBooks');
 /**
  *  gets an author's list of books.
  */
-Route::get('/author/', 'AuthorsController@show');
+Route::get('/authors', 'AuthorsController@show');
 /**
  *  gets a book by its title.
  */
-Route::get('/book', 'BooksController@index');
+Route::get('/books', 'BooksController@index');
