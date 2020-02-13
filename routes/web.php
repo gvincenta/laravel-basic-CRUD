@@ -30,24 +30,17 @@ Route::get('/book/list', 'BooksController@getBooks');
 //Route::get('/author','AuthorsController@getAuthor'  );
 
 
-/** exports a list of books and/or authors to xml. */
-Route::get('/export/XML', function (Request $request){
-    $validatedData = $request->validate([
-        'titles' => 'required',
-        'authors' => 'required'
-    ]);
-    if ($validatedData['authors']){
-        $authorController = new AuthorsController();
-        return  $authorController->exportToXML($request);
-     }
-    else if ($validatedData['titles'] && !$validatedData['authors'] ){
-        $bookController = new BooksController();
-        return  $bookController->exportToXML($request);
-    }
-});
+/** exports a list of books and/or authors to XML. */
+Route::get('/export/XML/books', 'BooksController@exportToXML');
+Route::get('/export/XML/authors','AuthorsController@exportToXML');
+Route::get('/export/XML/books-and-authors','PivotController@exportToXML');
+Route::get('/export/XML/authors-and-books','PivotController@exportToXML');
 
-/** exports a list of books and/or authors to csv. */
-Route::get('/export/CSV', 'FileExportController@exportToCSV');
+/** exports a list of books and/or authors to CSV. */
+Route::get('/export/CSV/authors-and-books','PivotController@exportToCSV');
+Route::get('/export/CSV/authors','AuthorsController@exportToCSV');
+Route::get('/export/CSV/books','BooksController@exportToCSV');
+
 
 /**
  *  adds a book to the list.

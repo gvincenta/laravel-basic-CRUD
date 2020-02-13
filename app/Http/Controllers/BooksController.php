@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Authors;
 use App\Books;
+use App\Exports\BooksExport;
+use App\Exports\DBExport;
 use Faker\Provider\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,10 +15,23 @@ use Illuminate\Support\Facades\DB;
 */
 class BooksController extends Controller
 {
+    private $export,$exportUtility;
+
+    public function __construct()
+    {
+        $this->exportUtility = new ExportUtilityController();
+
+    }
     public function exportToXML(Request $request)
     {
-        $results = Books::all();
-        return FileExportController::exportToXML($results,[Books::TABLE_NAME],[],[Books::FIELDS],FileExportController::XML_DATA_TAG);
+
+        return $this->exportUtility->exportToXML(Books::all(),
+            [Books::TABLE_NAME],[],[Books::FIELDS],ExportUtilityController::XML_DATA_TAG);
+    }
+    public function exportToCSV(){
+        $data = Books::all();
+        $this->export = new DBExport( $data , $this->exportUtility->extractHeadings($data));
+        return $this->exportUtility->exportToCSV($this->export,'books.csv');
 
     }
         /**

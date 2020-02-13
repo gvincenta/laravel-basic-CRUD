@@ -3,44 +3,39 @@
 namespace App\Http\Controllers;
 
  use App\Books;
- use App\Exports\AuthorsAndBooksExport;
+ use App\Exports\PivotExport;
  use App\Exports\AuthorsExport;
  use App\Exports\BooksExport;
  use App\Exports\DBExport;
  use Illuminate\Http\Request;
  use Maatwebsite\Excel\Facades\Excel;
+ use XMLWriter;
+
  /**
- * handles exporting database files into CSV and XML.
+ * controls how to export to CSV and XML.
 */
-class FileExportController extends Controller
+class ExportUtilityController extends Controller
 {
     public const XML_DATA_TAG = 'data';
     public const XML_BOOKS_WITH_AUTHORS = 'books-with-authors';
     public const XML_AUTHORS_WITH_BOOKS = 'authors-with-books';
-    private $export = null;
 
-    public function decideExportClass($titles, $authors){
-
-        if ($titles && $authors  ){
-            $this->export = new AuthorsAndBooksExport();
+    //extract the table's column names from an array of json.
+    //code adapted from : https://stackoverflow.com/questions/10914687/retrieving-array-keys-from-json-input/32778117
+    public function extractHeadings($exportData){
+        $headings = [];
+        if (count($exportData) > 0){
+            $data = $exportData[0];
+            foreach(json_decode($data) as $key => $val) {
+                array_push($headings,$key);
+            }
         }
-        else if (!$titles && $authors){
-            $this->export = new AuthorsExport();
-        }
-        else if ($titles && !$authors){
-            $this->export = new BooksExport();
-        }
+        return $headings;
     }
-     public function exportToCSV(Request $request)
-    {
-        $validatedData = $request->validate([
-            'titles' => 'required',
-            'authors' => 'required'
-        ]);
-        $this->decideExportClass($validatedData['titles'],$validatedData['authors']);
-        $data = Excel::download($this->export, 'disney.csv' );
-        return $data;
 
+     public function exportToCSV(  $export, $fileName )
+    {
+         return Excel::download($export, $fileName );
     }
 
 
@@ -55,7 +50,7 @@ class FileExportController extends Controller
 
         //loop through each json item in the array:
         foreach($array as $json) {
-            FileExportController::constructChild($xml,$childKeys,$attributes,1,$dataTag,$nestedTags, $json);
+            ExportUtilityController::constructChild($xml,$childKeys,$attributes,1,$dataTag,$nestedTags, $json);
 
         }
 
@@ -79,12 +74,12 @@ class FileExportController extends Controller
             //if we have child objects that needs to be parsed:
             if (count($childObjects) >0){
                 //firstly, parse the current data, but don't close it yet:
-                FileExportController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], false );
+                ExportUtilityController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], false );
                 //init the child object:
                 $xml->startElement($nestedTags[$counter]);
                 //run through each child object, in case they have further child element(s) that needs to be parsed:
                 foreach ($childObjects as $child){
-                    FileExportController::constructChild($xml,$childKeys,$attributes,$counter+1,$dataTag,$nestedTags, $child);
+                    ExportUtilityController::constructChild($xml,$childKeys,$attributes,$counter+1,$dataTag,$nestedTags, $child);
                 }
                 //close the child object:
                 $xml->endElement();
@@ -96,7 +91,7 @@ class FileExportController extends Controller
             }
         }
         //if we do not expect further child elements, parse the current data:
-        FileExportController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], true );
+        ExportUtilityController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], true );
 
 
 

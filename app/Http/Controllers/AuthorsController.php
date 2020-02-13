@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Authors;
 use App\Books;
+use App\Exports\DBExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +13,12 @@ use FetchLeo\LaravelXml\Facades\Xml;
 
 class AuthorsController extends Controller
 {
+    private $export,$exportUtility;
+    public function __construct()
+    {
+        $this->exportUtility = new ExportUtilityController();
 
-
-
+    }
     //returns an author alongside his/her books.
     public function show($name){
         $result = Authors::with('books')->get();
@@ -36,48 +40,22 @@ class AuthorsController extends Controller
         return $result->toJson();
 
     }
-    //for exporting author only / with book titles to xml
-    public function exportToXML(Request $request){
 
-        $validatedData = $request->validate([
-            'titles' => 'required',
-            'authors' => 'required'
-        ]);
 
-        //for exporting both titles and authors:
-         if ($validatedData['titles'] && $validatedData['authors'] ){
-
-             if ($request->input('variation') == FileExportController::XML_AUTHORS_WITH_BOOKS){
-                $results = Authors::with('books')->get();
-                return FileExportController::exportToXML($results,[FileExportController::XML_AUTHORS_WITH_BOOKS,Books::TABLE_NAME],
-                 [Books::TABLE_NAME], [Authors::FIELDS,Books::FIELDS], FileExportController::XML_DATA_TAG);
-            }
-             else if ($request->input('variation') == "books-with-authors"){
-                 $results = Books::with('authors')->get();
-                  return FileExportController::exportToXML($results,[FileExportController::XML_BOOKS_WITH_AUTHORS, Authors::TABLE_NAME],
-                      [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], FileExportController::XML_DATA_TAG);
-                }
-             }
-             //for exporting authors only:
-          else if ($validatedData['authors'] && !$validatedData['titles'] ){
-              $results = Authors::all();
-
-              return FileExportController::exportToXML($results,[Authors::TABLE_NAME],[], [Authors::FIELDS],
-                  FileExportController::XML_DATA_TAG);
-         }
-        //encloses the xml tags and return it:
-
-        $xml->endElement();
-        $xml->endDocument();
-
-        $content = $xml->outputMemory();
-        $xml = null;
-
-        return response($content)->header('Content-Type', 'text/xml');
+    public function exportToCSV(){
+        $data = Authors::all();
+        $this->export = new DBExport( $data , $this->exportUtility->extractHeadings($data));
+        return $this->exportUtility->exportToCSV($this->export,'authors.csv');
 
     }
 
+    //for exporting author only / with book titles to xml
+    public function exportToXML(Request $request)
+    {
 
+        return $this->exportUtility->exportToXML(Authors::all(),[Authors::TABLE_NAME],[], [Authors::FIELDS],
+         ExportUtilityController::XML_DATA_TAG);
+    }
 
     /**
      * Store a newly created book in database.
