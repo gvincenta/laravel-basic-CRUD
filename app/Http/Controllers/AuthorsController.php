@@ -22,21 +22,24 @@ class AuthorsController extends Controller
     //returns an author alongside his/her books.
     public function show($name){
         $result = Authors::with('books')->get();
+        //TODO: change name to firstName and lastName
         $result->where("name","=","$name")->get();
         return $result->toJson();
 
     }
     public function update(Request $request){
         $validatedData = $request->validate([
-            'name' => 'required',
-            'authorID' => 'required'
+            'firstName' => 'required',
+            'lastName' => 'required',
+            'ID' => 'required'
         ]);
+        //TODO: FIND HOW TO CHANGE MULTIPLE VALS
 
-        return json_encode(DB::update('UPDATE authors SET name = "' . $validatedData['name'] . '" WHERE authorID =' . $validatedData['authorID']  ));
+        return json_encode(DB::update('UPDATE authors SET firstName = "' . $validatedData['firstName'] . '" WHERE ID =' . $validatedData['authorID']  ));
     }
     public function getSortedAuthors()
     {
-        $result = Authors::with('books')->orderBy('name')->get();
+        $result = Authors::with('books')->orderBy('lastName')->get();
         return $result->toJson();
 
     }
@@ -66,16 +69,17 @@ class AuthorsController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required',
-            'bookID' => 'required'
+            'firstName' => 'required',
+            'lastName' => 'required',
+            'ID' => 'required'
         ]);
 
         $author = new Authors;
-        $author->name = $validatedData['name'];
+        $author->firstName = $validatedData['firstName'];
+        $author->lastName = $validatedData['lastName'];
 
         $author->save();
-        $book = Books::find($validatedData['bookID']);
-         $author->books()->attach($book);
+
 
         return response()->json('author created!');
     }

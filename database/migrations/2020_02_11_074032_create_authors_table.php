@@ -14,12 +14,12 @@ class CreateAuthorsTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('authors');
-        Schema::create('authors', function (Blueprint $table) {
-            $table->bigIncrements('authorID');
-            $table->string('name');
-             $table->timestamps();
-        });
+         Schema::create('authors', function (Blueprint $table) {
+            $table->increments('ID');
+            $table->string('firstName');
+             $table->string('lastName');
+
+         });
     }
 
     /**

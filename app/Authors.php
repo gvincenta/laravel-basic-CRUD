@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Authors extends Model
 {
     protected $table = 'authors';
-    public $primaryKey = 'authorID';
-    public const FIELDS =  ['authorID','name','created_at','updated_at'];
+    public $primaryKey = 'ID';
+    public const FIELDS =  ['ID','firstName','lastName'];
     public const TABLE_NAME = "authors";
 
     public function books()

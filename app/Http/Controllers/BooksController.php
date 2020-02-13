@@ -10,24 +10,30 @@ use Faker\Provider\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-/** Controls book on database.
- *  A book has a title and an author.
+/** Controls the books stored on database.
+ *  A book has a title and at least 1 author.
 */
 class BooksController extends Controller
 {
     private $export,$exportUtility;
+
 
     public function __construct()
     {
         $this->exportUtility = new ExportUtilityController();
 
     }
-    public function exportToXML(Request $request)
+    /**exports all books stored in the database to XML.
+     * @returns XML file.
+     */
+    public function exportToXML()
     {
-
         return $this->exportUtility->exportToXML(Books::all(),
             [Books::TABLE_NAME],[],[Books::FIELDS],ExportUtilityController::XML_DATA_TAG);
     }
+    /**exports all books stored in the database to CSV.
+     * @returns CSV file.
+     */
     public function exportToCSV(){
         $data = Books::all();
         $this->export = new DBExport( $data , $this->exportUtility->extractHeadings($data));
@@ -37,21 +43,22 @@ class BooksController extends Controller
         /**
      * Store a newly created book in database.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request['title'], the title of the book.
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
             'title' => 'required'
-        ]);
+         ]);
+        $book = new Books;
+        $book->title = $validatedData['title'];
+        $book->save();
 
-        $book = DB::insert('INSERT INTO books (title) VALUES (?);', [$validatedData['title']]);
-
-        return response()->json('Project created!');
+        return response()->json('Book created!');
     }
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified book from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -59,16 +66,11 @@ class BooksController extends Controller
     public function destroy(Request $request)
     {
         $validatedData = $request->validate([
-            'bookID' => 'required'
+            'ID' => 'required'
         ]);
-        return json_encode( DB::delete('DELETE FROM books WHERE bookID = ?',[$validatedData['bookID']]));
+        return json_encode( DB::delete('DELETE FROM books WHERE ID = ?',[$validatedData['ID']]));
 
     }
-
-
-
-
-
 
     //returns a list of sorted books alongside their authors.
     public function getSortedBooks(){
