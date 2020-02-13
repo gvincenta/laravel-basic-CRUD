@@ -19,14 +19,7 @@ class AuthorsController extends Controller
         $this->exportUtility = new ExportUtilityController();
 
     }
-    //returns an author alongside his/her books.
-    public function show($name){
-        $result = Authors::with('books')->get();
-        //TODO: change name to firstName and lastName
-        $result->where("name","=","$name")->get();
-        return $result->toJson();
 
-    }
     public function update(Request $request){
         $validatedData = $request->validate([
             'firstName' => 'required',

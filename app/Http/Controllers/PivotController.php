@@ -8,6 +8,7 @@ use App\Exports\DBExport;
 use App\Exports\PivotExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 /**
@@ -26,14 +27,38 @@ class PivotController extends Controller
         $this->exportUtility = new ExportUtilityController();
 
     }
+    //returns an author alongside his/her books.
+    public function show(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'firstName' => 'required_without:title|string',
+            'lastName' =>'required_without:title|string',
+            'title' => 'required_without:firstName,lastName|string'
+        ]);
+
+        if ($validator->fails()) {
+            return ["message" => "invalid request", "code"=>"400"];
+        }
+         $lastName = "lastName";
+        if ($request->get("lastName")){
+             return    $this->index()->where('authors.firstName' , '=', $request['firstName'])
+                ->where('authors.lastName' , '=', $request['lastName'] )->get();
+        } else if ($request->get("title")){
+             return    $this->index()->where('books.title' , '=', $request['title'])->get();
+        }
+
+
+
+    }
     public function store(Request $request){
- 
+
         /* validation:
          * for existing author(s), we only need their ID
          * for new author(s) to be created, we need their firstName and lastName
          * we also need the book's title to create the new book
          * note: the "string" keyword implicitly eliminates empty string.
          * if validation failed, code does not proceed to the next step. */
+        //TODO: Change to validator to avoid infinite loop and return error appropriately.
         $validatedData = $request->validate([
             'title' => 'required|string',
             'authors' => 'required_without:newAuthors',
@@ -42,6 +67,7 @@ class PivotController extends Controller
             'newAuthors.*.lastName' => 'required_without:authors|string',
             'authors.*.ID' => 'required_without:newAuthors|numeric'
         ]);
+        //TODO: breakdown each storing function.
 
         return DB::transaction(function () use ($validatedData) {
              //firstly create new book:
@@ -74,7 +100,7 @@ class PivotController extends Controller
         return DB::table('authors_books')
             ->rightJoin(Authors::TABLE_NAME, 'authors.ID', '=', 'authors_books.authors_ID')
             ->leftJoin(Books::TABLE_NAME, 'books.ID', '=', 'authors_books.books_ID')
-            ->select('authors.ID', 'authors.name', 'books.ID', 'books.title');
+            ->select('authors.ID', 'authors.firstName', 'authors.lastName', 'books.ID', 'books.title');
     }
 
 

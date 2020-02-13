@@ -70,7 +70,7 @@ Route::get('/books/sorted/titles', 'BooksController@getSortedBooks');
 /**
  *  gets an author's list of books.
  */
-Route::get('/authors', 'AuthorsController@show');
+Route::get('/authors', 'PivotController@show');
 /**
  *  gets a book by its title.
  */
