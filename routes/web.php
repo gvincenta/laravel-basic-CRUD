@@ -45,7 +45,7 @@ Route::get('/export/CSV/books','BooksController@exportToCSV');
 /**
  *  adds a book to the list.
  */
-Route::post('/book','BooksController@store'  );
+Route::post('/books','PivotController@store'  );
 /**
  * stores a new author.
 */
@@ -56,7 +56,7 @@ Route::post('/author', 'AuthorsController@store');
  */
 Route::delete('/book','BooksController@destroy'  );
 /**
- *  change an author's name.
+ *  change an author's name (firstName and lastName).
  */
 Route::put('/author','AuthorsController@update'  );
 /**
