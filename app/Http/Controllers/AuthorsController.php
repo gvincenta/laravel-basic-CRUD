@@ -84,7 +84,7 @@ class AuthorsController extends Controller
         //exports all authors, along with their books, from database to XML file:
         if(Str::contains($request->path(), AuthorsController::XML_AUTHORS_AND_BOOKS_PATH )){
             $results = Authors::with('books')->get();
-            return $this->exportUtility->exportToXML($results,[AuthorsController::XML_AUTHORS_AND_BOOKS_PATH,Books::TABLE_NAME],
+            return $this->exportUtility->exportToXML($results,[Authors::TABLE_NAME,Books::TABLE_NAME],
                 [Books::TABLE_NAME], [Authors::FIELDS,Books::FIELDS], ExportUtilityController::XML_DATA_TAG);
         }
         //exports all authors from database  to XML file:

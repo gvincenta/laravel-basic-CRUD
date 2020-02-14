@@ -33,7 +33,7 @@ class BooksController extends Controller
         //handles request for books and authors XML file. (i.e. books nested with the respective authors).
         if ( Str::contains($request->path(), BooksController::XML_BOOKS_AND_AUTHORS_PATH )){
             $results = Books::with('authors')->get();
-            return $this->exportUtility->exportToXML($results,[BooksController::XML_BOOKS_AND_AUTHORS_PATH, Authors::TABLE_NAME],
+            return $this->exportUtility->exportToXML($results,[Books::TABLE_NAME, Authors::TABLE_NAME],
                 [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], ExportUtilityController::XML_DATA_TAG);
 
         }
