@@ -11,14 +11,23 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use XMLWriter;
-use FetchLeo\LaravelXml\Facades\Xml;
 
 class AuthorsController extends Controller
 {
     private $export,$exportUtility;
+    public const XML_AUTHORS_AND_BOOKS_PATH = "with-books";
+
     public function __construct()
     {
         $this->exportUtility = new ExportUtilityController();
+    }
+    /**
+     * Returns a list of books.
+     * @return \Illuminate\Http\Response a nested json object of books with authors (not sorted).
+     */
+    public function index()
+    {
+        return Authors::all()->get()->toJson();
     }
 
     /**
@@ -73,9 +82,9 @@ class AuthorsController extends Controller
     public function exportToXML(Request $request)
     {
         //exports all authors, along with their books, from database to XML file:
-        if(Str::contains($request->path(), PivotController::XML_AUTHORS_AND_BOOKS_PATH )){
+        if(Str::contains($request->path(), AuthorsController::XML_AUTHORS_AND_BOOKS_PATH )){
             $results = Authors::with('books')->get();
-            return $this->exportUtility->exportToXML($results,[PivotController::XML_AUTHORS_AND_BOOKS_PATH,Books::TABLE_NAME],
+            return $this->exportUtility->exportToXML($results,[AuthorsController::XML_AUTHORS_AND_BOOKS_PATH,Books::TABLE_NAME],
                 [Books::TABLE_NAME], [Authors::FIELDS,Books::FIELDS], ExportUtilityController::XML_DATA_TAG);
         }
         //exports all authors from database  to XML file:

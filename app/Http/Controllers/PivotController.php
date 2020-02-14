@@ -17,8 +17,7 @@ use Illuminate\Support\Str;
 */
 class PivotController extends Controller
 {
-    public const XML_BOOKS_AND_AUTHORS_PATH = "books-and-authors";
-    public const XML_AUTHORS_AND_BOOKS_PATH = "authors-and-books";
+
     public const TABLE_NAME = "authors_books";
 
     private $exportUtility, $export,$booksController,$authorsController;

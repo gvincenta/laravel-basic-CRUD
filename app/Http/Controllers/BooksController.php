@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 class BooksController extends Controller
 {
     private $export,$exportUtility;
-
+    public const XML_BOOKS_AND_AUTHORS_PATH = "with-authors";
 
     public function __construct()
     {
@@ -32,9 +32,9 @@ class BooksController extends Controller
     public function exportToXML(Request $request)
     {
         //handles request for books and authors XML file. (i.e. books nested with the respective authors).
-        if ( Str::contains($request->path(), PivotController::XML_BOOKS_AND_AUTHORS_PATH )){
+        if ( Str::contains($request->path(), BooksController::XML_BOOKS_AND_AUTHORS_PATH )){
             $results = Books::with('authors')->get();
-            return $this->exportUtility->exportToXML($results,[PivotController::XML_BOOKS_AND_AUTHORS_PATH, Authors::TABLE_NAME],
+            return $this->exportUtility->exportToXML($results,[BooksController::XML_BOOKS_AND_AUTHORS_PATH, Authors::TABLE_NAME],
                 [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], ExportUtilityController::XML_DATA_TAG);
 
         }
@@ -93,6 +93,13 @@ class BooksController extends Controller
     {
          $result = Books::with('authors')->orderBy('title')->get();
         return $result->toJson();
+     }
+    /**
+     * Returns a list of books.
+     * @return \Illuminate\Http\Response a nested json object of books with authors (not sorted).
+     */
+     public function index(){
+         return Books::with('authors')->get()->toJson();
      }
 
 
