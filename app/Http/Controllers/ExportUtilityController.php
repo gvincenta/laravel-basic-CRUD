@@ -14,11 +14,10 @@ namespace App\Http\Controllers;
  /**
  * Controls how to export to CSV and XML.
 */
+ //TODO : proper documentation of how exporting works.
 class ExportUtilityController extends Controller
 {
     public const XML_DATA_TAG = 'data';
-    public const XML_BOOKS_WITH_AUTHORS = 'books-with-authors';
-    public const XML_AUTHORS_WITH_BOOKS = 'authors-with-books';
 
     /**
      * extract the table's column names from an array of json.
