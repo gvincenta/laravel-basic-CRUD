@@ -125,3 +125,5 @@ fabric.properties
 .idea/**/markdown-navigator/
 
 .env.example
+.idea/basic.iml
+.idea/php.xml
