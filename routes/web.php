@@ -59,3 +59,6 @@ Route::put('/authors','AuthorsController@update'  );
 
 /** gets an author's list of books or a book, indicated by author's name details or book title. */
 Route::get('/authors/with-filter', 'PivotController@show');
+Route::get('/', function (){
+    return view('welcome');
+});
