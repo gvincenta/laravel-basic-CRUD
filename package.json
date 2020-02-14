@@ -23,6 +23,9 @@
     },
     "dependencies": {
         "bootstrap": "^4.4.1",
-        "react-bootstrap": "^1.0.0-beta.16"
+        "react-bootstrap": "^1.0.0-beta.16",
+        "react-router-dom": "^5.1.2",
+        "react-table-6": "^6.11.0",
+        "react-table-v6": "^6.8.6"
     }
 }
