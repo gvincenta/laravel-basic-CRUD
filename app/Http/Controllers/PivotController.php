@@ -49,12 +49,12 @@ class PivotController extends Controller
         }
         //search by authors:
          if ($request->get("lastName")){
-             return    $this->index()->where('authors.firstName' , '=', $request['firstName'])
+             return    $this->query()->where('authors.firstName' , '=', $request['firstName'])
                 ->where('authors.lastName' , '=', $request['lastName'] )->get();
         }
          //search by titles:
          else if ($request->get("title")){
-             return    $this->index()->where('books.title' , '=', $request['title'])->get();
+             return    $this->query()->where('books.title' , '=', $request['title'])->get();
         }
     }
     /**
@@ -114,22 +114,31 @@ class PivotController extends Controller
 
     }
     /**
-     * Joins the authors and their books together, and also includes authors that do not have books assigned to them.
+     * Executes a query for index() function.
      * @return Illuminate\Database\Query\Builder the query.
      */
-    public function index(){
+    public function query(){
         //note : authors_books.books_ID is selected to avoid same columns "ID" clashing bug.
         return DB::table('authors_books')
             ->rightJoin(Authors::TABLE_NAME, 'authors.ID', '=', 'authors_books.authors_ID')
             ->leftJoin(Books::TABLE_NAME, 'books.ID', '=', 'authors_books.books_ID')
-            ->select('authors.ID', 'authors.firstName', 'authors.lastName', 'authors_books.books_ID', 'books.title');
+            ->select('authors.ID', 'authors.firstName', 'authors.lastName', 'authors_books.books_ID',
+                'books.title');
+     }
+    /**
+     *  Gets a result from a query that joins the authors and their books together, and also includes authors that
+     * do not have books assigned to them.
+     * @return Illuminate\Support\Collection the query result.
+     */
+     public function index(){
+        return $this->query()->get();
      }
     /**
      * exports authors and their books into CSV file.
      * @return CSV file.
      */
     public function exportToCSV(){
-        $query = $this->index();
+        $query = $this->query();
         $this->export = new DBExport( $query->get(),$query->columns);
         return $this->exportUtility->exportToCSV($this->export,'authors.csv');
 

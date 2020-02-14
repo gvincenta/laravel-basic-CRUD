@@ -31,7 +31,7 @@ Route::post('/api/books','PivotController@createNewBook'  );
 Route::delete('/api/books','BooksController@destroy'  );
 
 /** gets a book by its title. */
-Route::get('/api/books', 'BooksController@index');
+Route::get('/api/books', 'PivotController@index');
 
 
 /** gets a sorted list of books by its author. */
