@@ -4,14 +4,34 @@ import Axios from 'axios';
 import ReactTable from 'react-table-6'
 import 'react-table-6/react-table.css'
 import Spinner from '../Spinner';
-
+import {Button} from 'react-bootstrap';
  export default function Main(props) {
 
     const [books, setBooks] = useState([]);
     const [status, setStatus] = useState('');
     const columns = [
         {Header: 'bookID',
-         accessor: 'books_ID'} ,
+         accessor: 'books_ID',
+         Cell: props => {
+                     if (props.value){
+                             return <td>  { props.value} <Button onClick={
+                                    (e)=>{
+                                    e.preventDefault();
+                                    //TODO: PROMPT USERS BEFORE DELETE:
+                                    console.log(props.value, "ONCLICK");
+                                    Axios.delete("/api/books", {
+                                        data :{
+                                            'ID' : props.value
+                                        }
+                                    }).then((res) =>{
+                                        console.log(res,"AFTER DELETE");
+                                    })
+                                    }
+                             }> delete </Button>   </td>
+                     }else{
+                     return <td></td>
+                     }
+                  } } ,
         {Header: 'Title',
         accessor: 'title'},
         {Header: 'authorID',
