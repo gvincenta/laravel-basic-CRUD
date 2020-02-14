@@ -27,7 +27,7 @@ class AuthorsController extends Controller
      */
     public function index()
     {
-        return Authors::all()->get()->toJson();
+        return Authors::all()->toJson();
     }
 
     /**
