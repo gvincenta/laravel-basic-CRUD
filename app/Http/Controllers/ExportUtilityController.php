@@ -2,14 +2,8 @@
 
 namespace App\Http\Controllers;
 
- use App\Books;
- use App\Exports\PivotExport;
- use App\Exports\AuthorsExport;
- use App\Exports\BooksExport;
- use App\Exports\DBExport;
- use Illuminate\Http\Request;
- use Maatwebsite\Excel\Facades\Excel;
- use XMLWriter;
+use Maatwebsite\Excel\Facades\Excel;
+use XMLWriter;
 
  /**
  * Controls how to export to CSV and XML.

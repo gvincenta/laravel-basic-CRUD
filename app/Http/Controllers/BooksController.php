@@ -6,7 +6,6 @@ use App\Authors;
 use App\Books;
 use App\Exports\BooksExport;
 use App\Exports\DBExport;
-use Faker\Provider\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;

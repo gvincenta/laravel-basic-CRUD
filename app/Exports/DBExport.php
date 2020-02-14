@@ -2,12 +2,10 @@
 
 namespace App\Exports;
 
- use App\Authors;
- use App\Books;
- use Illuminate\Support\Facades\DB;
- use Maatwebsite\Excel\Concerns\FromCollection;
- use Maatwebsite\Excel\Concerns\WithHeadings;
- use Maatwebsite\Excel\Concerns\Exportable;
+
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+
 
    class DBExport implements FromCollection,WithHeadings
 {

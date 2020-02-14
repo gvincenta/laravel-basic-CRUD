@@ -9,7 +9,6 @@ use App\Exports\PivotExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 /**
  * In order to avoid confusion, Pivot refers to the authors_books table that handles the many to many relationship\
