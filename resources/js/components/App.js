@@ -6,6 +6,7 @@ import {BrowserRouter,Route,Link,Switch} from 'react-router-dom';
 import Main from './Books/Main';
 import Table from './Authors/Table';
 import {Accordion,Card,Button} from 'react-bootstrap';
+import Add from './Books/Add';
 export default function App(props) {
      const [action,setAction] = useState('');
     const [status,setStatus] = useState('');
@@ -13,28 +14,51 @@ export default function App(props) {
 
 
     return (
-        <Accordion defaultActiveKey="0">
-            <Card>
-                <Card.Header>
-                    <Accordion.Toggle variant="link" eventKey="0">
-                        Books And Authors
-                    </Accordion.Toggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey="0">
-                    <Main/>
-                </Accordion.Collapse>
-            </Card>
+        <div>
+            <Navigation/>
+            <Accordion defaultActiveKey="0">
+                <Card>
+                    <Card.Header>
+                        <Accordion.Toggle variant="link" eventKey="0">
+                            Books And Authors
+                        </Accordion.Toggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey="0">
+                        <Main/>
+                    </Accordion.Collapse>
+                </Card>
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="1">
-                            Authors
+                                Add / Update...
                         </Accordion.Toggle>
                     </Card.Header>
-                        <Accordion.Collapse eventKey="1">
-                            <Table/>
-                        </Accordion.Collapse>
+                    <Accordion.Collapse eventKey="1">
+                        <Add/>
+                    </Accordion.Collapse>
                     </Card>
-        </Accordion>
+                <Card>
+                    <Card.Header>
+                        <Accordion.Toggle variant="link" eventKey="2">
+                            Export To...
+                        </Accordion.Toggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey="2">
+                        <Table/>
+                    </Accordion.Collapse>
+                </Card>
+                <Card>
+                    <Card.Header>
+                        <Accordion.Toggle variant="link" eventKey="3">
+                            Search Results
+                        </Accordion.Toggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey="3">
+                        <Table/>
+                    </Accordion.Collapse>
+                </Card>
+            </Accordion>
+        </div>
 
 
 
