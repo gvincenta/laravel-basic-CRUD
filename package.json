@@ -25,9 +25,13 @@
         "@material-ui/core": "^4.9.2",
         "@material-ui/lab": "^4.0.0-alpha.42",
         "bootstrap": "^4.4.1",
+        "js-file-download": "^0.4.9",
         "react-bootstrap": "^1.0.0-beta.16",
+        "react-csv": "^2.0.1",
+        "react-csv-to-table": "0.0.4",
         "react-router-dom": "^5.1.2",
         "react-table-6": "^6.11.0",
-        "react-table-v6": "^6.8.6"
+        "react-table-v6": "^6.8.6",
+        "react-xml-viewer": "^1.0.3"
     }
 }
