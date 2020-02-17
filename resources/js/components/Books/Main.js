@@ -26,7 +26,9 @@ export default function Main(props) {
                                     }).then((res) =>{
                                         console.log(res,"AFTER DELETE");
                                         //handle success / failure:
-                                        setStatus("loading");
+                                        window.location.reload();
+
+
                                     })
                                     }
                              }> delete </Button>   </div>
@@ -46,10 +48,7 @@ export default function Main(props) {
     //fetch books and authors from backend:
     useEffect(()=>{
         if (status==="loading"){
-            if (props.onReload){
-                props.onReload();
-                return;
-            }
+
             Axios.get('/api/books')
                           .then((res) => {
                                // console.log("Main",res);
