@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import MainFunctions from './Forms/MainFunctions';
-import Search from './Search/Search';
+ import Search from './Search/Search';
 import {BrowserRouter,Route,Link,Switch} from 'react-router-dom';
 import Main from './Books/Main';
 import Table from './Authors/Table';
