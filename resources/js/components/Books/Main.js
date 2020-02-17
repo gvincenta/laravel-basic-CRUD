@@ -5,16 +5,16 @@ import ReactTable from 'react-table-6'
 import 'react-table-6/react-table.css'
 import Spinner from '../Spinner';
 import {Button} from 'react-bootstrap';
- export default function Main(props) {
+export default function Main(props) {
 
-    const [books, setBooks] = useState([]);
-    const [status, setStatus] = useState('');
+    const [data, setData] = useState(props.data||[]);
+    const [status, setStatus] = useState(props.status||'loading');
     const columns = [
         {Header: 'bookID',
          accessor: 'books_ID',
          Cell: props => {
                      if (props.value){
-                             return <td>  { props.value} <Button onClick={
+                             return <div>  { props.value} <Button onClick={
                                     (e)=>{
                                     e.preventDefault();
                                     //TODO: PROMPT USERS BEFORE DELETE:
@@ -25,9 +25,11 @@ import {Button} from 'react-bootstrap';
                                         }
                                     }).then((res) =>{
                                         console.log(res,"AFTER DELETE");
+                                        //handle success / failure:
+                                        setStatus("loading");
                                     })
                                     }
-                             }> delete </Button>   </td>
+                             }> delete </Button>   </div>
                      }else{
                      return <td></td>
                      }
@@ -43,19 +45,26 @@ import {Button} from 'react-bootstrap';
           ]
     //fetch books and authors from backend:
     useEffect(()=>{
-        Axios.get('/api/books')
-              .then((res) => {
-                    console.log("Main",res);
-                    setBooks(res.data);
-                    setStatus("done");
-                });
+        if (status==="loading"){
+            if (props.onReload){
+                props.onReload();
+                return;
+            }
+            Axios.get('/api/books')
+                          .then((res) => {
+                               // console.log("Main",res);
+                               setData(res.data);
+                                setStatus("done");
+                            });
+        }
+
      },[status]);
 
     //display books and authors data:
-    if (books.length >0){
+    if (data.length >0){
            return (
                 <ReactTable
-                    data={books}
+                    data={data}
                     columns={columns}
                     defaultPageSize={5}
                    />
