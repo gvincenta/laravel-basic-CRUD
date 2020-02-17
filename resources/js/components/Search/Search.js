@@ -4,8 +4,7 @@ import Axios from 'axios';
 import { CsvToHtmlTable } from 'react-csv-to-table';
 import Spinner from '../Spinner';
 import Main from '../Books/Main';
-import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
-
+import Form from './Form';
 /** for searching a book by its title / author: */
 
 export default function (props){
@@ -53,56 +52,6 @@ export default function (props){
 
 
 
-    return(
-        <div >
-        <br/>
-        <Form onSubmit={(e)=>{
-        getData(e);
-        setSearchBy("title");
-    }
-}>
-<Row>
-    <Col sm="10">
-        <Form.Control
-    type="text"
-    placeholder="Title"
-    required
-    onChange = {e => setTitle(e.target.value)}
-    required
-    />
-    </Col>
-    <Button variant="primary" type="submit"> Search by title</Button>
-    </Row>
-    </Form>
-    <br/>
-    <Form onSubmit={(e)=>{
-        getData(e);
-        setSearchBy("author");
-    }}>
-<Row>
-
-
-    <Col sm="5">
-        <Form.Control
-    type="text"
-    placeholder="First Name"
-    required
-    onChange = {e => setFirstName(e.target.value)}
-    required
-    />
-    </Col>
-    <Col sm="5">
-        <Form.Control
-    type="text"
-    placeholder="Last Name"
-    required
-    onChange = {e => setLastName(e.target.value)}
-    />
-    </Col>
-    <Button variant="primary" type="submit"> Search by author </Button>
-    </Row>
-    </Form>
-
-
-         </div>);
+    return( <Form getData={getData} setSearchBy={setSearchBy} setTitle={setTitle} setFirstName={setFirstName} setLastName={setLastName}/>
+        );
 }
