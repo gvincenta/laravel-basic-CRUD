@@ -4,7 +4,6 @@ import Axios from 'axios';
 import ReactTable from 'react-table-6'
 import 'react-table-6/react-table.css'
 import Spinner from '../Spinner';
-import {Button,Form,Row,Col} from 'react-bootstrap';
 export default function  (props) {
 
     const [data, setData] = useState(props.data||[]);
@@ -24,7 +23,6 @@ export default function  (props) {
                     <Button variant="danger"
                     onClick={ (e)=>{
                         e.preventDefault();
-                        //TODO: PROMPT USERS BEFORE DELETE:
                         console.log(props.value, "ONCLICK");
                         Axios.delete("/api/books", {
                             data :{'ID' : props.value }})
@@ -81,7 +79,6 @@ export default function  (props) {
 
             Axios.get('/api/books')
                           .then((res) => {
-                               // console.log("Main",res);
                                setData(res.data);
                                 setStatus("done");
                             });

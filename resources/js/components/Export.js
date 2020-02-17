@@ -2,7 +2,7 @@ import React, { useState, useEffect ,useLayoutEffect } from 'react';
 import Axios from 'axios';
 import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
 import XMLViewer from 'react-xml-viewer';
-import Spinner from '../Spinner';
+import Spinner from './Spinner';
 import FileDownload from 'js-file-download';
 import { CSVLink, CSVDownload } from "react-csv";
 import { CsvToHtmlTable } from 'react-csv-to-table';

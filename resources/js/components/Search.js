@@ -2,8 +2,8 @@ import React, { useState } from 'react';
  import {Link} from 'react-router-dom';
 import Axios from 'axios';
 import { CsvToHtmlTable } from 'react-csv-to-table';
-import Spinner from '../Spinner';
-import Main from '../Books/Main';
+import Spinner from './Spinner';
+import Table from '../Books/Table';
 import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
 
  /** for searching a book by its title / author: */
@@ -135,7 +135,7 @@ export default function (props){
      {data ?
      <div>
          <h2> Search results for {title} {firstName} {lastName}</h2>
-     <Main data={data} status="done" /></div> :<Main/> }
+     <Table data={data} status="done" /></div> :<Table/> }
     </div>
         );
 }
