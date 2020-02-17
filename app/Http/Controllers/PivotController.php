@@ -88,28 +88,44 @@ class PivotController extends Controller
             'authors.*.ID' => 'required_without:newAuthors|numeric'
         ]);
         if ($validator->fails()) {
-            return ["message" => "invalid request", "code"=>400];
+            return  response()->json(['message' => "invalid request"], 400);
         }
         //start transaction:
         return DB::transaction(function () use ($request) {
-             //firstly, create new book:
-            $bookID = $this->booksController->store($request->get("title"));
-            //then, create new authors and assign them as the new book's authors:
-             if ( $request->get("newAuthors") ){
-                foreach ($request->get("newAuthors") as $newAuthor){
-                    //make new authors and get their IDs:
-                    $newAuthorID =  $this->authorsController->store($newAuthor);
-                    $this->store($newAuthorID,$bookID);
-                }
-            }
-            if ($request->get("authors") ){
-                foreach ($request->get("authors") as $existingAuthor){
-                    //assign the existing authors as the authors of this book:
-                    $this->store($existingAuthor["ID"],$bookID);
-                }
-            }
-            return ["message" => "books with their associated authors created successfully", "code"=>200] ;
+            //carry out transaction
+            try {
 
+                //firstly, create new book:
+                $bookID = $this->booksController->store($request->get("title"));
+                //then, create new authors and assign them as the new book's authors:
+                if ( $request->get("newAuthors") ){
+                    foreach ($request->get("newAuthors") as $newAuthor){
+                        //make new authors and get their IDs:
+                        $newAuthorID =  $this->authorsController->store($newAuthor);
+                        $this->store($newAuthorID,$bookID);
+                    }
+                }
+                if ($request->get("authors") ){
+                    foreach ($request->get("authors") as $existingAuthor){
+                        //assign the existing authors as the authors of this book:
+                        $this->store($existingAuthor["ID"],$bookID);
+                    }
+                }
+                return  response()->json(['message' => "books with their associated authors created successfully"],
+                    200);
+             //something went wrong with the transaction, rollback
+            } catch (\Illuminate\Database\QueryException $e) {
+                DB::rollBack();
+                return  response()->json([
+                    'message' => "failed to create books and their associated authors",
+                    'error'=>$e], 500);
+            } catch (\Exception $e) {
+                // something went wrong elsewhere, handle gracefully
+                return  response()->json([
+                    'message' => "failed to create books and their associated authors",
+                    'error'=>$e], 500);
+
+            }
          });
 
     }

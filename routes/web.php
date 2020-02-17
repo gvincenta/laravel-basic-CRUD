@@ -62,4 +62,9 @@ Route::get('/api/authors/with-filter', 'PivotController@show');
 Route::get('/', function (){
     return view('welcome');
 });
-//Route::View('/{path}','welcome');
+/** sends back error on unhandled routes*/
+//code adapted from : https://laraveldaily.com/laravel-api-errors-and-exceptions-how-to-return-responses/
+Route::fallback(function(){
+    return response()->json([
+        'message' => 'Page Not Found.'], 404);
+});

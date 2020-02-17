@@ -44,13 +44,20 @@ class AuthorsController extends Controller
             'ID' => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return ["message" => "invalid request", "code"=>400];
+            return  response()->json(['message' => "invalid request"], 400);
         }
         $updateData = ["firstName" => $request->input("firstName"),"lastName" => $request->input("lastName") ];
         $affectedRows = DB::table(Authors::TABLE_NAME)
             ->where('ID', '=',$request->input('ID'))
             ->update($updateData);
-        return ["code" => 200, "affectedRows" => $affectedRows ];
+
+        //for completed update:
+        if ($affectedRows == 1){
+            return  response()->json(['message' => "changing name succeed"], 200);
+        //for failed update (i.e. no rows affected):
+        }else{
+            return  response()->json(['message' => "changing name failed"], 200);
+        }
 
     }
     /**
