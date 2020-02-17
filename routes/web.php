@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 //TODO : using query parameters instead of request.body is still buggy.
 
 /** gets a list of books with their authors. */
-Route::get('/api/books', 'BooksController@index');
+//Route::get('/api/books', 'BooksController@index');
 
 /**
  *  adds a book to the database, along with its respective new/existing authors,
@@ -30,7 +30,7 @@ Route::post('/api/books','PivotController@createNewBook'  );
 /** deletes a book from the list.*/
 Route::delete('/api/books','BooksController@destroy'  );
 
-/** gets a book by its title. */
+/** gets a list of books. */
 Route::get('/api/books', 'PivotController@index');
 
 
