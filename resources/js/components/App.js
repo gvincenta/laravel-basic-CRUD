@@ -22,7 +22,7 @@ export default function App(props) {
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="0">
-                        <Main/>
+                        <Search/>
                     </Accordion.Collapse>
                 </Card>
                 <Card>
@@ -45,16 +45,7 @@ export default function App(props) {
                         <Export/>
                     </Accordion.Collapse>
                 </Card>
-                <Card>
-                    <Card.Header>
-                        <Accordion.Toggle variant="link" eventKey="3">
-                            Search Results
-                        </Accordion.Toggle>
-                    </Card.Header>
-                    <Accordion.Collapse eventKey="3">
-                        <Search/>
-                    </Accordion.Collapse>
-                </Card>
+
             </Accordion>
         </div>
 

@@ -135,7 +135,7 @@ export default function (props){
      {data ?
      <div>
          <h2> Search results for {title} {firstName} {lastName}</h2>
-     <Main data={data} status="done" /></div> :null }
+     <Main data={data} status="done" /></div> :<Main/> }
     </div>
         );
 }
