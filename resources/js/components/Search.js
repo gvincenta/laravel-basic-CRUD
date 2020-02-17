@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Axios from 'axios';
 import { CsvToHtmlTable } from 'react-csv-to-table';
 import Spinner from './Spinner';
-import Table from '../Books/Table';
+import Table from './Books/Table';
 import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
 
  /** for searching a book by its title / author: */

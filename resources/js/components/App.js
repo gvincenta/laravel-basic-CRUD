@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
- import Search from './Search/Search';
+ import Search from './Search';
 import {BrowserRouter,Route,Link,Switch} from 'react-router-dom';
-import Main from './Books/Main';
-import Table from './Authors/Table';
-import {Accordion,Card,Button} from 'react-bootstrap';
+ import {Accordion,Card,Button} from 'react-bootstrap';
 import Add from './Books/Add';
 import Export from './Export';
 export default function App(props) {
