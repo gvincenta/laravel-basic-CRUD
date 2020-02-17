@@ -4,26 +4,39 @@ import {Autocomplete} from '@material-ui/lab';
 import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
 import Axios from 'axios';
 import Item from './Item';
-function onExistingAuthorRemove(index){
-    x = existingAuthors.splice(index,1);
-    assignExistingAuthors(x);
+import nextId from "react-id-generator";
 
-}
-function onNewAuthorRemove(index){
-    x = newAuthors.splice(index,1);
-    assignNewAuthors(x);
-
-}
 
 export default function (props) {
+     //authors data from backend:
      const [authorsData,setAuthorsData] = useState([]);
+     //UI filling form step (1, 2, 3):
      const [step,setStep] = useState(1);
+     //the new book's title:
      const [title,setTitle] = useState([]);
+     //existing authors to be assigned to the new book:
      const [existingAuthors,assignExistingAuthors] = useState([]);
+     //new (i.e. non-existing authors) to be assigned to the new book:
      const [newAuthors,assignNewAuthors] = useState([]);
+     //currently selected existing author:
      const [currentAuthor,setCurrentAuthor] = useState({});
+     //currently entered new author (need their first and last name):
      const [firstName,setFirstName] = useState('');
      const [lastName,setLastName] = useState('');
+     /*removing item from array adapted from :
+     https://stackoverflow.com/questions/57341541/removing-object-from-array-using-hooks-usestate
+      */
+     const onExistingAuthorRemove = (removeID)=>{
+            console.log(removeID, "ID RECORDED");
+            assignExistingAuthors(existingAuthors.filter(item =>  item.ID !== removeID));
+
+
+     }
+     //for new authors, as they don't have an ID, we assign fakeID by nextId() for removal purposes only:
+    const onNewAuthorRemove = (removeID)=>{
+        assignNewAuthors(newAuthors.filter(item => item.ID !== removeID));
+
+    }
 
      useEffect(()=>{
         Axios.get('/api/books')
@@ -50,6 +63,7 @@ export default function (props) {
                     </Button>
                  </Form>
              )
+        //step 2 : assign existing authors to this new book:
          case 2:
              return(
                  <div>
@@ -84,7 +98,7 @@ export default function (props) {
                                 <Card.Title>Assigned existing authors: </Card.Title>
                             </Card.Body>
                             <ListGroup>
-                                {loop(existingAuthors)}
+                                {loop(existingAuthors,onExistingAuthorRemove,true)}
                             </ListGroup>
                          </Card>
                      </CardGroup>
@@ -98,6 +112,7 @@ export default function (props) {
 
                 </div>
             )
+        //step 3 : assign new authors to this new book:
          case 3:
              return (
                  <Form
@@ -109,7 +124,8 @@ export default function (props) {
                         Axios.post("/api/books",
                             {
                                 authors : existingAuthors,
-                                newAuthors,title
+                                newAuthors,
+                                title
                             })
                             .then(res => {
                                 console.log(res, "RES");
@@ -117,28 +133,33 @@ export default function (props) {
                     }} >
                      <h2>Assign new authors to {title}</h2>
                      <Row>
-                         <Col>
+                         <Col sm="5">
                             <Form.Control type="text" placeholder="First Name" onChange={v => setFirstName(v.target.value)}   />
                          </Col>
-                         <Col>
+                         <Col sm="5">
                             <Form.Control type="text" placeholder="Last Name" onChange={v => setLastName(v.target.value)}   />
+                         </Col>
+                         <Col>
+                            <Button variant="primary"
+                            onClick= {e =>
+
+                            assignNewAuthors([...newAuthors,{ ID : nextId(), firstName,lastName}])
+                        }>
+                            Add
+                            </Button>
                          </Col>
                      </Row>
 
 
 
-                     <Button variant="primary"
-                     onClick= {e =>
-                     assignNewAuthors([...newAuthors,{firstName,lastName}]) }>
-                     Add
-                     </Button>
+
                      <CardGroup>
                          <Card>
                              <Card.Body>
                                 <Card.Title>Assigned new authors: </Card.Title>
                              </Card.Body>
                              <ListGroup>
-                                {loop(newAuthors,onNewAuthorRemove)}
+                                {loop(newAuthors,onNewAuthorRemove,false)}
                              </ListGroup>
                          </Card>
                          <Card>
@@ -169,14 +190,13 @@ function extractAuthor(authorString) {
     var author = authorString.split(" ");
     return {"ID" : author[0],"firstName" : author[1], "lastName" : author[2]};
 }
-function loop(x,onRemove) {
-     console.log("Item ");
+function loop(x,onRemove,showID) {
+
     var array = [];
     for (var i = 0 ; i < x.length; i++){
         array.push(  React.createElement(
             Item,
-            {author: x[i], key:i, index: i, onClick:onRemove},
-            null
+            {author: x[i], key:i, index: i, onClick:onRemove, showID}
         ))
     }
     return array;

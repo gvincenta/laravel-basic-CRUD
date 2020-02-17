@@ -29,6 +29,7 @@
         "react-bootstrap": "^1.0.0-beta.16",
         "react-csv": "^2.0.1",
         "react-csv-to-table": "0.0.4",
+        "react-id-generator": "^3.0.0",
         "react-router-dom": "^5.1.2",
         "react-table-6": "^6.11.0",
         "react-table-v6": "^6.8.6",
