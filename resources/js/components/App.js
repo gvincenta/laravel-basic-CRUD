@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import MainFunctions from './Forms/MainFunctions';
-import Navigation from './Navigation';
+import Search from './Search/Search';
 import {BrowserRouter,Route,Link,Switch} from 'react-router-dom';
 import Main from './Books/Main';
 import Table from './Authors/Table';
 import {Accordion,Card,Button} from 'react-bootstrap';
 import Add from './Books/Add';
+import Export from './Forms/Export';
 export default function App(props) {
      const [action,setAction] = useState('');
     const [status,setStatus] = useState('');
 
 
-
     return (
         <div>
-            <Navigation/>
             <Accordion defaultActiveKey="0">
                 <Card>
                     <Card.Header>
@@ -44,7 +43,7 @@ export default function App(props) {
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="2">
-                        <Table/>
+                        <Export/>
                     </Accordion.Collapse>
                 </Card>
                 <Card>
@@ -54,7 +53,7 @@ export default function App(props) {
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="3">
-                        <Table/>
+                        <Search/>
                     </Accordion.Collapse>
                 </Card>
             </Accordion>
