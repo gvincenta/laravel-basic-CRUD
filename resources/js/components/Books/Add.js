@@ -3,9 +3,8 @@ import {TextField} from '@material-ui/core';
 import {Autocomplete} from '@material-ui/lab';
 import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
 import Axios from 'axios';
-import Item from './Item';
 import nextId from "react-id-generator";
-
+import AuthorList from './AuthorList';
 
 export default function (props) {
      //authors data from backend:
@@ -92,16 +91,9 @@ export default function (props) {
                      </Button>
                         </ButtonGroup>
                      <br/>
-                     <CardGroup>
-                         <Card>
-                            <Card.Body>
-                                <Card.Title>Assigned existing authors: </Card.Title>
-                            </Card.Body>
-                            <ListGroup>
-                                {loop(existingAuthors,onExistingAuthorRemove,true)}
-                            </ListGroup>
-                         </Card>
-                     </CardGroup>
+                        <AuthorList step={step} onNewAuthorRemove = {onNewAuthorRemove}
+    onExistingAuthorRemove = {onExistingAuthorRemove} newAuthors = {newAuthors}
+    existingAuthors = {existingAuthors}/>
                      <ButtonGroup>
                          <Button variant="primary"onClick= {e => setStep(1)}> &lt; </Button>
 
@@ -149,28 +141,14 @@ export default function (props) {
                             </Button>
                          </Col>
                      </Row>
+                     <AuthorList step={step} onNewAuthorRemove = {onNewAuthorRemove}
+                     onExistingAuthorRemove = {onExistingAuthorRemove} newAuthors = {newAuthors}
+                     existingAuthors = {existingAuthors}/>
 
 
 
 
-                     <CardGroup>
-                         <Card>
-                             <Card.Body>
-                                <Card.Title>Assigned new authors: </Card.Title>
-                             </Card.Body>
-                             <ListGroup>
-                                {loop(newAuthors,onNewAuthorRemove,false)}
-                             </ListGroup>
-                         </Card>
-                         <Card>
-                             <Card.Body>
-                                <Card.Title>Assigned existing authors: </Card.Title>
-                             </Card.Body>
-                             <ListGroup>
-                                {loop(existingAuthors,onExistingAuthorRemove)}
-                             </ListGroup>
-                         </Card>
-                     </CardGroup>
+
       <ButtonGroup>
      <Button variant="primary"onClick= {e => setStep(2)}> &lt; </Button>
 
@@ -190,15 +168,4 @@ function extractAuthor(authorString) {
     var author = authorString.split(" ");
     return {"ID" : author[0],"firstName" : author[1], "lastName" : author[2]};
 }
-function loop(x,onRemove,showID) {
 
-    var array = [];
-    for (var i = 0 ; i < x.length; i++){
-        array.push(  React.createElement(
-            Item,
-            {author: x[i], key:i, index: i, onClick:onRemove, showID}
-        ))
-    }
-    return array;
-
-}
