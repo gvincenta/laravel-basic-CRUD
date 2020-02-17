@@ -33,6 +33,7 @@ export default function (props) {
                 setStatus("done");
             });
     },[status]);
+     //TODO : refactor reusable components + allow removing authors from the list!!
      switch (step) {
          //step 1: enter book's title:
          case 1:
