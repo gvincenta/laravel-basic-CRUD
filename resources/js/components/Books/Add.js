@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {TextField} from '@material-ui/core';
-import {Autocomplete} from '@material-ui/lab';
 import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
 import Axios from 'axios';
 import nextId from "react-id-generator";
 import AuthorList from './AuthorList';
-
+import Autocomplete from './Autocomplete';
 export default function (props) {
      //authors data from backend:
      const [authorsData,setAuthorsData] = useState([]);
@@ -31,6 +29,8 @@ export default function (props) {
 
 
      }
+
+     const loading = authorsData.length===0
      //for new authors, as they don't have an ID, we assign fakeID by nextId() for removal purposes only:
     const onNewAuthorRemove = (removeID)=>{
         assignNewAuthors(newAuthors.filter(item => item.ID !== removeID));
@@ -69,21 +69,8 @@ export default function (props) {
                      <h2>Assign existing authors to {title} </h2>
                         <br/>
                     <ButtonGroup>
-                     <Autocomplete
-                     id="combo-box-demo"
-                     options={authorsData}
-                     getOptionLabel={option => {return option.ID + " " +  option.firstName + " " + option.lastName}}
-                     style={{ width: 300 }}
+                    <Autocomplete data = {authorsData} loading = {loading} onChange={setCurrentAuthor}/>
 
-                     renderInput={params => (
-                        <TextField {...params} label="Existing Authors" variant="outlined" fullWidth />
-                        )}
-                     onChange = { event => {
-                         console.log("ON CHANGE",event.target.value);
-                         setCurrentAuthor(extractAuthor(event.target.innerHTML));
-                        }
-                     }
-                     />
                      <Button variant="primary"
                       onClick= {e =>
                         assignExistingAuthors([...existingAuthors,currentAuthor]) }>
@@ -98,7 +85,7 @@ export default function (props) {
                          <Button variant="primary"onClick= {e => setStep(1)}> &lt; </Button>
 
                          <Button variant="primary" onClick= {e => setStep(3)}> &gt;</Button>
-                         </ButtonGroup>
+                     </ButtonGroup>
 
 
 
@@ -161,11 +148,5 @@ export default function (props) {
 
 
 }
-function extractAuthor(authorString) {
-     console.log(authorString,"authorString")
-    console.log(typeof authorString,"authorString")
 
-    var author = authorString.split(" ");
-    return {"ID" : author[0],"firstName" : author[1], "lastName" : author[2]};
-}
 
