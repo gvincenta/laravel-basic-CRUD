@@ -1,6 +1,9 @@
 import React from 'react';
 import {Spinner,ButtonToolbar} from 'react-bootstrap';
-//displays loading animation:
+
+/**
+ * displays loading animation
+ */
 export default function () {
     return (
         <div>

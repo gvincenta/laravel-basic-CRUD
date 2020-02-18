@@ -1,21 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import {Nav} from 'react-bootstrap';
+import {Button,Form,Row,Col} from 'react-bootstrap';
 import Axios from 'axios';
 import ReactTable from 'react-table-6'
 import 'react-table-6/react-table.css'
 import Spinner from '../Spinner';
+import InlineField from './InlineField';
+
+/**
+ * Displays Books and Authors table
+ * with functionality: deleting a book and changing an author's name.
+ * @param props.data : the data to be displayed.
+ * @param props.status : whether to carry out initial data fetch or not.
+ *
+ */
 export default function  (props) {
 
     const [data, setData] = useState(props.data||[]);
     const [status, setStatus] = useState(props.status||'loading');
+    //for changing an author's name: displays their old firstName and lastName
     const [oldFirstName,setOldFirstName] = useState('');
     const [oldLastName,setOldLastName] = useState('');
+    //for changing an author's name: prompts for their new firstName and lastName
     const [newFirstName,setNewFirstName] = useState('');
     const [newLastName,setNewLastName] = useState('');
+    //for changing an author's name: remember their ID for applying changes in backend.
     const [ID,setID] = useState(null);
-
+    //handles delete button:
     const displayDeleteButton = (props) =>
-    { if (props.value){
+    { //if the cell is not empty, then render a delete button:
+        if (props.value){
 
         return(
                <div>
@@ -24,6 +37,7 @@ export default function  (props) {
                     onClick={ (e)=>{
                         e.preventDefault();
                         console.log(props.value, "ONCLICK");
+                        //deletes this book in the backend:
                         Axios.delete("/api/books", {
                             data :{'ID' : props.value }})
                             .then((res) =>{
@@ -38,8 +52,9 @@ export default function  (props) {
                </div>
                )}else{return <div> </div>}
     }
+    //displays a button for changing an author's name
     const displayUpdateButton = (props) =>
-                                    {
+                                    { //displays button only when the cell is not empty
                                     if (props.value){
                                         return(
                                                <div>
@@ -47,11 +62,12 @@ export default function  (props) {
                                                     <Button
                                                     onClick={ (e)=>{
                                                         e.preventDefault();
+                                                        //remembers the author's existing data, then display a form:
                                                         setID(props.value);
                                                         setOldFirstName(props.original.firstName);
                                                         setOldLastName(props.original.lastName);
                                                         setStatus('changing');
-                                                         
+
 
                                                     }}  >
                                                         change
@@ -59,6 +75,7 @@ export default function  (props) {
                                                </div>
                                                )}else{return <div> </div>}
                                     }
+     //the columns to be rendered
     const columns = [
         {Header: 'bookID',
          accessor: 'books_ID',
@@ -73,7 +90,7 @@ export default function  (props) {
         {Header: 'lastName',
          accessor: 'lastName'},
           ]
-    //fetch books and authors from backend:
+    //initially, fetch books and authors from backend:
     useEffect(()=>{
         if (status==="loading"){
 
@@ -104,7 +121,7 @@ export default function  (props) {
                                                                       Axios.put('/api/authors',{ID, firstName:newFirstName, lastName:newLastName})
                                                                           .then((res)=>
                                                                               {console.log("res", res);
-                                                                                  //TODO: HANDLE THIS LOGIC IN BACKEND
+                                                                                  //TODO: CHANGE THIS HANDLING
                                                                                   if (res.data.affectedRows == 1 ){
                                                                                       //sucessfully changed an author's name, re-fetch data again:
                                                                                       setMessage("succeed!");
@@ -120,20 +137,14 @@ export default function  (props) {
                                   <Form.Text className="text-muted">
                                       Changing Author with  ID : {ID} and name : {oldFirstName + ' '+ oldLastName }
                                   </Form.Text>
-                                  <Row>
-                                  <Col sm="5">
-                                  <Form.Control type="tex" placeholder="First Name" onChange={v => setNewFirstName(v.target.value)}  required />
-                                  </Col>
-                                  <Col sm="5">
-                                  <Form.Control type="text" placeholder="Last Name" onChange={v => setNewLastName(v.target.value)}  required />
-                                  </Col>
-                                  <Col >
-                                  <Button variant="primary" type="submit">
 
-                                      Submit
-                                      </Button>
-                                   </Col>
-                                  </Row>
+                                        <InlineField
+                                        buttonName="Submit"
+                                        setFirstName={setNewFirstName}
+                                        setLastName={setNewLastName}
+                                        buttonType="submit"
+                                        required={true}/>
+
 
 
                           </Form>

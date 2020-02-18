@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
+import {Button,Row,Col,ButtonGroup, Form} from 'react-bootstrap';
 import Axios from 'axios';
 import nextId from "react-id-generator";
 import AuthorList from './AuthorList';
 import Autocomplete from './Autocomplete';
-export default function (props) {
+import Navigator from './Navigator';
+import InlineField from './InlineField';
+
+/**Handles UI forms to add a new book and assign authors to it in 3 steps format.
+ * step 1: a form for enter book's title.
+ * step 2: an autocompletion form to assign existing authors to the new book.
+ * step 3: a form to assign new (i.e. non-existing) authors to the new book (with submission to backend).
+ * @returns 3 steps UI described above.
+ */
+export default function ( ) {
      //authors data from backend:
      const [authorsData,setAuthorsData] = useState([]);
      //UI filling form step (1, 2, 3):
@@ -26,17 +35,75 @@ export default function (props) {
      const onExistingAuthorRemove = (removeID)=>{
             console.log(removeID, "ID RECORDED");
             assignExistingAuthors(existingAuthors.filter(item =>  item.ID !== removeID));
-
-
      }
-
+    //for step 2's UI loading existing author list:
      const loading = authorsData.length===0
      //for new authors, as they don't have an ID, we assign fakeID by nextId() for removal purposes only:
     const onNewAuthorRemove = (removeID)=>{
         assignNewAuthors(newAuthors.filter(item => item.ID !== removeID));
-
     }
+    //for sending data to backend:
+    const onSubmit = (e) =>{
+        e.preventDefault();
 
+        console.log(existingAuthors,"existingAuthors");
+        Axios.post("/api/books",
+            {
+                authors : existingAuthors,
+                newAuthors,
+                title
+            })
+            .then(res => {
+                console.log(res, "RES");
+                //TODO: handle succeed / failure:
+
+            })
+    };
+    //sets the header for each step:
+    const headers = () =>{
+        switch (step){
+            case 1:
+                return "Enter Book Title";
+            case 2:
+                return "Assign existing authors to " + title;
+            case 3:
+                return "Assign new authors to " + title;
+        }
+    }
+    //sets the form input fields for each step:
+    const inputField = () =>{
+        switch (step) {
+            //asks for the book's title:
+            case 1:
+                return (<Form.Control type="text" placeholder="Please enter the book's title" required
+                onChange = {e => setTitle(e.target.value)}/>);
+            //provides existing authors:
+            case 2:
+                return (
+                    <ButtonGroup>
+                        <Autocomplete data = {authorsData} loading = {loading} onChange={setCurrentAuthor}/>
+                        <Button variant="primary"
+                        onClick= {e =>assignExistingAuthors([...existingAuthors,currentAuthor]) }>
+                            Add
+                        </Button>
+                    </ButtonGroup>
+                )
+            //asks for new author's firstName and lastName:
+            //TODO onclick validation?
+            case 3:
+                return (
+                     <InlineField
+                        setFirstName={setFirstName}
+                        setLastName={setLastName}
+                        buttonName="Add"
+                        onClick = {e =>assignNewAuthors([...newAuthors,{ ID : nextId(), firstName,lastName}])}
+                        required={false}
+                        />
+                );
+
+        }
+    }
+    //initially, fetch the existing authors list for 2nd step:
      useEffect(()=>{
         Axios.get('/api/books')
             .then((res) => {
@@ -45,108 +112,26 @@ export default function (props) {
                 setStatus("done");
             });
     },[status]);
-     //TODO : refactor reusable components + allow removing authors from the list!!
-     switch (step) {
-         //step 1: enter book's title:
-         case 1:
-             return (
-                 <Form>
-                     <Form.Group controlId="bookTitle">
-                         <h2>Book Title</h2>
-                        <Form.Control type="text" placeholder="Please enter the book's title" required
-                        onChange = {e => setTitle(e.target.value)}/>
 
-                     </Form.Group>
-                    <Button variant="primary" onClick= {e => setStep(2)}>
-                        &gt;
-                    </Button>
-                 </Form>
-             )
-        //step 2 : assign existing authors to this new book:
-         case 2:
-             return(
-                 <div>
-                     <h2>Assign existing authors to {title} </h2>
-                        <br/>
-                    <ButtonGroup>
-                    <Autocomplete data = {authorsData} loading = {loading} onChange={setCurrentAuthor}/>
+     return (
+         <Form onSubmit={onSubmit}>
+            <h2>{headers()}</h2>
+            {inputField()}
 
-                     <Button variant="primary"
-                      onClick= {e =>
-                        assignExistingAuthors([...existingAuthors,currentAuthor]) }>
-                        Add
-                     </Button>
-                        </ButtonGroup>
-                     <br/>
-                        <AuthorList step={step} onNewAuthorRemove = {onNewAuthorRemove}
-    onExistingAuthorRemove = {onExistingAuthorRemove} newAuthors = {newAuthors}
-    existingAuthors = {existingAuthors}/>
-                     <ButtonGroup>
-                         <Button variant="primary"onClick= {e => setStep(1)}> &lt; </Button>
+            {//shows the authors that have been assigned to the new book:
+                step!==1
+                ? <AuthorList step={step} onNewAuthorRemove = {onNewAuthorRemove}
+                onExistingAuthorRemove = {onExistingAuthorRemove} newAuthors = {newAuthors}
+                existingAuthors = {existingAuthors}/>
+                : null
+            }
 
-                         <Button variant="primary" onClick= {e => setStep(3)}> &gt;</Button>
-                     </ButtonGroup>
-
-
-
-                </div>
-            )
-        //step 3 : assign new authors to this new book:
-         case 3:
-             return (
-                 <Form
-                  onSubmit = {
-                     e =>{
-                        e.preventDefault();
-
-                        console.log(existingAuthors,"existingAuthors");
-                        Axios.post("/api/books",
-                            {
-                                authors : existingAuthors,
-                                newAuthors,
-                                title
-                            })
-                            .then(res => {
-                                console.log(res, "RES");
-                            })
-                    }} >
-                     <h2>Assign new authors to {title}</h2>
-                     <Row>
-                         <Col sm="5">
-                            <Form.Control type="text" placeholder="First Name" onChange={v => setFirstName(v.target.value)}   />
-                         </Col>
-                         <Col sm="5">
-                            <Form.Control type="text" placeholder="Last Name" onChange={v => setLastName(v.target.value)}   />
-                         </Col>
-                         <Col>
-                            <Button variant="primary"
-                            onClick= {e =>
-
-                            assignNewAuthors([...newAuthors,{ ID : nextId(), firstName,lastName}])
-                        }>
-                            Add
-                            </Button>
-                         </Col>
-                     </Row>
-                     <AuthorList step={step} onNewAuthorRemove = {onNewAuthorRemove}
-                     onExistingAuthorRemove = {onExistingAuthorRemove} newAuthors = {newAuthors}
-                     existingAuthors = {existingAuthors}/>
-
-
-
-
-
-      <ButtonGroup>
-     <Button variant="primary"onClick= {e => setStep(2)}> &lt; </Button>
-
-     <Button variant="primary" type="submit"> Submit</Button>
-     </ButtonGroup>
-             </Form>
-            )
-
-     }
+            <Navigator step={step} min={1} max={3} setStep={setStep}/>
+         </Form>
+     )
 
 
 }
+
 
 

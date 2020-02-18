@@ -1,9 +1,14 @@
 import React from 'react';
 import {TextField,CircularProgress} from '@material-ui/core';
 import {Autocomplete} from '@material-ui/lab';
-/*asynchronous autocompletion text input adapted from:
+
+/**asynchronous autocompletion text input adapted from:
  * https://material-ui.com/components/autocomplete/
-*/
+ * @param props.data the data to be shown in the autocomplete box.
+ * @param props.loading indicates whether we should show loading UI or not.
+ * @param props.onChange what to do when a selection is made.
+ * @returns the autocompletion box.
+ */
 export default function(props){
     const {data,loading,onChange} = props;
     return (

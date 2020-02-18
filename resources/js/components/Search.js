@@ -4,17 +4,23 @@ import Axios from 'axios';
 import { CsvToHtmlTable } from 'react-csv-to-table';
 import Spinner from './Spinner';
 import Table from './Books/Table';
-import {Button,Row,Col,ButtonGroup, Form,CardGroup,Card,ListGroup,ListGroupItem} from 'react-bootstrap';
+import {Button,Row,Col,Form} from 'react-bootstrap';
 
  /** for searching a book by its title / author: */
 
 export default function (props){
+    //for a search by book's title:
     const [title,setTitle] = useState('');
+    //for a search by book's author:
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    //for storing search results from backend:
      const [data,setData] = useState(null);
+     //specify by title / author:
      const [by, setBy] = useState(null);
+     //fetching status:
     const [status,setStatus] = useState('');
+    //fetching data from backend:
     const getData = (e,searchBy)=>{
         if (e){
             e.preventDefault();
@@ -61,19 +67,10 @@ export default function (props){
         }
 
     }
-    const columns = [
-        {Header: 'authorID',
-            accessor: 'ID'},
-        {Header: 'firstName',
-            accessor: 'firstName'},
-        {Header: 'bookID',
-         accessor: 'books_ID'},
-        {Header: 'Title',
-            accessor: 'title'}]
+    //shows loading UI:
     if (status === "loading"){
         return <Spinner/>;
     }
-
 
 
     return(
@@ -81,61 +78,51 @@ export default function (props){
 
         <br/>
 
-        <Form onSubmit={(e)=>{
+        <Form onSubmit={(e)=>{getData(e,"title");}}>
+            <Row>
+                <Col sm="10">
+                    <Form.Control
+                    type="text"
+                    placeholder="Title (not case sensitive)"
+                    required
+                    onChange = {e => setTitle(e.target.value)}
+                    required
+                    />
+                </Col>
+            <Button variant="primary" type="submit"> Search by title</Button>
+            </Row>
+        </Form>
+        <br/>
+        <Form onSubmit={(e)=>{getData(e,"author");}}>
+            <Row>
+                <Col sm="5">
+                    <Form.Control
+                    type="text"
+                    placeholder="First Name (not case sensitive)"
+                    required
+                    onChange = {e => setFirstName(e.target.value)}
+                    required
+                    />
+                </Col>
+                <Col sm="5">
+                    <Form.Control
+                    type="text"
+                    placeholder="Last Name (not case sensitive)"
+                    required
+                    onChange = {e => setLastName(e.target.value)}
+                    />
+                </Col>
+                <Button variant="primary" type="submit"> Search by author </Button>
+            </Row>
+        </Form>
+        <br/>
 
-        getData(e,"title");
-
-    }
-}>
-<Row>
-    <Col sm="10">
-        <Form.Control
-    type="text"
-    placeholder="Title (not case sensitive)"
-    required
-    onChange = {e => setTitle(e.target.value)}
-    required
-    />
-    </Col>
-    <Button variant="primary" type="submit"> Search by title</Button>
-    </Row>
-    </Form>
-    <br/>
-    <Form onSubmit={(e)=>{
-
-        getData(e,"author");
-
-    }}>
-<Row>
-
-
-    <Col sm="5">
-        <Form.Control
-    type="text"
-    placeholder="First Name (not case sensitive)"
-    required
-    onChange = {e => setFirstName(e.target.value)}
-    required
-    />
-    </Col>
-    <Col sm="5">
-        <Form.Control
-    type="text"
-    placeholder="Last Name (not case sensitive)"
-    required
-    onChange = {e => setLastName(e.target.value)}
-    />
-    </Col>
-    <Button variant="primary" type="submit"> Search by author </Button>
-    </Row>
-    </Form>
-     <br/>
-
-
-     {data ?
+     {data ? //displays search result after fetching data from backend:
      <div>
          <h2> Search results for {title} {firstName} {lastName}</h2>
-     <Table data={data} status="done" /></div> :<Table/> }
+     <Table data={data} status="done" /></div>
+        : <Table/> //otherwise, display Books and Authors Table
+     }
     </div>
         );
 }

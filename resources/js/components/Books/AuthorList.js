@@ -2,11 +2,19 @@ import React from 'react';
 import {ListGroup,CardGroup,Card} from 'react-bootstrap';
 import Item from './Item';
 
+/**
+ * Shows a list of existing authors and new authors that are assigned to the new book.
+ * @param props.step: 2nd or 3rd step.
+ * @param props.onNewAuthorRemove : how to unassign new author from the new book.
+ * @param props.onExistingAuthorRemove :  how to unassign existing author from the new book.
+ * @param props.newAuthors : where to store the new author's list.
+ * @oaram props.existingAuthors: where to store the existing author's list.
+ */
 export default function (props) {
     const {step,onNewAuthorRemove,onExistingAuthorRemove,newAuthors,existingAuthors} = props;
     return (
         <CardGroup>
-        {step===3
+        {step===3 // new authors' list rendered only in step 3:
         ?
             <Card>
                 <Card.Body>
