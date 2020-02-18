@@ -92,7 +92,7 @@ export default function() {
                             data={authorsData}
                             loading={loading}
                             onChange={setCurrentAuthor}
-                            data-step="10"
+                            data-step="9"
                             data-intro= "Search for existing authors to be assigned to this new book."
                         />
                         <Button
@@ -116,7 +116,7 @@ export default function() {
                         setFirstName={setFirstName}
                         setLastName={setLastName}
                         buttonName="Add"
-                        data-step="11"
+                        data-step="9"
                         data-intro= "If you want to assign authors that are not in the database to this book , enter their details here. This will automatically assign them to your new book."
                         onClick={e =>
                             assignNewAuthors([
@@ -156,7 +156,7 @@ export default function() {
             <Navigator step={step} min={1} max={3} setStep={setStep} />
             {//renders submit button on the last step:
             step === 3 ? (
-                <Button variant="primary" type="submit" data-step="13"
+                <Button variant="primary" type="submit" data-step="11"
                 data-intro= "Don't forget to check your entries before submitting. After checking, click here to submit. " >
                     {' '}
                     Submit{' '}

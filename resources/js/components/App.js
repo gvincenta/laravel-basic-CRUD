@@ -48,7 +48,7 @@ export default function() {
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="2"
-                         data-step="14"
+                         data-step="12"
                          data-intro= "Click here to export books and/or authors data from database to CSV or XML. Once exported, You will be able to view and download them." >
                             Export
                         </Accordion.Toggle>
