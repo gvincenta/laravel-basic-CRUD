@@ -106,7 +106,9 @@ class AuthorsController extends Controller
      */
     public function store($newAuthor)
     {
-         return DB::table(Authors::TABLE_NAME)->insertGetId($newAuthor);
+        //extract only author's firstName and lastName:
+        $authorData = ["firstName" => $newAuthor["firstName"], "lastName"=>$newAuthor["lastName"]];
+         return DB::table(Authors::TABLE_NAME)->insertGetId($authorData);
     }
 
 
