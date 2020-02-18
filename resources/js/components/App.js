@@ -24,8 +24,8 @@ export default function() {
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="0"
-                            data-step="2"
-                            data-intro= "Click me to show all the books and authors available in the database. If a row has no book, It means that the author of that row is currently  not assigned to any books">
+                                data-step="2"
+                                data-intro= "Click me to show all the books and authors available in the database. If a row has no book, It means that the author of that row is currently  not assigned to any books">
                             Books And Authors
                         </Accordion.Toggle>
                     </Card.Header>
@@ -36,7 +36,8 @@ export default function() {
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="1"
-                            >
+                         data-step="8"
+                         data-intro= "Click here for adding a new book as well as assigning authors to it." >
                             Add a new book
                         </Accordion.Toggle>
                     </Card.Header>
