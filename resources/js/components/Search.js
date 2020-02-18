@@ -79,10 +79,11 @@ export default function(props) {
                             placeholder="Title (not case sensitive)"
                             required
                             onChange={e => setTitle(e.target.value)}
-                            required
+                            data-step="3"
+                            data-intro="Enter something here for searching a book by its title"
                         />
                     </Col>
-                    <Button variant="primary" type="submit">
+                    <Button variant="primary" type="submit" >
                         {' '}
                         Search by title
                     </Button>
@@ -99,9 +100,10 @@ export default function(props) {
                         <Form.Control
                             type="text"
                             placeholder="First Name (not case sensitive)"
-                            required
+                            data-step="4"
+                            data-intro="Or, enter here for searching a book by its author"
                             onChange={e => setFirstName(e.target.value)}
-                            required
+
                         />
                     </Col>
                     <Col sm="5">
@@ -126,10 +128,12 @@ export default function(props) {
                         {' '}
                         Search results for {title} {firstName} {lastName}
                     </h2>
-                    <Table data={data} status="done" />
+                    <Table data={data} status="done" data-step="5"
+                        data-intro="Your search result will appear here"/>
                 </div>
             ) : (
-                <Table />
+                <Table  data-step="5"
+    data-intro="Without any searches, this table displays all books and authors available in the database."/>
             ) //otherwise, display Books and Authors Table
             }
         </div>

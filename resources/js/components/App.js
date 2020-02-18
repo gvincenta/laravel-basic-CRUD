@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Search from './Search';
 import { BrowserRouter, Route, Link, Switch } from 'react-router-dom';
 import { Accordion, Card, Button } from 'react-bootstrap';
 import Add from './Books/Add';
-import Export from './Export';
-
+ import Export from './Export';
+import introJs from "intro.js";
+import "intro.js/introjs.css";
+import config from './config';
 /**
  * Shows the main page with 3 tabs:
  * 1. Books and Authors table,
@@ -14,15 +16,17 @@ import Export from './Export';
  * @returns a main page with 3 vertical tabs (using accordion).
  */
 export default function() {
-    const [action, setAction] = useState('');
-    const [status, setStatus] = useState('');
+
 
     return (
         <div>
+        <Button onClick={() => introJs().start()} data-step="1" data-intro="Welcome to the app" >Guide Me </Button>
             <Accordion defaultActiveKey="0">
                 <Card>
                     <Card.Header>
-                        <Accordion.Toggle variant="link" eventKey="0">
+                        <Accordion.Toggle variant="link" eventKey="0"
+                            data-step="2"
+                            data-intro= "Click me to show all the books and authors available in the database. If a row has no book, It means that the author of that row is currently  not assigned to any books">
                             Books And Authors
                         </Accordion.Toggle>
                     </Card.Header>
@@ -32,7 +36,8 @@ export default function() {
                 </Card>
                 <Card>
                     <Card.Header>
-                        <Accordion.Toggle variant="link" eventKey="1">
+                        <Accordion.Toggle variant="link" eventKey="1"
+                            >
                             Add a new book
                         </Accordion.Toggle>
                     </Card.Header>
