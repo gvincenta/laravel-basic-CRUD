@@ -7,8 +7,7 @@ import Add from './Books/Add';
  import Export from './Export';
 import introJs from "intro.js";
 import "intro.js/introjs.css";
-import config from './config';
-/**
+ /**
  * Shows the main page with 3 tabs:
  * 1. Books and Authors table,
  * 2. Adding a book,
