@@ -8,7 +8,7 @@ import { CSVLink, CSVDownload } from "react-csv";
 import { CsvToHtmlTable } from 'react-csv-to-table';
 
 /** Handles exporting data to XML and CSV */
-export default function (props) {
+export default function () {
     //export to either XML or CSV:
     const [type,setType] = useState('');
     //books / authors / authors and books content:

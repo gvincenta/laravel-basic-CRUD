@@ -5,7 +5,15 @@ import {BrowserRouter,Route,Link,Switch} from 'react-router-dom';
  import {Accordion,Card,Button} from 'react-bootstrap';
 import Add from './Books/Add';
 import Export from './Export';
-export default function App(props) {
+
+/**
+ * Shows the main page with 3 tabs:
+ * 1. Books and Authors table,
+ * 2. Adding a book,
+ * 3. Export to.
+ * @returns a main page with 3 vertical tabs (using accordion).
+ */
+export default function ( ) {
      const [action,setAction] = useState('');
     const [status,setStatus] = useState('');
 
@@ -26,7 +34,7 @@ export default function App(props) {
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="1">
-                                Add / Update...
+                                Add a new book
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="1">
@@ -36,7 +44,7 @@ export default function App(props) {
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="2">
-                            Export To...
+                            Export
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="2">
