@@ -1,5 +1,5 @@
 import React from 'react';
-import {Col,Form,Row,Button} from 'react-bootstrap';
+import { Col, Form, Row, Button } from 'react-bootstrap';
 
 /**
  *  Inline input fields to handle entering an author's firstName and lastName with a button.
@@ -11,25 +11,38 @@ import {Col,Form,Row,Button} from 'react-bootstrap';
  * @param props.required whether the firstName and lastName fields should be non-empty when form is submitted.
  * @returns the UI fields.
  */
-export default function (props) {
-    const {setFirstName,setLastName,onClick,buttonName,buttonType,required} = props;
+export default function(props) {
+    const {
+        setFirstName,
+        setLastName,
+        onClick,
+        buttonName,
+        buttonType,
+        required
+    } = props;
     return (
-       <Row>
+        <Row>
             <Col sm="5">
-                <Form.Control type="text" placeholder="First Name" onChange={v => setFirstName(v.target.value)}
-                required={required} />
+                <Form.Control
+                    type="text"
+                    placeholder="First Name"
+                    onChange={v => setFirstName(v.target.value)}
+                    required={required}
+                />
             </Col>
             <Col sm="5">
-                <Form.Control type="text" placeholder="Last Name" onChange={v => setLastName(v.target.value)}
-                required={required} />
+                <Form.Control
+                    type="text"
+                    placeholder="Last Name"
+                    onChange={v => setLastName(v.target.value)}
+                    required={required}
+                />
             </Col>
             <Col>
-            <Button variant="primary"
-            onClick={onClick} type={buttonType}>
-            {buttonName}
-            </Button>
+                <Button variant="primary" onClick={onClick} type={buttonType}>
+                    {buttonName}
+                </Button>
             </Col>
-       </Row>
-    )
-
+        </Row>
+    );
 }

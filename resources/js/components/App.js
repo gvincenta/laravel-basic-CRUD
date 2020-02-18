@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
- import Search from './Search';
-import {BrowserRouter,Route,Link,Switch} from 'react-router-dom';
- import {Accordion,Card,Button} from 'react-bootstrap';
+import Search from './Search';
+import { BrowserRouter, Route, Link, Switch } from 'react-router-dom';
+import { Accordion, Card, Button } from 'react-bootstrap';
 import Add from './Books/Add';
 import Export from './Export';
 
@@ -13,10 +13,9 @@ import Export from './Export';
  * 3. Export to.
  * @returns a main page with 3 vertical tabs (using accordion).
  */
-export default function ( ) {
-     const [action,setAction] = useState('');
-    const [status,setStatus] = useState('');
-
+export default function() {
+    const [action, setAction] = useState('');
+    const [status, setStatus] = useState('');
 
     return (
         <div>
@@ -28,19 +27,19 @@ export default function ( ) {
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="0">
-                        <Search/>
+                        <Search />
                     </Accordion.Collapse>
                 </Card>
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="1">
-                                Add a new book
+                            Add a new book
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="1">
-                        <Add/>
+                        <Add />
                     </Accordion.Collapse>
-                    </Card>
+                </Card>
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="2">
@@ -48,16 +47,10 @@ export default function ( ) {
                         </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="2">
-                        <Export/>
+                        <Export />
                     </Accordion.Collapse>
                 </Card>
-
             </Accordion>
         </div>
-
-
-
-        );
-
+    );
 }
-
