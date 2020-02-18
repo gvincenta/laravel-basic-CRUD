@@ -11,8 +11,8 @@ import {Button,ButtonGroup} from 'react-bootstrap';
 export default function (props) {
     const {step,min,max,setStep} = props;
 
-    /* initial step only has a forward buttonm
-     * last step has a submit button to commit changes to backend.
+    /* initial step only has a forward button.
+     * last step only has a backward button (submit button handled elsewhere).
      */
     return (
         <ButtonGroup>
@@ -20,9 +20,9 @@ export default function (props) {
          ? <Button variant="primary"onClick= {e => setStep(step-1)}> &lt; </Button>
          : null
         }
-        {step < max //BUG : submit button directly pressed when navigating to last step:
+        {step < max
         ? <Button variant="primary"onClick= {e => setStep(step+1)}> &gt; </Button>
-        : <Button variant="primary" type="submit"> Submit </Button>
+        : null
         }
 
 

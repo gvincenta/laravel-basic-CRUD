@@ -125,8 +125,13 @@ export default function ( ) {
                 existingAuthors = {existingAuthors}/>
                 : null
             }
-
             <Navigator step={step} min={1} max={3} setStep={setStep}/>
+            {//renders submit button on the last step:
+                step===3
+                ? <Button variant="primary" type="submit"> Submit </Button>
+                : null
+            }
+
          </Form>
      )
 
