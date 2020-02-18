@@ -74,13 +74,19 @@ class BooksController extends Controller
             'ID' => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return ["message" => "invalid request", "code"=>400];
+            return  response()->json(['message' => "invalid request"], 400);
         }
 
         $affectedRows= DB::table(Books::TABLE_NAME)
             ->where("ID", "=", $request->input('ID'))
             ->delete();
-        return ["code" => 200,  "affectedRows" => $affectedRows] ;
+        //for completed delete:
+        if ($affectedRows == 1){
+            return  response()->json(['message' => "deleting a book succeed"], 200);
+        //for failed delete (i.e. no rows affected):
+        }else{
+            return  response()->json(['message' => "deleting a book failed"], 200);
+        }
 
     }
 

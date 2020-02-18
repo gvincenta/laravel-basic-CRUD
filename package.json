@@ -10,12 +10,29 @@
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
-        "axios": "^0.19",
+        "@babel/preset-react": "^7.0.0",
+        "axios": "^0.19.2",
         "cross-env": "^5.1",
         "laravel-mix": "^4.0.7",
         "lodash": "^4.17.13",
+        "react": "^16.2.0",
+        "react-dom": "^16.2.0",
         "resolve-url-loader": "^2.3.1",
         "sass": "^1.15.2",
         "sass-loader": "^7.1.0"
+    },
+    "dependencies": {
+        "@material-ui/core": "^4.9.2",
+        "@material-ui/lab": "^4.0.0-alpha.42",
+        "bootstrap": "^4.4.1",
+        "js-file-download": "^0.4.9",
+        "react-bootstrap": "^1.0.0-beta.16",
+        "react-csv": "^2.0.1",
+        "react-csv-to-table": "0.0.4",
+        "react-id-generator": "^3.0.0",
+        "react-router-dom": "^5.1.2",
+        "react-table-6": "^6.11.0",
+        "react-table-v6": "^6.8.6",
+        "react-xml-viewer": "^1.0.3"
     }
 }
