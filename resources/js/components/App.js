@@ -37,7 +37,7 @@ export default function() {
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="1"
                          data-step="8"
-                         data-intro= "Click here for adding a new book as well as assigning authors to it." >
+                         data-intro= "Click here for adding a new book as well as assigning authors to it. \n Click Assign to assign authors to the new book \n Click the author's name to unassign them from the new book." >
                             Add a new book
                         </Accordion.Toggle>
                     </Card.Header>
@@ -48,7 +48,7 @@ export default function() {
                 <Card>
                     <Card.Header>
                         <Accordion.Toggle variant="link" eventKey="2"
-                         data-step="12"
+                         data-step="9"
                          data-intro= "Click here to export books and/or authors data from database to CSV or XML. Once exported, You will be able to view and download them." >
                             Export
                         </Accordion.Toggle>

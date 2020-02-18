@@ -11,9 +11,7 @@ export default function(props) {
 
     return (
         <ListGroup.Item
-            data-step="10"
-            data-intro= "Made a mistake? No problem. Click on their names to un-assign them from this book. Authors that do not appear on this list won't be assigned to your new book."
-            action
+             action
             onClick={e => {
                 props.onClick(author.ID);
             }}

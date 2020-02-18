@@ -66,7 +66,7 @@ export default function() {
             case 2:
                 return 'Assign existing authors to ' + title;
             case 3:
-                return 'Assign new authors to ' + title;
+                return 'Add new authors to the database and assign them to ' + title;
         }
     };
     //sets the form input fields for each step:
@@ -80,8 +80,7 @@ export default function() {
                         placeholder="Please enter the book's title"
                         required
                         onChange={e => setTitle(e.target.value)}
-                        data-step="9"
-                        data-intro= "Firstly, enter the book's title."
+
                     />
                 );
             //provides existing authors:
@@ -92,8 +91,6 @@ export default function() {
                             data={authorsData}
                             loading={loading}
                             onChange={setCurrentAuthor}
-                            data-step="9"
-                            data-intro= "Search for existing authors to be assigned to this new book."
                         />
                         <Button
                             variant="primary"
@@ -104,7 +101,7 @@ export default function() {
                                 ])
                             }
                         >
-                            Add
+                            Assign
                         </Button>
                     </ButtonGroup>
                 );
@@ -115,9 +112,8 @@ export default function() {
                     <InlineField
                         setFirstName={setFirstName}
                         setLastName={setLastName}
-                        buttonName="Add"
-                        data-step="9"
-                        data-intro= "If you want to assign authors that are not in the database to this book , enter their details here. This will automatically assign them to your new book."
+                        buttonName="Assign"
+
                         onClick={e =>
                             assignNewAuthors([
                                 ...newAuthors,
@@ -156,8 +152,7 @@ export default function() {
             <Navigator step={step} min={1} max={3} setStep={setStep} />
             {//renders submit button on the last step:
             step === 3 ? (
-                <Button variant="primary" type="submit" data-step="11"
-                data-intro= "Don't forget to check your entries before submitting. After checking, click here to submit. " >
+                <Button variant="primary" type="submit" >
                     {' '}
                     Submit{' '}
                 </Button>
