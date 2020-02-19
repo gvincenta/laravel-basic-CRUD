@@ -97,11 +97,13 @@ class PivotController extends Controller
 
                 //firstly, create new book:
                 $bookID = $this->booksController->store($request->get("title"));
+
                 //then, create new authors and assign them as the new book's authors:
                 if ( $request->get("newAuthors") ){
                     foreach ($request->get("newAuthors") as $newAuthor){
                         //make new authors and get their IDs:
                         $newAuthorID =  $this->authorsController->store($newAuthor);
+
                         $this->store($newAuthorID,$bookID);
                     }
                 }
@@ -111,8 +113,12 @@ class PivotController extends Controller
                         $this->store($existingAuthor["ID"],$bookID);
                     }
                 }
-                return  response()->json(['message' => "books with their associated authors created successfully"],
+                //returns a success message as well as the book's ID.
+                return  response()->json([
+                    'message' => "books with their associated authors created successfully",
+                    'bookID' => $bookID  ],
                     200);
+
              //something went wrong with the transaction, rollback
             } catch (\Illuminate\Database\QueryException $e) {
                 DB::rollBack();

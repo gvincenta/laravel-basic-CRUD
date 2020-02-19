@@ -38,7 +38,7 @@ class BooksTest extends TestCase
                 $newAuthor,$newAuthor2
             ]
         ]);
-
+        //TODO : assert status change to 201
         $response->assertStatus(200);
         $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
         $this->assertDatabaseHas('authors', $newAuthor);
@@ -86,6 +86,35 @@ class BooksTest extends TestCase
         $response->assertStatus(400);
         $this->assertDatabaseMissing('books', ['title'=>'existing authors exist with improper body']);
     }
+    /**
+     * @test deleting a book in the database.
+     */
+    public function deleteABook()
+    {
+
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        //these should be missing due to using RefreshDatabase:
+        $this->assertDatabaseMissing ('books', ['title'=>'To Be Deleted']);
+        $this->assertDatabaseMissing('authors',$newAuthor);
+        //firstly, must create a book:
+        $createResponse = $this->json('POST','/api/books',['title'=>'To Be Deleted',
+            'newAuthors' => [
+                $newAuthor
+            ]
+        ]);
+        $createResponse->assertStatus(200);
+        $this->assertTrue(gettype($createResponse['bookID']) == "integer");
+        $this->assertDatabaseHas('books', ['title'=>'To Be Deleted']);
+        $this->assertDatabaseHas('authors', $newAuthor);
+
+
+        //then, delete it through its ID:
+        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
+        //TODO : assert status (204 or 202 is appropriate here)
+        $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
+    }
+
+
 
 
 }
