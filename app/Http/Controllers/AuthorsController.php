@@ -22,8 +22,8 @@ class AuthorsController extends Controller
         $this->exportUtility = new ExportUtilityController();
     }
     /**
-     * Returns a list of books.
-     * @return \Illuminate\Http\Response a nested json object of books with authors (not sorted).
+     * Returns a list of authors. (deprecated)
+     * @return \Illuminate\Http\Response a nested json object of authors (not sorted).
      */
     public function index()
     {
@@ -61,7 +61,7 @@ class AuthorsController extends Controller
 
     }
     /**
-     * Returns a list of sorted authors, alongside their books.
+     * Returns a list of sorted authors, alongside their books. (deprecated)
      * @return \Illuminate\Http\Response  a nested json object of authors with books, sorted by authors' last name.
      */
     public function getSortedAuthors()

@@ -80,7 +80,7 @@ class BooksController extends Controller
         $affectedRows= DB::table(Books::TABLE_NAME)
             ->where("ID", "=", $request->input('ID'))
             ->delete();
-        //for completed delete:
+         //for completed delete:
         if ($affectedRows == 1){
             return  response()->json(['message' => "deleting a book succeed"], 200);
         //for failed delete (i.e. no rows affected):
@@ -91,7 +91,7 @@ class BooksController extends Controller
     }
 
     /**
-     * Returns a list of sorted books alongside their authors.
+     * Returns a list of sorted books alongside their authorsm sorted by the titles. (deprecated)
      * @return \Illuminate\Http\Response a nested json object of books with authors, sorted A to Z.
      */
      public function getSortedBooks()
@@ -100,7 +100,7 @@ class BooksController extends Controller
         return $result->toJson();
      }
     /**
-     * Returns a list of books.
+     * Returns a list of books alongside authors. (deprecated)
      * @return \Illuminate\Http\Response a nested json object of books with authors (not sorted).
      */
      public function index(){
