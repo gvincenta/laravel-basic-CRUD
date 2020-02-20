@@ -18,9 +18,40 @@ class BooksTest extends TestCase
      */
     public function getBooksAndAuthors()
     {
+        //firstly, test that it is empty:
         $response = $this->get('api/books');
+        $response
+            ->assertStatus(200)
+            ->assertExactJson( []);
 
-        $response->assertStatus(200);
+        //then, create a book with an author:
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        $title = 'Alpha Beta';
+         $createResponse = $this->json('POST','/api/books',['title'=>$title,
+            'newAuthors' => [
+                $newAuthor
+            ]
+        ]);
+
+        $createResponse->assertStatus(201);
+        //make sure response has the author's ID and book's ID:
+        $this->assertTrue(gettype($createResponse['bookID']) == "integer");
+        $this->assertTrue(gettype($createResponse['newAuthorsID'][0]) == "integer");
+        //make sure database has both author and book:
+        $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
+        $this->assertDatabaseHas('authors', $newAuthor);
+
+        //now test that they are returned when doing a get request, and nothing else is returned besides that:
+        $response = $this->get('api/books');
+        $response
+            ->assertStatus(200)
+            ->assertExactJson( [[
+                "ID"=> $createResponse['newAuthorsID'][0],
+                "firstName"=> $newAuthor['firstName'],
+                "lastName"=> $newAuthor['lastName'],
+                "books_ID"=> $createResponse["bookID"] ,
+                "title"=> $title
+            ] ]);
 
     }
     /**
@@ -38,7 +69,7 @@ class BooksTest extends TestCase
                 $newAuthor,$newAuthor2
             ]
         ]);
-        //TODO : assert status change to 201
+
         $response->assertStatus(201);
         $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
         $this->assertDatabaseHas('authors', $newAuthor);
@@ -93,25 +124,24 @@ class BooksTest extends TestCase
     {
 
         $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
-        //these should be missing due to using RefreshDatabase:
-        $this->assertDatabaseMissing ('books', ['title'=>'To Be Deleted']);
-        $this->assertDatabaseMissing('authors',$newAuthor);
-        //firstly, must create a book:
+
+        //firstly, must create a book. testing for creating book's responses is done in depth on addABookWithAuthor()
         $createResponse = $this->json('POST','/api/books',['title'=>'To Be Deleted',
             'newAuthors' => [
                 $newAuthor
             ]
         ]);
+        //test sufficiently to be able to delete the book:
         $createResponse->assertStatus(201);
         $this->assertTrue(gettype($createResponse['bookID']) == "integer");
         $this->assertDatabaseHas('books', ['title'=>'To Be Deleted']);
-        $this->assertDatabaseHas('authors', $newAuthor);
+
 
 
         //then, delete it through its ID:
         $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
         $deleteResponse->assertStatus(200);
-        //TODO : assert message succeed:
+        $this->assertTrue($deleteResponse['message'] == "deleting a book succeed");
         $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
 
 
