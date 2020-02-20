@@ -225,6 +225,12 @@ class BooksTest extends TestCase
     {
         $this->utilityTest->exportToCSV( ['ID','title'] ,'/api/books/export/CSV','books.csv');
     }
+    /**
+     * @test  exporting books (only) to XMl.
+     */
+    public function exportBooksToXML(){
+        $this->utilityTest->exportToXML( '/api/books/export/XML',"books");
+    }
 
 
 

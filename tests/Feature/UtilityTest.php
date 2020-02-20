@@ -118,7 +118,6 @@ class UtilityTest extends TestCase
             "lastName"=> $newAuthor["lastName"],
             "title"=> $title];
         if($url == '/api/books/export/XML'){
-            dd("rumnnnn");
             $src["ID"] = $createResponse["bookID"] ;
         }
         /*
