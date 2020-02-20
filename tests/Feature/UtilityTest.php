@@ -73,6 +73,11 @@ class UtilityTest extends TestCase
             "lastName"=> $newAuthor['lastName'],
             "books_ID"=> $createResponse["bookID"] ,
             "title"=> $title];
+        //for books, the ID is the bookID:
+        if($url == '/api/books/export/CSV'){
+            $src["ID"] = $createResponse["bookID"] ;
+        }
+
 
          Excel::fake();
          //get the data:
@@ -93,6 +98,50 @@ class UtilityTest extends TestCase
         });
 
 
+
+    }
+    public function exportToXML( $url, $rootTag ){
+        //firstly, must create a book with an author:
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        $title = 'Search';
+        $createResponse =  $this->createABook($title, [$newAuthor], [] );
+        //now, get the xml output:
+        $response = $this->get($url);
+        //load it as an object:
+        $object = simplexml_load_string($response->getContent());
+        //check for a proper object type:
+        $this->assertNotFalse($object);
+        $this->assertInstanceOf( \SimpleXMLElement::class, $object);
+
+        $src = [ "ID"=> $createResponse['newAuthorsID'][0],
+            "firstName"=> $newAuthor["firstName"],
+            "lastName"=> $newAuthor["lastName"],
+            "title"=> $title];
+        if($url == '/api/books/export/XML'){
+            dd("rumnnnn");
+            $src["ID"] = $createResponse["bookID"] ;
+        }
+        /*
+         * structure to be validated:
+         * <?xml version="1.0"?>
+            <authors>
+              <data>
+                <ID>102</ID>
+                <firstName>Hello</firstName>
+                <lastName>World</lastName>
+              </data>
+            </authors> */
+
+        //check the root tag <authors>:
+        $this->assertTrue($object->getName() == $rootTag);
+        //look for corresponding <data>:
+        $this->assertObjectHasAttribute("data", $object);
+        // check the values for child tags of <data>:
+        $childArray = $object->data->attributes();
+
+        foreach ($object->data->attributes() as $key=> $val ) {
+            $this->assertTrue($src[$key] == $childArray[$key]);
+        }
 
     }
 }

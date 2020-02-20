@@ -128,40 +128,8 @@ class AuthorsTest extends TestCase
      * @test  exporting authors (only) to XMl.
      */
     public function exportAuthorsToXML(){
-        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
-        $title = 'Search';
-        //firstly, must create a book with an author:
-        $createResponse = $this->utilityTest->createABook($title, [$newAuthor], [] );
-        //now, get the xml output:
-        $response = $this->get('/api/authors/export/XML');
-        //load it as an object:
-        $object = simplexml_load_string($response->getContent());
-        //check for a proper object type:
-        $this->assertNotFalse($object);
-        $this->assertInstanceOf( \SimpleXMLElement::class, $object);
+        $this->utilityTest->exportToXML(['ID','firstName','lastName'],'/api/authors/export/XML',"authors");
 
-        $src = [ "ID"=> $createResponse['newAuthorsID'][0],
-        "firstName"=> $newAuthor["firstName"],
-        "lastName"=> $newAuthor["lastName"]];
-        /*
-         * structure to be validated:
-         * <?xml version="1.0"?>
-            <authors>
-              <data>
-                <ID>102</ID>
-                <firstName>Hello</firstName>
-                <lastName>World</lastName>
-              </data>
-            </authors> */
-
-        //check the root tag <authors>:
-        $this->assertTrue($object->getName() == "authors");
-        //look for corresponding <data>:
-        $this->assertObjectHasAttribute("data", $object);
-        // check the values for child tags of <data>:
-        foreach ($object->data->attributes() as $key => $value) {
-            $this->assertTrue($src[$key] == $value);
-        }
 
     }
 
