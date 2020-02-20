@@ -12,6 +12,13 @@ class BooksTest extends TestCase
     use RefreshDatabase;
     // use without the need to send CSRF tokens to simplify http requests like post, put and delete.
     use WithoutMiddleware;
+    private $utilityTest;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->utilityTest = new UtilityTest();
+    }
 
     /**
      * @test tests a get request for Books And Authors table.
@@ -210,6 +217,13 @@ class BooksTest extends TestCase
         $deleteResponse = $this->json('DELETE','/api/books',[ 'ID'=> null]);
         $deleteResponse->assertStatus(400);
         $this->assertTrue($deleteResponse['message'] == "invalid request");
+    }
+    /**
+     * @test  exporting books (only) to csv.
+     */
+    public function exportBooksToCSV()
+    {
+        $this->utilityTest->exportToCSV( ['ID','title'] ,'/api/books/export/CSV','books.csv');
     }
 
 
