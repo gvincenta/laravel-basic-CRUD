@@ -8,14 +8,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class ExampleTest extends TestCase
 {
     /**
-     * A basic test example.
+     * make sure all unhandled routes return 404.
      *
-     * @return void
+     * @test
      */
-    public function testBasicTest()
+    public function unhandledRoutes()
     {
-        $response = $this->get('/');
+        $response = $this->get('/idontknow');
 
-        $response->assertStatus(200);
+        $response->assertStatus(404)
+                 ->assertExactJson(['message' => 'Page Not Found.']);
     }
 }
