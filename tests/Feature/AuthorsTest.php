@@ -2,11 +2,17 @@
 
 
 namespace Tests\Feature;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
 //a class to test most of the /api/authors endpoint
 class AuthorsTest extends TestCase
 {
+    //cleans up the DB before and after testing:
+    use RefreshDatabase;
+    // use without the need to send CSRF tokens to simplify http requests like post, put and delete.
+    use WithoutMiddleware;
     /**
      * @test updating an author's name in database.
      */
@@ -60,7 +66,34 @@ class AuthorsTest extends TestCase
         $updateResponse = $this->json('PUT','/api/authors',[$newAuthor]);
         $updateResponse->assertStatus(400);
     }
-    
+    /**
+     * @test  search for a book by its author.
+     */
+    public function searchByAuthor()
+    {
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        $title = 'Search';
+        //firstly, must create a book with an author:
+        $createResponse = $this->json('POST','/api/books',['title'=>$title,
+            'newAuthors' => [
+                $newAuthor
+            ]
+        ]);
+        $createResponse->assertStatus(201);
+        $this->assertDatabaseHas('authors', $newAuthor);
+        $searchResponse = $this->json('GET','/api/authors/with-filter',$newAuthor);
+        $searchResponse
+            ->assertStatus(200)
+            ->assertExactJson( [[
+                "ID"=> $createResponse['newAuthorsID'][0],
+                "firstName"=> $newAuthor['firstName'],
+                "lastName"=> $newAuthor['lastName'],
+                "books_ID"=> $createResponse["bookID"] ,
+                "title"=> $title
+            ] ]);
+
+
+    }
 
 
 }
