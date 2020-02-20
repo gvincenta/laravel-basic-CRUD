@@ -62,7 +62,7 @@ class PivotController extends Controller
      */
     public function store($authorID, $bookID  )
     {
-        DB::table(PivotController::TABLE_NAME)->insertGetId(["authors_ID" => $authorID,
+        return DB::table(PivotController::TABLE_NAME)->insertGetId(["authors_ID" => $authorID,
             "books_ID" => $bookID]);
     }
     /**
