@@ -46,8 +46,10 @@ Route::get('/api/authors/export/CSV','AuthorsController@exportToCSV');
 /** change an author's name (firstName and lastName).*/
 Route::put('/api/authors','AuthorsController@update'  );
 
-/** gets an author's list of books or a book, indicated by author's name details or book title. */
+/** gets an author's list of books, indicated by author's name details. */
 Route::get('/api/authors/with-filter', 'PivotController@show');
+/** gets a book, indicated by book title. */
+Route::get('/api/books/with-filter', 'PivotController@show');
 Route::get('/', function (){
     return view('welcome');
 });
