@@ -4,15 +4,27 @@
 namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
+use App\Exports\DBExport;
+
 
 //a class to test most of the /api/authors endpoint
 class AuthorsTest extends TestCase
 {
+
     //cleans up the DB before and after testing:
     use RefreshDatabase;
     // use without the need to send CSRF tokens to simplify http requests like post, put and delete.
     use WithoutMiddleware;
+    private $utilityTest;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->utilityTest = new UtilityTest();
+    }
+
     /**
      * @test updating an author's name in database.
      */
@@ -81,22 +93,49 @@ class AuthorsTest extends TestCase
         ]);
         //then, search by the author's name:
         $searchResponse = $this->json('GET','/api/authors/with-filter',$newAuthor);
-        $searchResponse
-            ->assertStatus(200)
-            ->assertExactJson( [[
-                "ID"=> $createResponse['newAuthorsID'][0],
-                "firstName"=> $newAuthor['firstName'],
-                "lastName"=> $newAuthor['lastName'],
-                "books_ID"=> $createResponse["bookID"] ,
-                "title"=> $title
-            ] ]);
+
+        $src = ["authorID"=> $createResponse['newAuthorsID'][0],
+            "firstName"=> $newAuthor['firstName'],
+            "lastName"=> $newAuthor['lastName'],
+            "bookID"=> $createResponse["bookID"] ,
+            "title"=> $title];
+
+        $this->utilityTest->checkJsonContent($searchResponse,$src);
+
         //make sure search for exact matches only
         $searchResponse = $this->json('GET','/api/authors/with-filter', ['firstName' =>$newAuthor['firstName'][0] ,
             'lastName' => $newAuthor['lastName']]);
         //expect for empty json response:
-        $searchResponse
-            ->assertStatus(200)
-            ->assertExactJson([]);
+        $this->utilityTest->checkEmptyJsonContent($searchResponse);
+
+    }
+    /**
+     * @test  exporting authors (only) to csv.
+     */
+    public function exportAuthorToCSV(){
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        $title = 'Search';
+        //firstly, must create a book with an author:
+        $createResponse = $this->utilityTest->createABook($title,[$newAuthor],[]);
+        $newAuthor['ID'] = $createResponse['newAuthorsID'][0];
+        Excel::fake();
+
+        $this->get('/api/authors/export/CSV');
+
+        Excel::assertDownloaded('authors.csv', function(DBExport $export) use($newAuthor) {
+            // Assert that the correct export is downloaded.
+
+             $export->collection();
+            foreach( $newAuthor as $key => $val) {
+                      if (! $export->collection()->contains($key,$val)){
+
+                        return false;
+                    }
+            }
+
+            return true;
+        });
+
 
 
     }
