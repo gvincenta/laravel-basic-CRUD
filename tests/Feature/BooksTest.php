@@ -112,6 +112,7 @@ class BooksTest extends TestCase
         $response->assertStatus(400);
         $this->assertDatabaseMissing('books', ['title'=>'new authors exist with improper body']);
         //invalid input #7: existing authors exist with improper body
+        //BUG: may break if someone has an ID of 1.
         $response = $this->json('POST','/api/books',['title'=> "existing authors exist with improper body",
             "authors" =>  ['ID' => '1']]);
         $response->assertStatus(400);
@@ -136,6 +137,13 @@ class BooksTest extends TestCase
         $this->assertTrue(gettype($createResponse['bookID']) == "integer");
         $this->assertDatabaseHas('books', ['title'=>'To Be Deleted']);
 
+        //delete with an invalid request:
+        //BUG: somehow it allows integers in string format.
+//        $invalidID = (string)$createResponse['bookID'];
+//        $this->assertTrue(gettype($invalidID) == "string");
+//        $deleteResponse = $this->json('DELETE','/api/books',[ 'ID'=> $invalidID]);
+//        $deleteResponse->assertStatus(400);
+//        $this->assertTrue($deleteResponse['message'] == "invalid request");
 
 
         //then, delete it through its ID:
@@ -144,8 +152,24 @@ class BooksTest extends TestCase
         $this->assertTrue($deleteResponse['message'] == "deleting a book succeed");
         $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
 
+        //try to delete a non existing book:
+        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
+        $deleteResponse->assertStatus(200);
+        $this->assertTrue($deleteResponse['message'] == "deleting a book failed");
+
+        //delete with an empty request:
+        $deleteResponse = $this->json('DELETE','/api/books',[ ]);
+        $deleteResponse->assertStatus(400);
+        $this->assertTrue($deleteResponse['message'] == "invalid request");
+
+        //delete with a null ID request:
+        $deleteResponse = $this->json('DELETE','/api/books',[ 'ID'=> null]);
+        $deleteResponse->assertStatus(400);
+        $this->assertTrue($deleteResponse['message'] == "invalid request");
+
 
     }
+
 
 
 
