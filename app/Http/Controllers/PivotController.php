@@ -177,7 +177,7 @@ class PivotController extends Controller
     public function exportToCSV(){
         $query = $this->query();
         $this->export = new DBExport( $query->get(),$query->columns);
-        return $this->exportUtility->exportToCSV($this->export,'authors.csv');
+        return $this->exportUtility->exportToCSV($this->export,'authorsAndBooks.csv');
 
 
     }
