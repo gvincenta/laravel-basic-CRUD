@@ -39,7 +39,7 @@ class BooksTest extends TestCase
             ]
         ]);
         //TODO : assert status change to 201
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
         $this->assertDatabaseHas('authors', $newAuthor);
         $this->assertDatabaseHas('authors', $newAuthor2);
@@ -102,7 +102,7 @@ class BooksTest extends TestCase
                 $newAuthor
             ]
         ]);
-        $createResponse->assertStatus(200);
+        $createResponse->assertStatus(201);
         $this->assertTrue(gettype($createResponse['bookID']) == "integer");
         $this->assertDatabaseHas('books', ['title'=>'To Be Deleted']);
         $this->assertDatabaseHas('authors', $newAuthor);
@@ -110,8 +110,11 @@ class BooksTest extends TestCase
 
         //then, delete it through its ID:
         $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
-        //TODO : assert status (204 or 202 is appropriate here)
+        $deleteResponse->assertStatus(200);
+        //TODO : assert message succeed:
         $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
+
+
     }
 
 

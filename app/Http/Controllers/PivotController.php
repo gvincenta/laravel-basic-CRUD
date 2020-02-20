@@ -62,7 +62,7 @@ class PivotController extends Controller
      */
     public function store($authorID, $bookID  )
     {
-        DB::table(PivotController::TABLE_NAME)->insert(["authors_ID" => $authorID,
+        DB::table(PivotController::TABLE_NAME)->insertGetId(["authors_ID" => $authorID,
             "books_ID" => $bookID]);
     }
     /**
@@ -97,27 +97,34 @@ class PivotController extends Controller
 
                 //firstly, create new book:
                 $bookID = $this->booksController->store($request->get("title"));
-
+                $newAuthorsID = []; // to show that new Authors have been added.
+                $relationsID = []; //to show that the authors have been linked with the book.
                 //then, create new authors and assign them as the new book's authors:
                 if ( $request->get("newAuthors") ){
                     foreach ($request->get("newAuthors") as $newAuthor){
                         //make new authors and get their IDs:
                         $newAuthorID =  $this->authorsController->store($newAuthor);
-
-                        $this->store($newAuthorID,$bookID);
+                        array_push($newAuthorsID,$newAuthorID);
+                        $relationID = $this->store($newAuthorID,$bookID);
+                        array_push($relationsID,$relationID);
                     }
                 }
                 if ($request->get("authors") ){
                     foreach ($request->get("authors") as $existingAuthor){
                         //assign the existing authors as the authors of this book:
-                        $this->store($existingAuthor["ID"],$bookID);
+
+                        $relationID = $this->store($existingAuthor["ID"],$bookID);
+                        array_push($relationsID,$relationID);
                     }
                 }
-                //returns a success message as well as the book's ID.
+                //returns a success message, showing the book's ID, the new authors' ID,
+                //and relationID: an ID in the pivot table that connects between each author to this book.
                 return  response()->json([
                     'message' => "books with their associated authors created successfully",
-                    'bookID' => $bookID  ],
-                    200);
+                    'bookID' => $bookID,
+                    'relationsID' => $relationsID,
+                    'newAuthorsID' => $newAuthorsID],
+                    201);
 
              //something went wrong with the transaction, rollback
             } catch (\Illuminate\Database\QueryException $e) {
