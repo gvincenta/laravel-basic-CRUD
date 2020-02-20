@@ -128,7 +128,7 @@ class AuthorsTest extends TestCase
      * @test  exporting authors (only) to XMl.
      */
     public function exportAuthorsToXML(){
-        $this->utilityTest->exportToXML(['ID','firstName','lastName'],'/api/authors/export/XML',"authors");
+        $this->utilityTest->exportToXML( '/api/authors/export/XML',"authors");
 
 
     }
