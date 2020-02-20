@@ -37,29 +37,56 @@ class UtilityTest extends TestCase
         parent::__construct();
         parent::setUp();
     }
-    //refactoring exportAuthorToCSV still failed.
-    public function exportAuthorToCSV($newAuthor, $title , $headersToBeChecked,$url){
+    /** Tests whether an exported CSV file is empty or not.
+     *
+     * @param $url specifies where to get the CSV file.
+     * */
+    public function exportEmptyCSV($url){
+        Excel::fake();
+        //get the data:
+        $response = $this->get($url);
+        //assert OK status:
+        $response->assertStatus(200);
+        //check CSV content and check if it's downloaded or not:
+        Excel::assertDownloaded('authors.csv', function(DBExport $export)  {
+            // expect collection to be empty:
+            return $export->collection()->isEmpty();
+        });
+    }
+    /** Tests an exported CSV file according to the headers that need to be checked against.
+     *
+     * @param $headersToBeChecked the headers to be checked against the CSV file
+     * @param $url specifies where to get the CSV file.
+     * @param $fileName the name of the CSV file that is downloaded.
+     * */
+    public function exportToCSV($headersToBeChecked, $url, $fileName){
+        $this->exportEmptyCSV($url);
 
-        //firstly, must create a book with an author:
+        //firstly,  create a book with an author:
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        $title = 'Search';
         $createResponse = $this->createABook($title, [$newAuthor],[]);
 
+        //construct the values to be checked against:
         $src = ["ID"=> $createResponse['newAuthorsID'][0],
             "firstName"=> $newAuthor['firstName'],
             "lastName"=> $newAuthor['lastName'],
             "books_ID"=> $createResponse["bookID"] ,
             "title"=> $title];
-        Excel::fake();
 
-        $this->get($url);
-
-        Excel::assertDownloaded('authors.csv', function(DBExport $export) use($src,$headersToBeChecked) {
-            // Assert that the correct export is downloaded.
-
-            foreach( $headersToBeChecked as $header) {
-                if (! $export->collection()->contains($header,$src->$header)){
-
+         Excel::fake();
+         //get the data:
+        $response = $this->get($url);
+        //assert OK status:
+        $response->assertStatus(200);
+        //check CSV content and check if it's downloaded or not:
+        Excel::assertDownloaded($fileName, function(DBExport $export) use($src,$headersToBeChecked) {
+            // loop through each header and check the values recorded in CSV file:
+            foreach($headersToBeChecked as $header){
+                if (! $export->collection()->contains($header, $src[$header] )){
                     return false;
                 }
+
             }
 
             return true;

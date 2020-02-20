@@ -113,30 +113,9 @@ class AuthorsTest extends TestCase
      * @test  exporting authors (only) to csv.
      */
     public function exportAuthorToCSV(){
-        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
-        $title = 'Search';
-        //firstly, must create a book with an author:
-        $createResponse = $this->utilityTest->createABook($title,[$newAuthor],[]);
-        $newAuthor['ID'] = $createResponse['newAuthorsID'][0];
-        Excel::fake();
-
-        $this->get('/api/authors/export/CSV');
-
-        Excel::assertDownloaded('authors.csv', function(DBExport $export) use($newAuthor) {
-            // Assert that the correct export is downloaded.
-
-             $export->collection();
-            foreach( $newAuthor as $key => $val) {
-                      if (! $export->collection()->contains($key,$val)){
-
-                        return false;
-                    }
-            }
-
-            return true;
-        });
 
 
+        $this->utilityTest->exportToCSV( ['ID','firstName','lastName'] ,'/api/authors/export/CSV','authors.csv');
 
     }
 
