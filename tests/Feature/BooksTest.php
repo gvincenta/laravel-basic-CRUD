@@ -55,6 +55,31 @@ class BooksTest extends TestCase
 
     }
     /**
+     * @test search for a book by its title.
+     */
+    public function searchByTitle(){
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        $title = 'Search';
+        //firstly, must create a book with an author:
+        $createResponse = $this->json('POST','/api/books',['title'=>$title,
+            'newAuthors' => [
+                $newAuthor
+            ]
+        ]);
+        $createResponse->assertStatus(201);
+        $this->assertDatabaseHas('books',['title'=>$title] );
+        $searchResponse = $this->json('GET','/api/books/with-filter',['title'=>$title]);
+        $searchResponse
+            ->assertStatus(200)
+            ->assertExactJson( [[
+                "ID"=> $createResponse['newAuthorsID'][0],
+                "firstName"=> $newAuthor['firstName'],
+                "lastName"=> $newAuthor['lastName'],
+                "books_ID"=> $createResponse["bookID"] ,
+                "title"=> $title
+            ] ]);
+    }
+    /**
      * @test adding a book and assigns authors to it.
      */
     public function addABookWithAuthor()
@@ -166,8 +191,6 @@ class BooksTest extends TestCase
         $deleteResponse = $this->json('DELETE','/api/books',[ 'ID'=> null]);
         $deleteResponse->assertStatus(400);
         $this->assertTrue($deleteResponse['message'] == "invalid request");
-
-
     }
 
 
