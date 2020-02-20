@@ -79,8 +79,7 @@ class AuthorsTest extends TestCase
                 $newAuthor
             ]
         ]);
-        $createResponse->assertStatus(201);
-        $this->assertDatabaseHas('authors', $newAuthor);
+        //then, search by the author's name:
         $searchResponse = $this->json('GET','/api/authors/with-filter',$newAuthor);
         $searchResponse
             ->assertStatus(200)
@@ -91,6 +90,13 @@ class AuthorsTest extends TestCase
                 "books_ID"=> $createResponse["bookID"] ,
                 "title"=> $title
             ] ]);
+        //make sure search for exact matches only
+        $searchResponse = $this->json('GET','/api/authors/with-filter', ['firstName' =>$newAuthor['firstName'][0] ,
+            'lastName' => $newAuthor['lastName']]);
+        //expect for empty json response:
+        $searchResponse
+            ->assertStatus(200)
+            ->assertExactJson([]);
 
 
     }

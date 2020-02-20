@@ -22,7 +22,7 @@ class BooksTest extends TestCase
         $response = $this->get('api/books');
         $response
             ->assertStatus(200)
-            ->assertExactJson( []);
+            ->assertExactJson([]);
 
         //then, create a book with an author:
         $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
@@ -66,9 +66,9 @@ class BooksTest extends TestCase
                 $newAuthor
             ]
         ]);
-        $createResponse->assertStatus(201);
-        $this->assertDatabaseHas('books',['title'=>$title] );
+        //then search on the recently created book:
         $searchResponse = $this->json('GET','/api/books/with-filter',['title'=>$title]);
+        //check the response:
         $searchResponse
             ->assertStatus(200)
             ->assertExactJson( [[
@@ -78,6 +78,12 @@ class BooksTest extends TestCase
                 "books_ID"=> $createResponse["bookID"] ,
                 "title"=> $title
             ] ]);
+        //make sure  search for exact matches only:
+        $searchResponse = $this->json('GET','/api/books/with-filter',['title'=>$title[0]]);
+        //expect for an empty response:
+        $searchResponse
+            ->assertStatus(200)
+            ->assertExactJson( []);
     }
     /**
      * @test adding a book and assigns authors to it.
@@ -94,8 +100,21 @@ class BooksTest extends TestCase
                 $newAuthor,$newAuthor2
             ]
         ]);
-
+        /*note that testing the response of this API in the following lines below are very crucial, as most of other test
+        functions  need to initially make a book with this endpoint. */
+        //make sure status is correct:
         $response->assertStatus(201);
+        //make sure response returned properly:
+        $this->assertTrue(count($response['newAuthorsID']) == 2); // 2 authors created in DB with their ID returned.
+        $this->assertTrue(count($response['relationsID']) == 2); // both authors assigned to the book in pivot table.
+        //all IDs returned are in integer type:
+        $this->assertTrue(gettype($response['bookID']) == "integer");
+        foreach ($response['newAuthorsID'] as $newAuthorID){
+            $this->assertTrue(gettype($newAuthorID) == "integer");
+        }
+        foreach ($response['relationsID'] as $relationID){
+            $this->assertTrue(gettype($relationID) == "integer");
+        }
         $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
         $this->assertDatabaseHas('authors', $newAuthor);
         $this->assertDatabaseHas('authors', $newAuthor2);
@@ -192,6 +211,7 @@ class BooksTest extends TestCase
         $deleteResponse->assertStatus(400);
         $this->assertTrue($deleteResponse['message'] == "invalid request");
     }
+
 
 
 
