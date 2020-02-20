@@ -18,8 +18,7 @@ use Illuminate\Http\Request;
 
 //TODO : using query parameters instead of request.body is still buggy.
 
-/** gets a list of books with their authors. */
-//Route::get('/api/books', 'BooksController@index');
+
 
 /**
  *  adds a book to the database, along with its respective new/existing authors,
@@ -58,4 +57,4 @@ Route::fallback(function(){
     return response()->json([
         'message' => 'Page Not Found.'], 404);
 });
- 
+
