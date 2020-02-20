@@ -127,3 +127,6 @@ fabric.properties
 .env.example
 .idea/basic.iml
 .idea/php.xml
+
+#report
+./report
