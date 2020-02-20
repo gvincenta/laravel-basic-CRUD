@@ -41,14 +41,14 @@ class UtilityTest extends TestCase
      *
      * @param $url specifies where to get the CSV file.
      * */
-    public function exportEmptyCSV($url){
+    public function exportEmptyCSV($url,$fileName){
         Excel::fake();
         //get the data:
         $response = $this->get($url);
         //assert OK status:
         $response->assertStatus(200);
         //check CSV content and check if it's downloaded or not:
-        Excel::assertDownloaded('authors.csv', function(DBExport $export)  {
+        Excel::assertDownloaded( $fileName, function(DBExport $export)  {
             // expect collection to be empty:
             return $export->collection()->isEmpty();
         });
@@ -60,7 +60,7 @@ class UtilityTest extends TestCase
      * @param $fileName the name of the CSV file that is downloaded.
      * */
     public function exportToCSV($headersToBeChecked, $url, $fileName){
-        $this->exportEmptyCSV($url);
+        $this->exportEmptyCSV($url,$fileName);
 
         //firstly,  create a book with an author:
         $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
