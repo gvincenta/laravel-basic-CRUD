@@ -129,4 +129,4 @@ fabric.properties
 .idea/php.xml
 
 #report
-./report
+report/*
