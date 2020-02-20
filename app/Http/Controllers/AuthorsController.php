@@ -21,14 +21,6 @@ class AuthorsController extends Controller
     {
         $this->exportUtility = new ExportUtilityController();
     }
-    /**
-     * Returns a list of authors. (deprecated)
-     * @return \Illuminate\Http\Response a nested json object of authors (not sorted).
-     */
-    public function index()
-    {
-        return Authors::all()->toJson();
-    }
 
     /**
      * Updates an author's firstName and lastName.
@@ -59,15 +51,6 @@ class AuthorsController extends Controller
             return  response()->json(['message' => "changing name failed"], 200);
         }
 
-    }
-    /**
-     * Returns a list of sorted authors, alongside their books. (deprecated)
-     * @return \Illuminate\Http\Response  a nested json object of authors with books, sorted by authors' last name.
-     */
-    public function getSortedAuthors()
-    {
-        $result = Authors::with('books')->orderBy('lastName')->get();
-        return $result->toJson();
     }
 
     /**

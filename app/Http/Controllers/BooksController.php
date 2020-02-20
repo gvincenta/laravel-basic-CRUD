@@ -90,22 +90,7 @@ class BooksController extends Controller
 
     }
 
-    /**
-     * Returns a list of sorted books alongside their authorsm sorted by the titles. (deprecated)
-     * @return \Illuminate\Http\Response a nested json object of books with authors, sorted A to Z.
-     */
-     public function getSortedBooks()
-    {
-         $result = Books::with('authors')->orderBy('title')->get();
-        return $result->toJson();
-     }
-    /**
-     * Returns a list of books alongside authors. (deprecated)
-     * @return \Illuminate\Http\Response a nested json object of books with authors (not sorted).
-     */
-     public function index(){
-         return Books::with('authors')->get()->toJson();
-     }
+
 
 
 }
