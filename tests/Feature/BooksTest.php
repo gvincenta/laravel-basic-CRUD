@@ -19,34 +19,24 @@ class BooksTest extends TestCase
         parent::__construct();
         $this->utilityTest = new UtilityTest();
     }
+    public function getEmptyBooksAndAuthors(){
+        $response = $this->get('api/books');
+        $this->utilityTest->checkEmptyJsonContent($response);
+    }
 
     /**
      * @test tests a get request for Books And Authors table.
      */
     public function getBooksAndAuthors()
     {
-        //firstly, test that it is empty:
-        $response = $this->get('api/books');
-        $response
-            ->assertStatus(200)
-            ->assertExactJson([]);
+        //expect an empty json when DB is empty:
+        $this->getEmptyBooksAndAuthors();
 
         //then, create a book with an author:
         $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
         $title = 'Alpha Beta';
-         $createResponse = $this->json('POST','/api/books',['title'=>$title,
-            'newAuthors' => [
-                $newAuthor
-            ]
-        ]);
+        $createResponse = $this->utilityTest->createABook($title, [$newAuthor] );
 
-        $createResponse->assertStatus(201);
-        //make sure response has the author's ID and book's ID:
-        $this->assertTrue(gettype($createResponse['bookID']) == "integer");
-        $this->assertTrue(gettype($createResponse['newAuthorsID'][0]) == "integer");
-        //make sure database has both author and book:
-        $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
-        $this->assertDatabaseHas('authors', $newAuthor);
 
         //now test that they are returned when doing a get request, and nothing else is returned besides that:
         $response = $this->get('api/books');
@@ -102,6 +92,14 @@ class BooksTest extends TestCase
         $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
         $this->assertDatabaseHas('authors', $newAuthor);
         $this->assertDatabaseHas('authors', $newAuthor2);
+
+//        $createResponse->assertStatus(201);
+//        //make sure response has the author's ID and book's ID:
+//        $this->assertTrue(gettype($createResponse['bookID']) == "integer");
+//        $this->assertTrue(gettype($createResponse['newAuthorsID'][0]) == "integer");
+//        //make sure database has both author and book:
+//        $this->assertDatabaseHas('books', ['title'=>'Alpha Beta']);
+//        $this->assertDatabaseHas('authors', $newAuthor);
         //todo: make sure books connected to newly created authors:
 
         //invalid input #1: non-string titles
