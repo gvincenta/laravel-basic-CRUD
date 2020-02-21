@@ -47,9 +47,9 @@ Route::get('/api/authors/export/CSV','AuthorsController@exportToCSV');
 Route::put('/api/authors','AuthorsController@update'  );
 
 /** gets an author's list of books, indicated by author's name details. */
-Route::get('/api/authors/with-filter', 'PivotController@show');
+Route::get('/api/authors/with-filter', 'PivotController@showByAuthor');
 /** gets a book, indicated by book title. */
-Route::get('/api/books/with-filter', 'PivotController@show');
+Route::get('/api/books/with-filter', 'PivotController@showByTitle');
 Route::get('/', function (){
     return view('welcome');
 });

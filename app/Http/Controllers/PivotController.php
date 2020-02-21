@@ -30,41 +30,43 @@ class PivotController extends Controller
 
     }
     /**
-     * handles searching for a book through its title/author.
-     * @param Illuminate\Http\Request $request, containing the title  OR  firstName and lastName.
-     * @return  Illuminate\Http\Response  the book(s) according to title/author, if request is valid.
+     * handles searching for a book through its author.
+     * @param Illuminate\Http\Request $request, containing the   firstName and lastName.
+     * @return  Illuminate\Http\Response  the book(s) according to author, if request is valid.
      * @return Illuminate\Http\Response  invalid request message, if request is not valid.
      */
-     public function show(Request $request)
-    {
-
-        //search by authors:
-         if (Str::contains($request->path(), "authors" )){
-             //for search by authors, we need their firstName and lastName.
-             $validator = Validator::make($request->all(), [
-                 'firstName' => 'required|string',
-                 'lastName' =>'required|string'
-             ]);
-             if ($validator->fails()) {
-                 return  response()->json(['message' => "invalid request"], 400);
-             }
-             //for simplicity, do an exact matching search (not case sensitive):
-             return    $this->query()->where('authors.firstName' , '=', $request['firstName'])
-                ->where('authors.lastName' , '=', $request['lastName'] )->get();
+    public function showByAuthor(Request $request){
+        //for search by authors, we need their firstName and lastName.
+        $validator = Validator::make($request->all(), [
+            'firstName' => 'required|string',
+            'lastName' =>'required|string'
+        ]);
+        if ($validator->fails()) {
+            return  response()->json(['message' => "invalid request"], 400);
         }
-         //search by titles:
-         else if (Str::contains($request->path(), "books" )){
-             //for search by authors, we need their firstName and lastName.
-             $validator = Validator::make($request->all(), [
-                 'title' => 'required|string'
-             ]);
-             if ($validator->fails()) {
-                 return  response()->json(['message' => "invalid request"], 400);
-             }
-             //for simplicity, do an exact matching search (not case sensitive):
-             return    $this->query()->where('books.title' , '=', $request['title'])->get();
-        }
+        //for simplicity, do an exact matching search (not case sensitive):
+        return    $this->query()->where('authors.firstName' , '=', $request['firstName'])
+            ->where('authors.lastName' , '=', $request['lastName'] )->get();
     }
+    /**
+     * handles searching for a book through its title.
+     * @param Illuminate\Http\Request $request, containing the title.
+     * @return  Illuminate\Http\Response  the book according to title, if request is valid.
+     * @return Illuminate\Http\Response  invalid request message, if request is not valid.
+     */
+    public function showByTitle(Request $request){
+        //for search by title, we need title only.
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string'
+        ]);
+        if ($validator->fails()) {
+            return  response()->json(['message' => "invalid request"], 400);
+        }
+        //for simplicity, do an exact matching search (not case sensitive):
+        return    $this->query()->where('books.title' , '=', $request['title'])->get();
+    }
+
+
     /**
      * assigns an author to a book.
      */
