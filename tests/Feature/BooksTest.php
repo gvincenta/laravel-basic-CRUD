@@ -231,13 +231,20 @@ class BooksTest extends TestCase
     public function exportBooksToXML(){
         $this->utilityTest->exportToXML(['ID','title'], '/api/books/export/XML',"books");
     }
-//    /**
-//     * @test  exporting books and authors to XMl.
-//     */
-//    public function exportBooksAndAuthorsToXML(){
-//        $this->utilityTest->exportToXML( '/api/books/export/XML/with-authors',"books","authors");
-//
-//    }
+    /**
+     * @test  exporting books and authors to XMl.
+     */
+    public function exportBooksAndAuthorsToXML(){
+        $this->utilityTest->exportToXML( '/api/books/export/XML/with-authors',"books","authors");
+
+    }
+    /**
+     * @test  exporting books and authors to XMl.
+     */
+    public function exportsBooksAndAuthorsToXML(){
+        $this->utilityTest->exportToXML( [['ID', 'title'], ['ID','firstName','lastName'] ],'/api/books/export/XML/with-authors',
+            "books","authors");
+    }
 
 
 

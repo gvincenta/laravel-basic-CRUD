@@ -93,7 +93,6 @@ class UtilityTest extends TestCase
                 }
 
             }
-
             return true;
         });
 
@@ -138,42 +137,37 @@ class UtilityTest extends TestCase
         $this->assertObjectHasAttribute("data", $object);
         // check the values for child tags of <data>:
         $childArray = $object->data;
-        $this->validateXMLContent($headersToBeChecked,$childArray,$src,$rootTag);
 
-//       $this->checkNestedXML($childArray,$src,$nestedTag,$object->data,$rootTag);
+       $this->checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag,$object->data,$rootTag);
 
     }
     //check if the xml has a nested element, e.g. books under authors or vice versa:
-    public function checkNestedXML($childArray,$src,$nestedTag, $xml,$rootTag){
+    public function checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag, $xml,$rootTag){
         //if no nesting, just loop:
-        $this->validateXMLContent($childArray,$src,$rootTag);
+        $this->validateXMLContent($headersToBeChecked[0],$childArray,$src,$rootTag);
 
         //if nesting, you must expand again, and loop:
         if ($xml->$nestedTag){
              //look for corresponding <data>:
             $this->assertObjectHasAttribute("data", $xml->$nestedTag);
-            $grandChildArray = $xml->$nestedTag->data->attributes();
+            $grandChildArray = $xml->$nestedTag->data;
             //nesting only occurs once, so don't worry about recursion, just directly validate the $grandChildArray:
 
-            $this->validateXMLContent($grandChildArray,$src,$nestedTag);
+            $this->validateXMLContent($headersToBeChecked[1],$grandChildArray,$src,$nestedTag);
 
         }
     }
     //check that current xml elements under <data> are valid:
     public function validateXMLContent($headersToBeChecked,$childArray,$src,$currentTag){
         foreach ($headersToBeChecked as $header) {
-                        if ($currentTag == "authors" && $header=="ID"){
-
+            if ($currentTag == "authors" && $header=="ID"){
                 $this->assertTrue($src["authorID"] == $childArray->$header);
             } else if ($currentTag == "books" && $header=="ID"){
-
                 $this->assertTrue($src["bookID"] == $childArray->$header);
             }else{
                 $this->assertTrue($src[$header] == $childArray->$header);
             }
         }
-
-
     }
 
 }
