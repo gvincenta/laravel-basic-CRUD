@@ -14,27 +14,31 @@ class BooksTest extends TestCase
     use WithoutMiddleware;
     private $utilityTest,$authors,$title,$authorIDs;
 
-    //populate some data for testing:
+    /** populate some data for testing: */
     public function __construct()
     {
         parent::__construct();
+
         $this->utilityTest = new UtilityTest();
         $this->authors = [
             ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'],
             ['firstName' => 'Michael', 'lastName' => 'AJ']
         ];
         $this->title = 'Alpha Beta';
-        //for testing adding new book with existing authors:
+        //for testing adding new book with existing authors, store the authors' ID:
         $this->authorIDs = [];
     }
 
+    /** expects an empty json to be returned when backend Books and Authors tables are empty. */
     public function getEmptyBooksAndAuthors(){
         $response = $this->get('api/books');
         $this->utilityTest->checkEmptyJsonContent($response);
     }
 
     /**
-     * @test tests a get request for Books And Authors table.
+     * @test tests a get request from api/books for Books And Authors table.
+     * 1. tests when the backend tables are empty.
+     * 2. create a book with an author, and then try to get them returned via this get request.
      */
     public function getBooksAndAuthors()
     {
@@ -55,11 +59,9 @@ class BooksTest extends TestCase
                 "books_ID"=> $createResponse["bookID"] ,
                 "title"=> $this->title
             ] ]);
-
     }
-    /**
-     * @test search for a book by its title.
-     */
+
+    /**  @test search for a book by its title. */
     public function searchByTitle()
     {
         $this->utilityTest->searchTestFacade('/api/books/with-filter');
@@ -67,6 +69,9 @@ class BooksTest extends TestCase
     }
     /**
      * @test adding a book and assigns authors to it.
+     * 1. adds a book with new (non-existing) authors to the database.
+     * 2. adds a book with invalid request body.
+     * 3. adds a book with existing authors in the database.
      */
     public function addABookWithAuthors()
     {
@@ -78,6 +83,8 @@ class BooksTest extends TestCase
         $this->addABookWithExistingAuthors();
 
     }
+
+    /** Sends a request to backend to make a new book with a new (non-existing) authors.  */
     public function addABookWithNewAuthors(){
 
         $response = $this->utilityTest->createABook($this->title, $this->authors );
@@ -110,17 +117,26 @@ class BooksTest extends TestCase
        $this->validateDBRelation($response['bookID'],$this->authorIDs,$response['relationsID']);
 
     }
-    //check that the relationships between a book and its authors have been created in DB:
+
+    /** check that the relationships between a book and its authors have been created in DB.
+     * @param $bookID the expected book's ID
+     * @param $authorIDs the expected author(s)
+     * @param $relationIDs the ID in the pivot table that relates the book to a certain author.
+     */
     public function validateDBRelation($bookID, $authorIDs, $relationIDs){
         $lenAuthorIDs = count($authorIDs);
         $lenRelationIDs = count($relationIDs);
         $this->assertTrue($lenAuthorIDs == $lenRelationIDs);
         for($i = 0; $i < $lenAuthorIDs; $i++){
-            $this->assertDatabaseHas('authors_books', ['authors_ID' =>$authorIDs[$i]["ID"], 'books_ID' =>$bookID,
-                'ID' =>$relationIDs[$i] ]);
+            $this->assertDatabaseHas('authors_books', ['authors_ID' =>$authorIDs[$i]["ID"], 'books_ID' =>$bookID ]);
         }
 
     }
+
+    /** tests the adding a book functionality with an invalid request.
+     * 1. numeric titles
+     * 2. books without any authors
+     */
     public function addABookWithAuthorsWithInvalidRequest(){
         //invalid input #1: non-string titles
         $response = $this->utilityTest->createABook(123, $this->authors );
@@ -133,6 +149,7 @@ class BooksTest extends TestCase
         $this->assertDatabaseMissing('books', ['title'=>'No Authors']);
     }
 
+    /**tests the adding a book functionality with existing authors in the database. */
     public function addABookWithExistingAuthors(){
         $title = "Never Been Added Yet";
         $response = $this->utilityTest->createABook( $title, [], $this->authorIDs );
@@ -150,7 +167,11 @@ class BooksTest extends TestCase
 
 
     }
-    //make sure all IDs are in integer type:
+    //
+
+    /** make sure all IDs are in integer type:
+     * @param $IDarray an array of IDs given from backend's response.
+     */
     public function checkIDType($IDarray){
         foreach ($IDarray as $ID){
             $this->assertTrue(gettype($ID) == "integer");
@@ -158,6 +179,9 @@ class BooksTest extends TestCase
     }
     /**
      * @test deleting a book in the database.
+     * 1. deleting a book with an invalid ID
+     * 2. deleting a book with a valid request
+     * 3. deleting a book without specifying an ID
      */
     public function deleteABook()
     {
@@ -165,17 +189,22 @@ class BooksTest extends TestCase
         $this->deleteABookWithInvalidID();
         //delete with a valid request:
         $this->deleteABookWithValidRequest();
-        //delete with an (invalid) empty request:
+        //delete with an (invalid) empty request (i.e. not specifying the book's ID):
         $this->deleteABookWithEmptyResponse();
     }
+
+    /** requests to delete a book without specifying its ID.  */
     public function deleteABookWithEmptyResponse(){
         $deleteResponse = $this->json('DELETE','/api/books',[]);
         $this->utilityTest->checkInvalidResponse($deleteResponse);
     }
+
+    /** requests to delete a book with an ID that doesn't exist in the books table. */
     public function deleteABookWithInvalidID(){
         $deleteResponse = $this->json('DELETE','/api/books',['ID'=> 0]);
         $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,"deleting a book failed");
     }
+    /** requests to delete a book with an ID that exists in the books table. */
     public function deleteABookWithValidRequest(){
         //firstly, must create a book.
         $createResponse = $this->utilityTest->createABook($this->title, [$this->authors[0]] );
@@ -186,32 +215,19 @@ class BooksTest extends TestCase
         $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
     }
 
-    /**
-     * @test  exporting books (only) to csv.
-     */
+    /**  @test  requests for a books (only) content  exported as a CSV and then check its content. */
     public function exportBooksToCSV()
     {
         $this->utilityTest->exportToCSV( ['ID','title'] ,'/api/books/export/CSV','books.csv');
     }
-    /**
-     * @test  exporting books (only) to XMl.
-     */
+    /** @test  requests for a books (only) content to be exported as a XML and then check its content.*/
     public function exportBooksToXML(){
         $this->utilityTest->exportToXML([['ID', 'title']  ], '/api/books/export/XML',"books");
     }
 
-    /**
-     * @test  exporting books and authors to XMl.
-     */
+    /**  @test requests for a books and authors content to be exported as a XML and then check its content.   */
     public function exportsBooksAndAuthorsToXML(){
         $this->utilityTest->exportToXML( [['ID', 'title'], ['ID','firstName','lastName'] ],'/api/books/export/XML/with-authors',
             "books","authors");
     }
-
-
-
-
-
-
-
 }
