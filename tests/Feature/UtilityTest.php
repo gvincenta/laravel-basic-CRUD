@@ -100,7 +100,7 @@ class UtilityTest extends TestCase
 
 
     }
-    public function exportToXML( $url, $rootTag ){
+    public function exportToXML($headersToBeChecked, $url, $rootTag ,$nestedTag=""){
         //firstly, must create a book with an author:
         $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
         $title = 'Search';
@@ -113,13 +113,14 @@ class UtilityTest extends TestCase
         $this->assertNotFalse($object);
         $this->assertInstanceOf( \SimpleXMLElement::class, $object);
 
-        $src = [ "ID"=> $createResponse['newAuthorsID'][0],
+        $src = [ "authorID"=> $createResponse['newAuthorsID'][0],
             "firstName"=> $newAuthor["firstName"],
             "lastName"=> $newAuthor["lastName"],
-            "title"=> $title];
-        if($url == '/api/books/export/XML'){
-            $src["ID"] = $createResponse["bookID"] ;
-        }
+            "title"=> $title,
+            "bookID"=> $createResponse["bookID"]];
+
+
+
         /*
          * structure to be validated:
          * <?xml version="1.0"?>
@@ -136,11 +137,43 @@ class UtilityTest extends TestCase
         //look for corresponding <data>:
         $this->assertObjectHasAttribute("data", $object);
         // check the values for child tags of <data>:
-        $childArray = $object->data->attributes();
+        $childArray = $object->data;
+        $this->validateXMLContent($headersToBeChecked,$childArray,$src,$rootTag);
 
-        foreach ($object->data->attributes() as $key=> $val ) {
-            $this->assertTrue($src[$key] == $childArray[$key]);
-        }
+//       $this->checkNestedXML($childArray,$src,$nestedTag,$object->data,$rootTag);
 
     }
+    //check if the xml has a nested element, e.g. books under authors or vice versa:
+    public function checkNestedXML($childArray,$src,$nestedTag, $xml,$rootTag){
+        //if no nesting, just loop:
+        $this->validateXMLContent($childArray,$src,$rootTag);
+
+        //if nesting, you must expand again, and loop:
+        if ($xml->$nestedTag){
+             //look for corresponding <data>:
+            $this->assertObjectHasAttribute("data", $xml->$nestedTag);
+            $grandChildArray = $xml->$nestedTag->data->attributes();
+            //nesting only occurs once, so don't worry about recursion, just directly validate the $grandChildArray:
+
+            $this->validateXMLContent($grandChildArray,$src,$nestedTag);
+
+        }
+    }
+    //check that current xml elements under <data> are valid:
+    public function validateXMLContent($headersToBeChecked,$childArray,$src,$currentTag){
+        foreach ($headersToBeChecked as $header) {
+                        if ($currentTag == "authors" && $header=="ID"){
+
+                $this->assertTrue($src["authorID"] == $childArray->$header);
+            } else if ($currentTag == "books" && $header=="ID"){
+
+                $this->assertTrue($src["bookID"] == $childArray->$header);
+            }else{
+                $this->assertTrue($src[$header] == $childArray->$header);
+            }
+        }
+
+
+    }
+
 }
