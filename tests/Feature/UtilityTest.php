@@ -9,7 +9,7 @@ use App\Exports\DBExport;
 
 class UtilityTest extends TestCase
 {
-    public function createABook($title, $newAuthor, $existingAuthors = [] ){
+    public function createABook($title, $newAuthor = [], $existingAuthors = [] ){
         return   $this->json('POST','/api/books',['title'=>$title,
             'newAuthors' => $newAuthor,
             'authors' => $existingAuthors
