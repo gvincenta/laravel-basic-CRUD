@@ -143,7 +143,7 @@ class UtilityTest extends TestCase
         //try to send invalid requests:
         $searchResponse =  $this->sendEmptyRequest($url,'GET');
         //expect for status: 400 response:
-        $this->checkInvalidRequestResponse($searchResponse);
+        $this->checkInvalidResponse($searchResponse);
     }
     public function sendEmptyRequest($url,$verb){
         return $this->json($verb,$url, []);
@@ -218,12 +218,13 @@ class UtilityTest extends TestCase
             }
         }
     }
-    public function checkInvalidRequestResponse($response){
+    //when you send an invalid request, the backend returns an "invalid request" message. check for this kind of message here.
+    public function checkInvalidResponse($response){
         $response
             ->assertStatus(400)
             ->assertExactJson(["message" => "invalid request"]);
     }
-    public function checkFailedResponse($response,$message){
+    public function checkOKResponseWithCustomMessage($response, $message){
         $response
             ->assertStatus(200)
             ->assertExactJson(["message" => $message]);

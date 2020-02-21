@@ -14,6 +14,7 @@ class BooksTest extends TestCase
     use WithoutMiddleware;
     private $utilityTest,$authors,$title,$authorIDs;
 
+    //populate some data for testing:
     public function __construct()
     {
         parent::__construct();
@@ -26,6 +27,7 @@ class BooksTest extends TestCase
         //for testing adding new book with existing authors:
         $this->authorIDs = [];
     }
+
     public function getEmptyBooksAndAuthors(){
         $response = $this->get('api/books');
         $this->utilityTest->checkEmptyJsonContent($response);
@@ -63,16 +65,32 @@ class BooksTest extends TestCase
         $this->utilityTest->searchTestFacade('/api/books/with-filter');
 
     }
+    /**
+     * @test adding a book and assigns authors to it.
+     */
+    public function addABookWithAuthors()
+    {
+        //add with new authors:
+        $this->addABookWithNewAuthors();
+        //testing with invalid inputs:
+        $this->addABookWithAuthorsWithInvalidRequest();
+        //valid input #2: add with existing authors:
+        $this->addABookWithExistingAuthors();
+
+    }
     public function addABookWithNewAuthors(){
 
         $response = $this->utilityTest->createABook($this->title, $this->authors );
         /*note that testing the response of this API in the following lines below are very crucial, as most of other
         tests functions  need to initially make a book with this endpoint. */
+
         //make sure status is correct:
         $response->assertStatus(201);
+
         //make sure response returned properly:
         $this->assertTrue(count($response['newAuthorsID']) == 2); // 2 authors created in DB with their ID returned.
         $this->assertTrue(count($response['relationsID']) == 2); // both authors assigned to the book in pivot table.
+
         //check that all IDs returned are in integer type:
         $this->assertTrue(gettype($response['bookID']) == "integer");
         $this->checkIDType([$response['bookID']]);
@@ -83,6 +101,7 @@ class BooksTest extends TestCase
             //store authors' ID for next test:
             array_push($this->authorIDs,["ID" =>$newAuthorID]);
         }
+
         //check that they exist in DB:
         $this->assertDatabaseHas('books', ['title'=> $this->title]);
         $this->assertDatabaseHas('authors', $this->authors[0]);
@@ -105,27 +124,15 @@ class BooksTest extends TestCase
     public function addABookWithAuthorsWithInvalidRequest(){
         //invalid input #1: non-string titles
         $response = $this->utilityTest->createABook(123, $this->authors );
-        $this->utilityTest->checkInvalidRequestResponse($response);
+        $this->utilityTest->checkInvalidResponse($response);
         $this->assertDatabaseMissing ('books', ['title'=>123]);
 
         //invalid input #2: no authors
         $response = $this->utilityTest->createABook("No Authors");
-        $this->utilityTest->checkInvalidRequestResponse($response);
+        $this->utilityTest->checkInvalidResponse($response);
         $this->assertDatabaseMissing('books', ['title'=>'No Authors']);
     }
-    /**
-     * @test adding a book and assigns authors to it.
-     */
-    public function addABookWithAuthors()
-    {
-        //add with new authors:
-        $this->addABookWithNewAuthors();
-        //testing with invalid inputs:
-        $this->addABookWithAuthorsWithInvalidRequest();
-        //valid input #2: add with existing authors:
-        $this->addABookWithExistingAuthors();
 
-    }
     public function addABookWithExistingAuthors(){
         $title = "Never Been Added Yet";
         $response = $this->utilityTest->createABook( $title, [], $this->authorIDs );
@@ -143,7 +150,7 @@ class BooksTest extends TestCase
 
 
     }
-
+    //make sure all IDs are in integer type:
     public function checkIDType($IDarray){
         foreach ($IDarray as $ID){
             $this->assertTrue(gettype($ID) == "integer");
@@ -154,50 +161,31 @@ class BooksTest extends TestCase
      */
     public function deleteABook()
     {
-
-        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
-
-        //firstly, must create a book. testing for creating book's responses is done in depth on addABookWithAuthor()
-        $createResponse = $this->json('POST','/api/books',['title'=>'To Be Deleted',
-            'newAuthors' => [
-                $newAuthor
-            ]
-        ]);
-        //test sufficiently to be able to delete the book:
-        $createResponse->assertStatus(201);
-        $this->assertTrue(gettype($createResponse['bookID']) == "integer");
-        $this->assertDatabaseHas('books', ['title'=>'To Be Deleted']);
-
-        //delete with an invalid request:
-        //BUG: somehow it allows integers in string format.
-//        $invalidID = (string)$createResponse['bookID'];
-//        $this->assertTrue(gettype($invalidID) == "string");
-//        $deleteResponse = $this->json('DELETE','/api/books',[ 'ID'=> $invalidID]);
-//        $deleteResponse->assertStatus(400);
-//        $this->assertTrue($deleteResponse['message'] == "invalid request");
-
-
-        //then, delete it through its ID:
-        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
-        $deleteResponse->assertStatus(200);
-        $this->assertTrue($deleteResponse['message'] == "deleting a book succeed");
-        $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
-
-        //try to delete a non existing book:
-        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
-        $deleteResponse->assertStatus(200);
-        $this->assertTrue($deleteResponse['message'] == "deleting a book failed");
-
-        //delete with an empty request:
-        $deleteResponse = $this->json('DELETE','/api/books',[ ]);
-        $deleteResponse->assertStatus(400);
-        $this->assertTrue($deleteResponse['message'] == "invalid request");
-
-        //delete with a null ID request:
-        $deleteResponse = $this->json('DELETE','/api/books',[ 'ID'=> null]);
-        $deleteResponse->assertStatus(400);
-        $this->assertTrue($deleteResponse['message'] == "invalid request");
+        //try to update with valid request but DB is empty (in other words, updating with invalid ID):
+        $this->deleteABookWithInvalidID();
+        //delete with a valid request:
+        $this->deleteABookWithValidRequest();
+        //delete with an (invalid) empty request:
+        $this->deleteABookWithEmptyResponse();
     }
+    public function deleteABookWithEmptyResponse(){
+        $deleteResponse = $this->json('DELETE','/api/books',[]);
+        $this->utilityTest->checkInvalidResponse($deleteResponse);
+    }
+    public function deleteABookWithInvalidID(){
+        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> 0]);
+        $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,"deleting a book failed");
+    }
+    public function deleteABookWithValidRequest(){
+        //firstly, must create a book.
+        $createResponse = $this->utilityTest->createABook($this->title, [$this->authors[0]] );
+        //then delete it:
+        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
+        $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,"deleting a book succeed");
+
+        $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
+    }
+
     /**
      * @test  exporting books (only) to csv.
      */

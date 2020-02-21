@@ -32,29 +32,31 @@ class AuthorsTest extends TestCase
             'firstName' => 'Updated',
             'lastName' =>'Updated'
         ]);
+        $this->utilityTest->checkOKResponseWithCustomMessage($updateResponse, "changing name succeed");
+
         $this->assertDatabaseHas('authors', $updated);
         $this->assertDatabaseMissing('authors', $old);
     }
     public function changeAuthorNameWithEmptyRequest()
     {
         $updateResponse =  $this->utilityTest->sendEmptyRequest('/api/authors','PUT');
-        $this->utilityTest->checkInvalidRequestResponse($updateResponse);
+        $this->utilityTest->checkInvalidResponse($updateResponse);
     }
     public function changeAuthorNameWithInvalidName($id)
     {
         $invalidName = ['firstName' => 123, 'lastName' => 456];
         $updateResponse = $this->json('PUT','/api/authors',['ID'=>$id,
             'firstName' => 123, 'lastName' => 456]);
-        $this->utilityTest->checkInvalidRequestResponse($updateResponse);
+        $this->utilityTest->checkInvalidResponse($updateResponse);
         $this->assertDatabaseMissing('authors', $invalidName);
     }
 
-    public function changeAuthorNameWithWrongID()
+    public function changeAuthorNameWithInvalidID()
     {
         $update = ["firstName" => "Updated", 'lastName' => "Wrong"];
         $updateResponse = $this->json('PUT','/api/authors',['ID'=> 2,
             'firstName' => "Updated", 'lastName' => "Wrong"]);
-        $this->utilityTest->checkFailedResponse($updateResponse, "changing name failed");
+        $this->utilityTest->checkOKResponseWithCustomMessage($updateResponse, "changing name failed");
         $this->assertDatabaseMissing('authors', $update);
     }
     /**
@@ -62,8 +64,8 @@ class AuthorsTest extends TestCase
      */
     public function changeAuthorName()
     {
-        //try to update with valid request but DB is empty (in other words, updating with wrong ID):
-        $this->changeAuthorNameWithWrongID();
+        //try to update with valid request but DB is empty (in other words, updating with invalid ID):
+        $this->changeAuthorNameWithInvalidID();
         //create a book with an author:
         $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
         $title = "Change Author Name";
