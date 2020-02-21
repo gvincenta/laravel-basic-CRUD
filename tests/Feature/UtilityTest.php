@@ -95,9 +95,58 @@ class UtilityTest extends TestCase
             }
             return true;
         });
+    }
+    //search for a book a valid title / firstName and lastName:
+    public function searchWithValidRequest($url,$src){
+        $searchResponse = $this->json('GET',$url,[
+            'title'=>$src["title"], //for a search by title
+            'firstName' =>$src['firstName'] , //for a search by author
+            'lastName' => $src['lastName']
+        ]);
 
+        //check the response:
+        $this->checkJsonContent($searchResponse,$src);
+    }
+    //make sure only return exact matches by sending non-exact requests.
+    public function searchExactMatchOnly($url,$src){
+        $searchResponse = $this->json('GET',$url,['title'=>$src["title"][0],
+            'firstName' =>$src['firstName'][0],
+            'lastName' => $src['lastName']
+        ]);
+        //expect for an empty response:
+        $this->checkEmptyJsonContent($searchResponse);
+    }
 
+    /** Conducts searching test by an author or a book's title:
+     * 1. tests for with valid request
+     * 2. tests with non-exact request
+     * 3. tests with invalid request
+     * @param $url the url to send the search request to.
+     */
+    public function searchTestFacade($url){
+        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
+        $title = 'Search';
+        $createResponse =  $this->createABook($title, [$newAuthor], [] );
+        //combine all resources into 1 variable:
+        $src = ["authorID"=> $createResponse['newAuthorsID'][0],
+            "firstName"=> $newAuthor['firstName'],
+            "lastName"=> $newAuthor['lastName'],
+            "bookID"=> $createResponse["bookID"] ,
+            "title"=> $title ] ;
 
+        //then search on the recently created book:
+        $this->searchWithValidRequest($url,$src);
+
+        //make sure  search for exact matches only:
+        $this->searchExactMatchOnly($url,$src);
+
+        //try to send invalid requests:
+        $searchResponse =  $this->sendEmptyRequest($url,'GET');
+        //expect for status: 400 response:
+        $this->checkInvalidRequestResponse($searchResponse);
+    }
+    public function sendEmptyRequest($url,$verb){
+        return $this->json($verb,$url, []);
     }
     public function exportToXML($headersToBeChecked, $url, $rootTag ,$nestedTag=""){
         //firstly, must create a book with an author:
@@ -168,6 +217,11 @@ class UtilityTest extends TestCase
                 $this->assertTrue($src[$header] == $childArray->$header);
             }
         }
+    }
+    public function checkInvalidRequestResponse($response){
+        $response
+            ->assertStatus(400)
+            ->assertExactJson(["message" => "invalid request"]);
     }
 
 }

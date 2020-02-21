@@ -64,33 +64,10 @@ class BooksTest extends TestCase
     /**
      * @test search for a book by its title.
      */
-    public function searchByTitle(){
-        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
-        $title = 'Search';
-        //firstly, must create a book with an author:
-        $createResponse = $this->json('POST','/api/books',['title'=>$title,
-            'newAuthors' => [
-                $newAuthor
-            ]
-        ]);
-        //then search on the recently created book:
-        $searchResponse = $this->json('GET','/api/books/with-filter',['title'=>$title]);
-        //check the response:
-        $searchResponse
-            ->assertStatus(200)
-            ->assertExactJson( [[
-                "ID"=> $createResponse['newAuthorsID'][0],
-                "firstName"=> $newAuthor['firstName'],
-                "lastName"=> $newAuthor['lastName'],
-                "books_ID"=> $createResponse["bookID"] ,
-                "title"=> $title
-            ] ]);
-        //make sure  search for exact matches only:
-        $searchResponse = $this->json('GET','/api/books/with-filter',['title'=>$title[0]]);
-        //expect for an empty response:
-        $searchResponse
-            ->assertStatus(200)
-            ->assertExactJson( []);
+    public function searchByTitle()
+    {
+        $this->utilityTest->searchTestFacade('/api/books/with-filter');
+
     }
     /**
      * @test adding a book and assigns authors to it.
@@ -229,15 +206,9 @@ class BooksTest extends TestCase
      * @test  exporting books (only) to XMl.
      */
     public function exportBooksToXML(){
-        $this->utilityTest->exportToXML(['ID','title'], '/api/books/export/XML',"books");
+        $this->utilityTest->exportToXML([['ID', 'title']  ], '/api/books/export/XML',"books");
     }
-    /**
-     * @test  exporting books and authors to XMl.
-     */
-    public function exportBooksAndAuthorsToXML(){
-        $this->utilityTest->exportToXML( '/api/books/export/XML/with-authors',"books","authors");
 
-    }
     /**
      * @test  exporting books and authors to XMl.
      */

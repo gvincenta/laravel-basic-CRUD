@@ -65,7 +65,7 @@ class AuthorsTest extends TestCase
         //update with invalid firstName and lastName:
         $updateResponse = $this->json('PUT','/api/authors',['ID'=>$createResponse['newAuthorsID'][0],
         'firstName' => 123, 'lastName' => 456]);
-        $updateResponse->assertStatus(400);
+
         //update with invalid firstName:
         $updateResponse = $this->json('PUT','/api/authors',['ID'=>$createResponse['newAuthorsID'][0],
             'firstName' => 123, 'lastName' => "John"]);
@@ -83,30 +83,8 @@ class AuthorsTest extends TestCase
      */
     public function searchByAuthor()
     {
-        $newAuthor = ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'];
-        $title = 'Search';
-        //firstly, must create a book with an author:
-        $createResponse = $this->json('POST','/api/books',['title'=>$title,
-            'newAuthors' => [
-                $newAuthor
-            ]
-        ]);
-        //then, search by the author's name:
-        $searchResponse = $this->json('GET','/api/authors/with-filter',$newAuthor);
 
-        $src = ["authorID"=> $createResponse['newAuthorsID'][0],
-            "firstName"=> $newAuthor['firstName'],
-            "lastName"=> $newAuthor['lastName'],
-            "bookID"=> $createResponse["bookID"] ,
-            "title"=> $title];
-
-        $this->utilityTest->checkJsonContent($searchResponse,$src);
-
-        //make sure search for exact matches only
-        $searchResponse = $this->json('GET','/api/authors/with-filter', ['firstName' =>$newAuthor['firstName'][0] ,
-            'lastName' => $newAuthor['lastName']]);
-        //expect for empty json response:
-        $this->utilityTest->checkEmptyJsonContent($searchResponse);
+        $this->utilityTest->searchTestFacade('/api/authors/with-filter');
 
     }
     /**
@@ -135,7 +113,7 @@ class AuthorsTest extends TestCase
     /**
      * @test  exporting authors and books to XMl.
      */
-    public function exportAuthorsÁndBooksToXML(){
+    public function exportAuthorsAndBooksToXML(){
         $this->utilityTest->exportToXML( [['ID','firstName','lastName'], ['ID', 'title']],'/api/authors/export/XML/with-books',
             "authors","books");
     }
