@@ -15,7 +15,10 @@ class ExportUtilityController extends Controller
     public const INVALID_REQUEST_MESSAGE = "invalid request";
     public const INVALID_REQUEST_STATUS = 400;
     public const OK_STATUS = 200;
-
+    public const CREATED_STATUS =201;
+    public const INTERNAL_SERVER_ERROR_STATUS = 500;
+    public const MESSAGE_RESPONSE_KEY = "message";
+    public const ERROR_RESPONSE_KEY = "error";
     /**
      * extract the table's column names from an array of json.
      * @param Array $exportData, array of json to be extracted.

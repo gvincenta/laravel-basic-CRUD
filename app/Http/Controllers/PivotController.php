@@ -7,6 +7,7 @@ use App\Books;
 use App\Exports\DBExport;
 use App\Exports\PivotExport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -19,8 +20,15 @@ class PivotController extends Controller
 {
 
     public const TABLE_NAME = "authors_books";
-    public const AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME = 'authorsAndBooks.csv';
+    public const ID_FIELD = "relationID";
 
+    public const AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME = 'authorsAndBooks.csv';
+    public const AUTHORS_ID_FIELD =  Authors::TABLE_NAME . "_". Authors::ID_FIELD;
+    public const BOOKS_ID_FIELD = Books::TABLE_NAME . "_". Books::ID_FIELD;
+    public const BOOKS_CREATION_FAILED_MESSAGE = "failed to create books and their associated authors";
+    public const BOOKS_CREATION_SUCCEED_MESSAGE ="books with their associated authors created successfully";
+    public const NEW_AUTHORS_REQUEST = "newAuthors";
+    public const EXISTING_AUTHORS_REQUEST = "existingAuthors";
     private $exportUtility, $export,$booksController,$authorsController;
 
     public function __construct()
@@ -43,12 +51,12 @@ class PivotController extends Controller
             Authors::LASTNAME_FIELD =>'required|string'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
+            return  response()->json([ExportUtilityController::MESSAGE_RESPONSE_KEY => ExportUtilityController::INVALID_REQUEST_MESSAGE],
                 ExportUtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
-        return    $this->query()->where('authors.firstName' , '=', $request['firstName'])
-            ->where('authors.lastName' , '=', $request['lastName'] )->get();
+        return    $this->query()->where(Authors::FIRSTNAME_FIELD , '=', $request[Authors::FIRSTNAME_FIELD])
+            ->where(Authors::LASTNAME_FIELD , '=', $request[Authors::FIRSTNAME_FIELD] )->get();
     }
     /**
      * handles searching for a book through its title.
@@ -66,7 +74,7 @@ class PivotController extends Controller
                 ExportUtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
-        return    $this->query()->where('books.title' , '=', $request['title'])->get();
+        return $this->query()->where(Books::TITLE_FIELD , '=', $request[Books::TITLE_FIELD ])->get();
     }
 
 
@@ -75,8 +83,8 @@ class PivotController extends Controller
      */
     public function store($authorID, $bookID  )
     {
-        return DB::table(PivotController::TABLE_NAME)->insertGetId(["authors_authorID" => $authorID,
-            "books_bookID" => $bookID]);
+        return DB::table(PivotController::TABLE_NAME)->insertGetId([self::AUTHORS_ID_FIELD => $authorID,
+            self::BOOKS_ID_FIELD => $bookID]);
     }
     /**
      * creates a new book, and also assigns author(s) to it with database's transaction method.
@@ -89,91 +97,98 @@ class PivotController extends Controller
         /* validation:
          * for existing author(s), we only need their ID
          * for new author(s) to be created, we need their firstName and lastName
+         * at least 1 author is required (existing or new is fine)
          * we also need the book's title to create the new book
          * note: the "string" keyword implicitly eliminates empty string. */
 
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
-            'authors' => 'required_without:newAuthors', //for existing authors
-            'newAuthors'=>'required_without:authors', //for new authors to be added to DB.
-            'newAuthors.*.firstName' => 'required_without:authors|string',
-            'newAuthors.*.lastName' => 'required_without:authors|string',
-            'authors.*.authorID' => 'required_without:newAuthors|numeric'
+            Books::TITLE_FIELD => 'required|string',
+            self::EXISTING_AUTHORS_REQUEST=> 'required_without:' . self::NEW_AUTHORS_REQUEST, //for existing authors
+            self::NEW_AUTHORS_REQUEST =>'required_without:' . self::EXISTING_AUTHORS_REQUEST, //for new authors to be added to DB.
+            self::NEW_AUTHORS_REQUEST.'.*.' . Authors::FIRSTNAME_FIELD =>
+                'required_with:'. self::NEW_AUTHORS_REQUEST .'|string',
+            self::NEW_AUTHORS_REQUEST.'.*.' . Authors::LASTNAME_FIELD  =>
+                'required_with:'.self::NEW_AUTHORS_REQUEST.'|string',
+            self::EXISTING_AUTHORS_REQUEST . '.*.' . Authors::ID_FIELD =>
+                'required_with:'.self::EXISTING_AUTHORS_REQUEST.'|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
+            return  response()->json([ExportUtilityController::MESSAGE_RESPONSE_KEY =>
+                ExportUtilityController::INVALID_REQUEST_MESSAGE],
                 ExportUtilityController::INVALID_REQUEST_STATUS);
         }
         //start transaction:
-        //BUG: how to rollback ?
         return DB::transaction(function () use ($request) {
-            //carry out transaction
             try {
-
                 //firstly, create new book:
-                $bookID = $this->booksController->store($request->get("title"));
+                $bookID = $this->booksController->store($request->get(Books::TITLE_FIELD));
                 $newAuthorsID = []; // to show that new Authors have been added.
                 $relationsID = []; //to show that the authors have been linked with the book.
                 //then, create new authors and assign them as the new book's authors:
-                if ( $request->get("newAuthors") ){
-                    foreach ($request->get("newAuthors") as $newAuthor){
+                if ( $request->get(self::NEW_AUTHORS_REQUEST) ){
+                    foreach ($request->get(self::NEW_AUTHORS_REQUEST) as $newAuthor){
                         //make new authors and get their IDs:
                         $newAuthorID =  $this->authorsController->store($newAuthor);
+                        //store their ID to be returned later:
                         array_push($newAuthorsID,$newAuthorID);
+                        //assign the to this book:
                         $relationID = $this->store($newAuthorID,$bookID);
+                        //store this ID to be returned later:
                         array_push($relationsID,$relationID);
                     }
                 }
-                if ($request->get("authors") ){
-                    foreach ($request->get("authors") as $existingAuthor){
+                if ($request->get( self::EXISTING_AUTHORS_REQUEST) ){
+                    foreach ($request->get( self::EXISTING_AUTHORS_REQUEST) as $existingAuthor){
                         //assign the existing authors as the authors of this book:
-
                         $relationID = $this->store($existingAuthor[Authors::ID_FIELD],$bookID);
+                        //store this ID to be returned later:
                         array_push($relationsID,$relationID);
                     }
                 }
-                //returns a success message, showing the book's ID, the new authors' ID,
-                //and relationID: an ID in the pivot table that connects between each author to this book.
+                /* returns a success message, showing the book's ID, the new authors' ID,
+                 * and relationID: an ID in the pivot table that connects between each author to this book.
+                 */
                 return  response()->json([
-                    'message' => "books with their associated authors created successfully",
+                    ExportUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
                     Books::ID_FIELD => $bookID,
-                    'relationsID' => $relationsID,
-                    'newAuthorsID' => $newAuthorsID],
-                    201);
+                    self::ID_FIELD => $relationsID,
+                    Authors::ID_FIELD => $newAuthorsID],
+                     ExportUtilityController::CREATED_STATUS);
 
              //something went wrong with the transaction, rollback
             } catch (\Illuminate\Database\QueryException $e) {
                 DB::rollBack();
                 return  response()->json([
-                    'message' => "failed to create books and their associated authors",
-                    'error'=>$e], 500);
+                    ExportUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
+                    ExportUtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
+                    ExportUtilityController::INTERNAL_SERVER_ERROR_STATUS);
             } catch (\Exception $e) {
                 // something went wrong elsewhere, handle gracefully
                 DB::rollBack();
                 return  response()->json([
-                    'message' => "failed to create books and their associated authors",
-                    'error'=>$e], 500);
-
+                    ExportUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
+                    ExportUtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
+                    ExportUtilityController::INTERNAL_SERVER_ERROR_STATUS);
             }
          });
 
     }
     /**
      * Executes a query for index() function.
-     * @return Illuminate\Database\Query\Builder the query.
+     * @return \Illuminate\Database\Query\Builder, the query.
      */
     public function query(){
         //note : authors_books.books_ID is selected to avoid same columns "ID" clashing bug.
-        return DB::table('authors_books')
-            ->rightJoin(Authors::TABLE_NAME, 'authors.authorID', '=', 'authors_books.authors_authorID')
-            ->leftJoin(Books::TABLE_NAME, 'books.bookID', '=', 'authors_books.books_bookID')
-            ->select('authors.authorID', 'authors.firstName', 'authors.lastName', 'books.bookID',
-                'books.title');
+        return DB::table(self::TABLE_NAME)
+            ->rightJoin(Authors::TABLE_NAME, Authors::ID_FIELD, '=', self::AUTHORS_ID_FIELD)
+            ->leftJoin(Books::TABLE_NAME, Books::ID_FIELD, '=', self::BOOKS_ID_FIELD)
+            ->select(Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD, Books::ID_FIELD,
+                Books::TITLE_FIELD);
      }
     /**
      *  Gets a result from a query that joins the authors and their books together, and also includes authors that
      * do not have books assigned to them.
-     * @return Illuminate\Support\Collection the query result.
+     * @return \Illuminate\Support\Collection,  the query result.
      */
      public function index(){
         return $this->query()->get();
