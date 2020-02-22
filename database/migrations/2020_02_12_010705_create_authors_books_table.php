@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\Books;
 use App\Authors;
-
+use App\Http\Controllers\PivotController;
 class CreateAuthorsBooksTable extends Migration
 {
     /**
@@ -15,16 +15,15 @@ class CreateAuthorsBooksTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('authors_books');
 
-        Schema::create('authors_books', function (Blueprint $table) {
-            $table->increments('relationID');
-             $table->integer(Authors::TABLE_NAME . '_'. Authors::ID_FIELD)->unsigned();
-            $table->integer(Books::TABLE_NAME . '_'.Books::ID_FIELD)->unsigned();
-            $table->foreign(Books::TABLE_NAME . '_'.Books::ID_FIELD)
+        Schema::create(PivotController::TABLE_NAME, function (Blueprint $table) {
+            $table->increments(PivotController::ID_FIELD);
+             $table->integer(PivotController::AUTHORS_ID_FIELD)->unsigned();
+            $table->integer(PivotController::BOOKS_ID_FIELD)->unsigned();
+            $table->foreign( PivotController::BOOKS_ID_FIELD)
                 ->references(Books::ID_FIELD)->on(Books::TABLE_NAME)
                 ->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign(Authors::TABLE_NAME . '_'. Authors::ID_FIELD)
+            $table->foreign(PivotController::AUTHORS_ID_FIELD)
                 ->references(Authors::ID_FIELD)->on(Authors::TABLE_NAME)
                 ->onDelete('restrict')->onUpdate('cascade');
 
@@ -37,6 +36,6 @@ class CreateAuthorsBooksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('authors_books');
+        Schema::dropIfExists(PivotController::TABLE_NAME);
     }
 }
