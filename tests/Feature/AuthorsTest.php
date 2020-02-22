@@ -124,27 +124,28 @@ class AuthorsTest extends TestCase
     /** @test requests for a authors (only) content  exported as a CSV and then check its content.   */
     public function exportAuthorsToCSV()
     {
-        $this->utilityTest->exportToCSV( ['authorID','firstName','lastName'] ,'/api/authors/export/CSV',
-            AuthorsController::AUTHORS_EXPORT_CSV_FILENAME);
+        $this->utilityTest->exportToCSV( [Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD,] ,
+            '/api/authors/export/CSV', AuthorsController::AUTHORS_EXPORT_CSV_FILENAME);
     }
     /**  @test requests for a books and authors content  exported as a CSV and then check its content. */
     public function exportAuthorsAndBooksToCSV()
     {
-        $this->utilityTest->exportToCSV( ['authorID','firstName','lastName','bookID','title'] ,
-            '/api/authors/export/CSV/with-books',
+        $this->utilityTest->exportToCSV( [Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD,
+            Books::ID_FIELD, Books::TITLE_FIELD] , '/api/authors/export/CSV/with-books',
             PivotController::AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME);
     }
     /**  @test  requests for a authors (only) content  exported as XML and then check its content. */
     public function exportAuthorsToXML(){
-        $this->utilityTest->exportToXML( [['authorID','firstName','lastName']],'/api/authors/export/XML',
-            Authors::TABLE_NAME);
+        $this->utilityTest->exportToXML( [[Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD]],
+            '/api/authors/export/XML', Authors::TABLE_NAME);
 
     }
 
     /**  @test requests for authors and books  content  exported as XML and then check its content. */
     public function exportAuthorsAndBooksToXML(){
-        $this->utilityTest->exportToXML( [['authorID','firstName','lastName'], ['bookID', 'title']],
-            '/api/authors/export/XML/with-books', Authors::TABLE_NAME, Books::TABLE_NAME);
+        $this->utilityTest->exportToXML( [[Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD],
+            [Books::ID_FIELD, Books::TITLE_FIELD]], '/api/authors/export/XML/with-books',
+            Authors::TABLE_NAME, Books::TABLE_NAME);
     }
 }
 

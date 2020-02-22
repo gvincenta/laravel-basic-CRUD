@@ -5,6 +5,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use App\Books;
+use App\Authors;
+use App\Http\Controllers\PivotController;
+use App\Http\Controllers\BooksController;
 
 /**
  * Class BooksTest
@@ -52,11 +56,11 @@ class BooksTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertExactJson( [[
-                "ID"=> $createResponse['newAuthorsID'][0],
-                "firstName"=> $this->authors[0]['firstName'],
-                "lastName"=> $this->authors[0]['lastName'],
-                "books_ID"=> $createResponse["bookID"] ,
-                "title"=> $this->title
+                Authors::ID_FIELD=> $createResponse[Authors::ID_FIELD][0],
+                Authors::FIRSTNAME_FIELD=> $this->authors[0][Authors::FIRSTNAME_FIELD],
+                Authors::LASTNAME_FIELD=> $this->authors[0][Authors::LASTNAME_FIELD],
+                Books::TITLE_FIELD=> $this->title,
+                Books::ID_FIELD=> $createResponse[Books::ID_FIELD]
             ] ]);
     }
 
@@ -102,26 +106,26 @@ class BooksTest extends TestCase
         $response->assertStatus(201);
 
         //make sure response returned properly:
-        $this->assertTrue(count($response['newAuthorsID']) == 2); // 2 authors created in DB with their ID returned.
-        $this->assertTrue(count($response['relationsID']) == 2); // both authors assigned to the book in pivot table.
+        $this->assertTrue(count($response[Authors::ID_FIELD]) == 2); // 2 authors created in DB with their ID returned.
+        $this->assertTrue(count($response[PivotController::ID_FIELD]) == 2); // both authors assigned to the book in pivot table.
 
         //check that all IDs returned are in integer type:
-        $this->assertTrue(gettype($response['bookID']) == "integer");
-        $this->checkIDType([$response['bookID']]);
-        $this->checkIDType($response['relationsID']);
+        $this->checkIDType([$response[Books::ID_FIELD]]);
+        $this->checkIDType($response[PivotController::ID_FIELD]);
 
-        foreach ($response['newAuthorsID'] as $newAuthorID){
+
+        foreach ($response[Authors::ID_FIELD] as $newAuthorID){
             $this->assertTrue(gettype($newAuthorID) == "integer");
             //store authors' ID for next test:
-            array_push($this->authorIDs,["ID" =>$newAuthorID]);
+            array_push($this->authorIDs, [Authors::ID_FIELD => $newAuthorID]);
         }
 
         //check that they exist in DB:
-        $this->assertDatabaseHas('books', ['title'=> $this->title]);
-        $this->assertDatabaseHas('authors', $this->authors[0]);
-        $this->assertDatabaseHas('authors', $this->authors[1]);
+        $this->assertDatabaseHas(Books::TABLE_NAME, [Books::TITLE_FIELD => $this->title]);
+        $this->assertDatabaseHas(Authors::TABLE_NAME, $this->authors[0]);
+        $this->assertDatabaseHas(Authors::TABLE_NAME, $this->authors[1]);
         //check that the relationship is created in DB:
-       $this->validateDBRelation($response['bookID'],$this->authorIDs,$response['relationsID']);
+       $this->validateDBRelation($response[Books::ID_FIELD],$this->authorIDs,$response[PivotController::ID_FIELD]);
 
     }
 
@@ -135,7 +139,9 @@ class BooksTest extends TestCase
         $lenRelationIDs = count($relationIDs);
         $this->assertTrue($lenAuthorIDs == $lenRelationIDs);
         for($i = 0; $i < $lenAuthorIDs; $i++){
-            $this->assertDatabaseHas('authors_books', ['authors_ID' =>$authorIDs[$i]["ID"], 'books_ID' =>$bookID ]);
+            $this->assertDatabaseHas(PivotController::TABLE_NAME , [
+                PivotController::AUTHORS_ID_FIELD =>$authorIDs[$i][Authors::ID_FIELD],
+                PivotController::BOOKS_ID_FIELD =>$bookID ]);
         }
 
     }
@@ -148,12 +154,12 @@ class BooksTest extends TestCase
         //invalid input #1: non-string titles
         $response = $this->utilityTest->createABook(123, $this->authors );
         $this->utilityTest->checkInvalidResponse($response);
-        $this->assertDatabaseMissing ('books', ['title'=>123]);
+        $this->assertDatabaseMissing (Books::TABLE_NAME, ['title'=>123]);
 
         //invalid input #2: no authors
         $response = $this->utilityTest->createABook("No Authors");
         $this->utilityTest->checkInvalidResponse($response);
-        $this->assertDatabaseMissing('books', ['title'=>'No Authors']);
+        $this->assertDatabaseMissing(Books::TABLE_NAME, ['title'=>'No Authors']);
     }
 
     /**tests the adding a book functionality with existing authors in the database. */
@@ -162,14 +168,14 @@ class BooksTest extends TestCase
         $response = $this->utilityTest->createABook( $title, [], $this->authorIDs );
         //make sure status is correct:
         $response->assertStatus(201);
-        $this->assertTrue(count($response['relationsID']) == 2); // both authors assigned to the book in pivot table.
+        $this->assertTrue(count($response[PivotController::ID_FIELD]) == 2); // both authors assigned to the book in pivot table.
 
-        $this->checkIDType([$response['bookID']]);
-        $this->checkIDType($response['relationsID']);
+        $this->checkIDType([$response[Books::ID_FIELD]]);
+        $this->checkIDType($response[PivotController::ID_FIELD]);
         //check that they exist in DB:
-        $this->assertDatabaseHas('books', ['title'=> $this->title]);
+        $this->assertDatabaseHas(Books::TABLE_NAME, ['title'=> $this->title]);
         //check that the relationship is created in DB:
-        $this->validateDBRelation($response['bookID'],$this->authorIDs,$response['relationsID']);
+        $this->validateDBRelation($response[Books::ID_FIELD],$this->authorIDs,$response[PivotController::ID_FIELD]);
     }
 
     /** make sure all IDs are in integer type:
@@ -204,33 +210,39 @@ class BooksTest extends TestCase
 
     /** requests to delete a book with an ID that doesn't exist in the books table. */
     public function deleteABookWithInvalidID(){
-        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> 0]);
-        $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,"deleting a book failed");
+        $deleteResponse = $this->json('DELETE','/api/books',[Books::ID_FIELD => 0]);
+        $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,
+            BooksController::DELETE_A_BOOK_FAILED_MESSAGE);
     }
     /** requests to delete a book with an ID that exists in the books table. */
     public function deleteABookWithValidRequest(){
         //firstly, must create a book.
         $createResponse = $this->utilityTest->createABook($this->title, [$this->authors[0]] );
         //then delete it:
-        $deleteResponse = $this->json('DELETE','/api/books',['ID'=> $createResponse['bookID']]);
-        $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,"deleting a book succeed");
+        $deleteResponse = $this->json('DELETE','/api/books',[Books::ID_FIELD => $createResponse[Books::ID_FIELD]]);
+        $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,
+            BooksController::DELETE_A_BOOK_SUCCEED_MESSAGE);
 
-        $this->assertDatabaseMissing('books', ['title'=>'To Be Deleted','ID'=> $createResponse['bookID']]);
+        $this->assertDatabaseMissing('books', [Books::TITLE_FIELD=> 'To Be Deleted',
+            Books::ID_FIELD => $createResponse[Books::ID_FIELD]]);
     }
 
     /**  @test  requests for a books (only) content  exported as a CSV and then check its content. */
     public function exportBooksToCSV()
     {
-        $this->utilityTest->exportToCSV( ['ID','title'] ,'/api/books/export/CSV','books.csv');
+        $this->utilityTest->exportToCSV( [Books::ID_FIELD,Books::TITLE_FIELD] ,'/api/books/export/CSV',
+            BooksController::BOOKS_EXPORT_CSV_FILENAME);
     }
     /** @test  requests for a books (only) content to be exported as a XML and then check its content.*/
     public function exportBooksToXML(){
-        $this->utilityTest->exportToXML([['ID', 'title']  ], '/api/books/export/XML',"books");
+        $this->utilityTest->exportToXML([[Books::ID_FIELD, Books::TITLE_FIELD]  ], '/api/books/export/XML',
+            Books::TABLE_NAME);
     }
 
     /**  @test requests for a books and authors content to be exported as a XML and then check its content.   */
     public function exportsBooksAndAuthorsToXML(){
-        $this->utilityTest->exportToXML( [['ID', 'title'], ['ID','firstName','lastName'] ],'/api/books/export/XML/with-authors',
-            "books","authors");
+        $this->utilityTest->exportToXML( [[Books::ID_FIELD, Books::TITLE_FIELD],
+            [Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD] ],
+            '/api/books/export/XML/with-authors', Books::TABLE_NAME, Authors::TABLE_NAME);
     }
 }
