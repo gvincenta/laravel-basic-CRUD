@@ -20,6 +20,7 @@ export default function(props) {
     const [by, setBy] = useState(null);
     //fetching status:
     const [status, setStatus] = useState('');
+    const [searched,setSearched] = useState('');
     //fetching data from backend:
     const getData = (e, searchBy) => {
         if (e) {
@@ -31,7 +32,7 @@ export default function(props) {
         console.log('run', searchBy);
         if (searchBy === 'title') {
             console.log('runnn');
-            Axios.get('/api/authors/with-filter', {
+            Axios.get('/api/books/with-filter', {
                 params: {
                     title
                 }
@@ -39,6 +40,8 @@ export default function(props) {
                 console.log(res.data);
                 setData(res.data);
                 setBy(searchBy);
+                setSearched("book title: " + title);
+
                 setStatus('done');
             });
         } else if (searchBy === 'author') {
@@ -53,6 +56,7 @@ export default function(props) {
                 console.log(res.data);
                 setData(res.data);
                 setBy(searchBy);
+                setSearched("author: " + firstName + " " + lastName);
 
                 setStatus('done');
             });
@@ -126,14 +130,12 @@ export default function(props) {
                 <div>
                     <h2>
                         {' '}
-                        Search results for {title} {firstName} {lastName}
+                        Search results for {searched}
                     </h2>
-                    <Table data={data} status="done" data-step="5"
-                        data-intro="Your search result will appear here"/>
+                    <Table data={data} status="done"/>
                 </div>
             ) : (
-                <Table  data-step="5"
-    data-intro="Without any searches, this table displays all books and authors available in the database."/>
+                <Table/>
             ) //otherwise, display Books and Authors Table
             }
         </div>

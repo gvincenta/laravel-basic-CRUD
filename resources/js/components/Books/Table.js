@@ -32,7 +32,7 @@ export default function(props) {
                 <div>
                     {props.value} &nbsp;
                     <Button
-                        data-step="6"
+                        data-step="5"
                         data-intro="Click me to delete this book. WARNING: this will be directly applied to backend."
                         variant="danger"
                         onClick={e => {
@@ -64,7 +64,7 @@ export default function(props) {
                 <div>
                     {props.value} &nbsp;
                     <Button
-                        data-step="7"
+                        data-step="6"
                         data-intro="Click me to change this author's name. A form will appear below the table to change their name."
                         onClick={e => {
                             e.preventDefault();
@@ -83,21 +83,23 @@ export default function(props) {
             return <div> </div>;
         }
     };
+
     //the columns to be rendered
     const columns = [
         {
-            Header: 'bookID',
+            Header: 'BookID',
             accessor: 'bookID',
             Cell: props => displayDeleteButton(props)
         },
-        { Header: 'Title', accessor: 'title' },
+        { Header: 'Title',
+            accessor: 'title' },
         {
-            Header: 'authorID',
+            Header: 'AuthorID',
             accessor: 'authorID',
             Cell: props => displayUpdateButton(props)
         },
-        { Header: 'firstName', accessor: 'firstName' },
-        { Header: 'lastName', accessor: 'lastName' }
+        { Header: 'First Name', accessor: 'firstName' },
+        { Header: 'Last Name', accessor: 'lastName' }
     ];
     //initially, fetch books and authors from backend:
     useEffect(() => {
