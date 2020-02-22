@@ -5,7 +5,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-//a class to test most of the /api/books endpoint
+
+/**
+ * Class BooksTest
+ * @package Tests\Feature
+ * a class to test all requests directed to /api/books/... endpoint
+ */
 class BooksTest extends TestCase
 {
     //cleans up the DB before and after testing:
@@ -27,12 +32,6 @@ class BooksTest extends TestCase
         $this->title = 'Alpha Beta';
         //for testing adding new book with existing authors, store the authors' ID:
         $this->authorIDs = [];
-    }
-
-    /** expects an empty json to be returned when backend Books and Authors tables are empty. */
-    public function getEmptyBooksAndAuthors(){
-        $response = $this->get('api/books');
-        $this->utilityTest->checkEmptyJsonContent($response);
     }
 
     /**
@@ -60,6 +59,14 @@ class BooksTest extends TestCase
                 "title"=> $this->title
             ] ]);
     }
+
+    /** expects an empty json to be returned when database's Books and Authors tables are empty. */
+    public function getEmptyBooksAndAuthors(){
+        $response = $this->get('api/books');
+        $this->utilityTest->checkEmptyJsonContent($response);
+    }
+
+
 
     /**  @test search for a book by its title. */
     public function searchByTitle()
@@ -163,11 +170,7 @@ class BooksTest extends TestCase
         $this->assertDatabaseHas('books', ['title'=> $this->title]);
         //check that the relationship is created in DB:
         $this->validateDBRelation($response['bookID'],$this->authorIDs,$response['relationsID']);
-
-
-
     }
-    //
 
     /** make sure all IDs are in integer type:
      * @param $IDarray an array of IDs given from backend's response.
