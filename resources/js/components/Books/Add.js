@@ -35,14 +35,14 @@ export default function() {
     const onExistingAuthorRemove = removeID => {
         console.log(removeID, 'ID RECORDED');
         assignExistingAuthors(
-            existingAuthors.filter(item => item.ID !== removeID)
+            existingAuthors.filter(item => item.authorID !== removeID)
         );
     };
     //for step 2's UI loading existing author list:
     const loading = authorsData.length === 0;
     //for new authors, as they don't have an ID, we assign fakeID by nextId() for removal purposes only:
     const onNewAuthorRemove = removeID => {
-        assignNewAuthors(newAuthors.filter(item => item.ID !== removeID));
+        assignNewAuthors(newAuthors.filter(item => item.authorID !== removeID));
     };
     //for sending data to backend:
     const onSubmit = e => {
@@ -50,7 +50,7 @@ export default function() {
 
         console.log(existingAuthors, 'existingAuthors');
         Axios.post('/api/books', {
-            authors: existingAuthors,
+             existingAuthors,
             newAuthors,
             title
         }).then(res => {

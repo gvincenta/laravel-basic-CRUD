@@ -14,7 +14,7 @@ import InlineField from './InlineField';
  *
  */
 export default function(props) {
-    const [data, setData] = useState(props.data || []);
+    const [data, setData] = useState(props.data || null);
     const [status, setStatus] = useState(props.status || 'loading');
     //for changing an author's name: displays their old firstName and lastName
     const [oldFirstName, setOldFirstName] = useState('');
@@ -23,7 +23,7 @@ export default function(props) {
     const [newFirstName, setNewFirstName] = useState('');
     const [newLastName, setNewLastName] = useState('');
     //for changing an author's name: remember their ID for applying changes in backend.
-    const [ID, setID] = useState(null);
+    const [authorID, setAuthorID] = useState(null);
     //handles delete button:
     const displayDeleteButton = props => {
         //if the cell is not empty, then render a delete button:
@@ -40,7 +40,7 @@ export default function(props) {
                             console.log(props.value, 'ONCLICK');
                             //deletes this book in the backend:
                             Axios.delete('/api/books', {
-                                data: { ID: props.value }
+                                data: { bookID: props.value }
                             }).then(res => {
                                 console.log(res, 'AFTER DELETE');
                                 //handle success / failure:
@@ -69,7 +69,7 @@ export default function(props) {
                         onClick={e => {
                             e.preventDefault();
                             //remembers the author's existing data, then display a form:
-                            setID(props.value);
+                            setAuthorID(props.value);
                             setOldFirstName(props.original.firstName);
                             setOldLastName(props.original.lastName);
                             setStatus('changing');
@@ -87,13 +87,13 @@ export default function(props) {
     const columns = [
         {
             Header: 'bookID',
-            accessor: 'books_ID',
+            accessor: 'bookID',
             Cell: props => displayDeleteButton(props)
         },
         { Header: 'Title', accessor: 'title' },
         {
             Header: 'authorID',
-            accessor: 'ID',
+            accessor: 'authorID',
             Cell: props => displayUpdateButton(props)
         },
         { Header: 'firstName', accessor: 'firstName' },
@@ -110,7 +110,7 @@ export default function(props) {
     }, [status]);
 
     //display books and authors data:
-    if (data.length > 0) {
+    if (data ) {
         return (
             <div>
                 <ReactTable data={data} columns={columns} defaultPageSize={5} />
@@ -121,7 +121,7 @@ export default function(props) {
                             e.preventDefault();
                             //update author's name:
                             Axios.put('/api/authors', {
-                                ID,
+                                authorID,
                                 firstName: newFirstName,
                                 lastName: newLastName
                             }).then(res => {
@@ -139,7 +139,7 @@ export default function(props) {
                         }}
                     >
                         <Form.Text className="text-muted">
-                            Changing Author with ID : {ID} and name :{' '}
+                            Changing Author with authorID : {authorID} and name :{' '}
                             {oldFirstName + ' ' + oldLastName}
                         </Form.Text>
 

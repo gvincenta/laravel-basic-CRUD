@@ -17,7 +17,7 @@ export default function(props) {
             options={data}
             getOptionLabel={option => {
                 return (
-                    option.ID + ' ' + option.firstName + ' ' + option.lastName
+                    option.authorID + ' ' + option.firstName + ' ' + option.lastName
                 );
             }}
             style={{ width: 300 }}
@@ -53,5 +53,5 @@ function extractAuthor(authorString) {
     console.log(typeof authorString, 'authorString');
 
     var author = authorString.split(' ');
-    return { ID: author[0], firstName: author[1], lastName: author[2] };
+    return { authorID: author[0], firstName: author[1], lastName: author[2] };
 }

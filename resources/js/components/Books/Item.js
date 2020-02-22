@@ -13,14 +13,14 @@ export default function(props) {
         <ListGroup.Item
              action
             onClick={e => {
-                props.onClick(author.ID);
+                props.onClick(author.authorID);
             }}
         >
             {//for new authors, they do not have an actual ID, so don't display them:
             showID ? (
                 <>
                     {' '}
-                    {author.ID +
+                    {author.authorID +
                         ', ' +
                         author.firstName +
                         ', ' +
