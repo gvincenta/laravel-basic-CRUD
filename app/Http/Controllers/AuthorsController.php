@@ -38,7 +38,8 @@ class AuthorsController extends Controller
             Authors::ID_FIELD => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => "invalid request"], 400);
+            return  response()->json(['message' =>ExportUtilityController::INVALID_REQUEST_MESSAGE],
+                ExportUtilityController::INVALID_REQUEST_STATUS);
         }
         $updateData = [Authors::FIRSTNAME_FIELD => $request->input(Authors::FIRSTNAME_FIELD),
             Authors::LASTNAME_FIELD => $request->input(Authors::LASTNAME_FIELD) ];
@@ -48,10 +49,12 @@ class AuthorsController extends Controller
 
         //for completed update:
         if ($affectedRows == 1){
-            return  response()->json(['message' => self::CHANGE_NAME_SUCEED_MESSAGE ], 200);
+            return  response()->json(['message' => self::CHANGE_NAME_SUCEED_MESSAGE ],
+                ExportUtilityController::OK_STATUS);
         //for failed update (i.e. no rows affected):
         }else{
-            return  response()->json(['message' => self::CHANGE_NAME_FAILED_MESSAGE], 200);
+            return  response()->json(['message' => self::CHANGE_NAME_FAILED_MESSAGE],
+                ExportUtilityController::OK_STATUS);
         }
 
     }

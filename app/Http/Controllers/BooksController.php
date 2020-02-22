@@ -74,7 +74,8 @@ class BooksController extends Controller
             Books::ID_FIELD => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => "invalid request"], 400);
+            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
+                ExportUtilityController::INVALID_REQUEST_STATUS);
         }
 
         $affectedRows= DB::table(Books::TABLE_NAME)
@@ -82,10 +83,12 @@ class BooksController extends Controller
             ->delete();
          //for completed delete:
         if ($affectedRows == 1){
-            return  response()->json(['message' => self::DELETE_A_BOOK_SUCCEED_MESSAGE ], 200);
+            return  response()->json(['message' => self::DELETE_A_BOOK_SUCCEED_MESSAGE ],
+                ExportUtilityController::OK_STATUS);
         //for failed delete (i.e. no rows affected):
         }else{
-            return  response()->json(['message' => self::DELETE_A_BOOK_FAILED_MESSAGE ], 200);
+            return  response()->json(['message' => self::DELETE_A_BOOK_FAILED_MESSAGE ],
+                ExportUtilityController::OK_STATUS);
         }
     }
 }

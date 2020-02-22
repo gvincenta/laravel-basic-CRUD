@@ -12,6 +12,9 @@ use XMLWriter;
 class ExportUtilityController extends Controller
 {
     public const XML_DATA_TAG = 'data';
+    public const INVALID_REQUEST_MESSAGE = "invalid request";
+    public const INVALID_REQUEST_STATUS = 400;
+    public const OK_STATUS = 200;
 
     /**
      * extract the table's column names from an array of json.

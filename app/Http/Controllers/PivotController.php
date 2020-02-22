@@ -19,6 +19,7 @@ class PivotController extends Controller
 {
 
     public const TABLE_NAME = "authors_books";
+    public const AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME = 'authorsAndBooks.csv';
 
     private $exportUtility, $export,$booksController,$authorsController;
 
@@ -38,11 +39,12 @@ class PivotController extends Controller
     public function showByAuthor(Request $request){
         //for search by authors, we need their firstName and lastName.
         $validator = Validator::make($request->all(), [
-            'firstName' => 'required|string',
-            'lastName' =>'required|string'
+            Authors::FIRSTNAME_FIELD => 'required|string',
+            Authors::LASTNAME_FIELD =>'required|string'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => "invalid request"], 400);
+            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
+                ExportUtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
         return    $this->query()->where('authors.firstName' , '=', $request['firstName'])
@@ -57,10 +59,11 @@ class PivotController extends Controller
     public function showByTitle(Request $request){
         //for search by title, we need title only.
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string'
+            Books::TITLE_FIELD => 'required|string'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => "invalid request"], 400);
+            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
+                ExportUtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
         return    $this->query()->where('books.title' , '=', $request['title'])->get();
@@ -98,7 +101,8 @@ class PivotController extends Controller
             'authors.*.authorID' => 'required_without:newAuthors|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => "invalid request"], 400);
+            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
+                ExportUtilityController::INVALID_REQUEST_STATUS);
         }
         //start transaction:
         //BUG: how to rollback ?
@@ -132,7 +136,7 @@ class PivotController extends Controller
                 //and relationID: an ID in the pivot table that connects between each author to this book.
                 return  response()->json([
                     'message' => "books with their associated authors created successfully",
-                    'bookID' => $bookID,
+                    Books::ID_FIELD => $bookID,
                     'relationsID' => $relationsID,
                     'newAuthorsID' => $newAuthorsID],
                     201);
@@ -181,6 +185,6 @@ class PivotController extends Controller
     public function exportToCSV(){
         $query = $this->query();
         $this->export = new DBExport( $query->get(),$query->columns);
-        return $this->exportUtility->exportToCSV($this->export,'authorsAndBooks.csv');
+        return $this->exportUtility->exportToCSV($this->export,self::AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME);
     }
 }
