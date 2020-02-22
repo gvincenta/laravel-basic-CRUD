@@ -93,12 +93,4 @@ class AuthorsController extends Controller
         $authorData = ["firstName" => $newAuthor["firstName"], "lastName"=>$newAuthor["lastName"]];
          return DB::table(Authors::TABLE_NAME)->insertGetId($authorData);
     }
-
-
-
-
-
-
-
-
 }

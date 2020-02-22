@@ -208,10 +208,7 @@ class UtilityTest extends TestCase
             "lastName"=> $newAuthor["lastName"],
             "title"=> $title,
             "bookID"=> $createResponse["bookID"]];
-
-
-
-        /*
+        /*  TODO: add more examples!
          * structure to be validated:
          * <?xml version="1.0"?>
             <authors>
@@ -295,5 +292,4 @@ class UtilityTest extends TestCase
             ->assertStatus(200)
             ->assertExactJson(["message" => $message]);
     }
-
 }

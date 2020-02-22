@@ -87,10 +87,5 @@ class BooksController extends Controller
         }else{
             return  response()->json(['message' => "deleting a book failed"], 200);
         }
-
     }
-
-
-
-
 }
