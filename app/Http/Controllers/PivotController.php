@@ -57,7 +57,7 @@ class PivotController extends Controller
         }
         //for simplicity, do an exact matching search (not case sensitive):
         return    $this->query()->where(Authors::FIRSTNAME_FIELD , '=', $request[Authors::FIRSTNAME_FIELD])
-            ->where(Authors::LASTNAME_FIELD , '=', $request[Authors::FIRSTNAME_FIELD] )->get();
+            ->where(Authors::LASTNAME_FIELD , '=', $request[Authors::LASTNAME_FIELD] )->get();
     }
     /**
      * handles searching for a book through its title.
@@ -71,7 +71,9 @@ class PivotController extends Controller
             Books::TITLE_FIELD => 'required|string'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' =>UUtilityController::INVALID_REQUEST_MESSAGE], UUtilityController::INVALID_REQUEST_STATUS);
+            return  response()->json([
+                UtilityController::MESSAGE_RESPONSE_KEY  =>UtilityController::INVALID_REQUEST_MESSAGE],
+                UtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
         return $this->query()->where(Books::TITLE_FIELD , '=', $request[Books::TITLE_FIELD ])->get();
@@ -113,9 +115,9 @@ class PivotController extends Controller
                 'required_with:'.self::EXISTING_AUTHORS_REQUEST.'|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json(UUtilityController::MESSAGE_RESPONSE_KEY =>
-            UUtilityController::INVALID_REQUEST_MESSAGE],
-            UUtilityController::INVALID_REQUEST_STATUS);
+            return  response()->json(
+                [UtilityController::MESSAGE_RESPONSE_KEY => UtilityController::INVALID_REQUEST_MESSAGE],
+            UtilityController::INVALID_REQUEST_STATUS);
         }
         //start transaction:
         return DB::transaction(function () use ($request) {
@@ -148,22 +150,24 @@ class PivotController extends Controller
                 /* returns a success message, showing the book's ID, the new authors' ID,
                  * and relationID: an ID in the pivot table that connects between each author to this book.
                  */
-                return  response()->json([UUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
+                return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
                     Books::ID_FIELD => $bookID,
                     self::ID_FIELD => $relationsID,
                     Authors::ID_FIELD => $newAuthorsID],
-                    UUtilityController::CREATED_STATUS);
+                    UtilityController::CREATED_STATUS);
 
              //something went wrong with the transaction, rollback
             } catch (\Illuminate\Database\QueryException $e) {
                 DB::rollBack();
                 return  response()->json([
                     UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
-                    UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()], UUtilityController::INTERNAL_SERVER_ERROR_STATUS);
+                    UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()], UtilityController::INTERNAL_SERVER_ERROR_STATUS);
             } catch (\Exception $e) {
                 // something went wrong elsewhere, handle gracefully
                 DB::rollBack();
-                return  response()->json([UUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE, UUtilityController::ERROR_RESPONSE_KEY => $e->getMessage()], UUtilityController::INTERNAL_SERVER_ERROR_STATUS);
+                return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
+                    UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
+                    UtilityController::INTERNAL_SERVER_ERROR_STATUS);
             }
          });
 

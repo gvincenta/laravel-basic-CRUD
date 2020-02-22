@@ -2,9 +2,13 @@
 
 
 namespace Tests\Feature;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 use App\Exports\DBExport;
+use App\Books;
+use App\Authors;
+use App\Http\Controllers\PivotController;
 
 /**
  * Class UtilityTest
@@ -14,6 +18,7 @@ use App\Exports\DBExport;
  */
 class UtilityTest extends TestCase
 {
+    use WithoutMiddleware;
 
     public function __construct()
     {
@@ -27,9 +32,10 @@ class UtilityTest extends TestCase
      * @return mixed the response from the route.
      */
     public function createABook($title, $newAuthor = [], $existingAuthors = [] ){
-        return   $this->json('POST','/api/books',['title'=>$title,
-            'newAuthors' => $newAuthor,
-            'authors' => $existingAuthors
+        return   $this->json('POST','/api/books',[
+            Books::TITLE_FIELD=>$title,
+            PivotController::NEW_AUTHORS_REQUEST => $newAuthor,
+            PivotController::EXISTING_AUTHORS_REQUEST => $existingAuthors
         ]);
     }
 
@@ -41,11 +47,11 @@ class UtilityTest extends TestCase
         $sresponse
             ->assertStatus(200)
             ->assertExactJson( [[
-                "ID"=> $src['authorID'],
-                "firstName"=> $src['firstName'],
-                "lastName"=> $src['lastName'],
-                "books_ID"=> $src["bookID"] ,
-                "title"=> $src['title']
+                    Authors::ID_FIELD=> $src[Authors::ID_FIELD] ,
+                    Authors::FIRSTNAME_FIELD=> $src[Authors::FIRSTNAME_FIELD],
+                    Authors::LASTNAME_FIELD=> $src[Authors::LASTNAME_FIELD],
+                    Books::TITLE_FIELD=> $src[Books::TITLE_FIELD],
+                    Books::ID_FIELD=> $src[Books::ID_FIELD]
             ] ]);
 
     }
@@ -89,15 +95,13 @@ class UtilityTest extends TestCase
         $createResponse = $this->createABook($title, [$newAuthor],[]);
 
         //construct the values to be checked against:
-        $src = ["ID"=> $createResponse['newAuthorsID'][0],
-            "firstName"=> $newAuthor['firstName'],
-            "lastName"=> $newAuthor['lastName'],
-            "books_ID"=> $createResponse["bookID"] ,
-            "title"=> $title];
-        //for books, the ID is the bookID:
-        if($url == '/api/books/export/CSV'){
-            $src["ID"] = $createResponse["bookID"] ;
-        }
+        $src = [Authors::ID_FIELD=> $createResponse[Authors::ID_FIELD][0],
+            Authors::FIRSTNAME_FIELD=> $newAuthor[Authors::FIRSTNAME_FIELD],
+            Authors::LASTNAME_FIELD=> $newAuthor[Authors::LASTNAME_FIELD],
+            Books::TITLE_FIELD=> $title,
+            Books::ID_FIELD=> $createResponse[Books::ID_FIELD]];
+
+
 
 
          Excel::fake();
@@ -123,9 +127,9 @@ class UtilityTest extends TestCase
      */
     public function searchWithValidRequest($url,$src){
         $searchResponse = $this->json('GET',$url,[
-            'title'=>$src["title"], //for a search by title
-            'firstName' =>$src['firstName'] , //for a search by author
-            'lastName' => $src['lastName'] //for a search by author
+            Books::TITLE_FIELD=>$src[Books::TITLE_FIELD], //for a search by title
+            Authors::FIRSTNAME_FIELD =>$src[Authors::FIRSTNAME_FIELD] , //for a search by author
+            Authors::LASTNAME_FIELD => $src[Authors::LASTNAME_FIELD] //for a search by author
         ]);
 
         //check the response:
@@ -138,9 +142,10 @@ class UtilityTest extends TestCase
      * @param $src the source that has the exact matching values for the book's title or author.
      */
     public function searchExactMatchOnly($url,$src){
-        $searchResponse = $this->json('GET',$url,['title'=>$src["title"][0],
-            'firstName' =>$src['firstName'][0],
-            'lastName' => $src['lastName']
+        $searchResponse = $this->json('GET',$url,
+            [Books::TITLE_FIELD => $src[Books::TITLE_FIELD][0],
+            Authors::FIRSTNAME_FIELD =>$src[Authors::FIRSTNAME_FIELD][0],
+            Authors::LASTNAME_FIELD => $src[Authors::LASTNAME_FIELD]
         ]);
         //expect for an empty response:
         $this->checkEmptyJsonContent($searchResponse);
@@ -157,11 +162,12 @@ class UtilityTest extends TestCase
         $title = 'Search';
         $createResponse =  $this->createABook($title, [$newAuthor], [] );
         //combine all resources into 1 variable:
-        $src = ["authorID"=> $createResponse['newAuthorsID'][0],
-            "firstName"=> $newAuthor['firstName'],
-            "lastName"=> $newAuthor['lastName'],
-            "bookID"=> $createResponse["bookID"] ,
-            "title"=> $title ] ;
+        $src = [Authors::ID_FIELD=> $createResponse[Authors::ID_FIELD][0],
+            Authors::FIRSTNAME_FIELD=> $newAuthor[Authors::FIRSTNAME_FIELD],
+            Authors::LASTNAME_FIELD=> $newAuthor[Authors::LASTNAME_FIELD],
+            Books::TITLE_FIELD=> $title,
+            Books::ID_FIELD=> $createResponse[Books::ID_FIELD]];
+
 
         //then search on the recently created book:
         $this->searchWithValidRequest($url,$src);
@@ -170,7 +176,7 @@ class UtilityTest extends TestCase
         $this->searchExactMatchOnly($url,$src);
 
         //try to send invalid requests:
-        $searchResponse =  $this->sendEmptyRequest($url,'GET');
+        $searchResponse =  $this->json('GET',$url, []);
         //expect for status: 400 response:
         $this->checkInvalidResponse($searchResponse);
     }
@@ -203,11 +209,11 @@ class UtilityTest extends TestCase
         $this->assertNotFalse($object);
         $this->assertInstanceOf( \SimpleXMLElement::class, $object);
 
-        $src = [ "authorID"=> $createResponse['newAuthorsID'][0],
-            "firstName"=> $newAuthor["firstName"],
-            "lastName"=> $newAuthor["lastName"],
-            "title"=> $title,
-            "bookID"=> $createResponse["bookID"]];
+        $src = [ Authors::ID_FIELD=> $createResponse[Authors::ID_FIELD][0],
+            Authors::FIRSTNAME_FIELD=> $newAuthor[Authors::FIRSTNAME_FIELD],
+            Authors::LASTNAME_FIELD=> $newAuthor[Authors::LASTNAME_FIELD],
+            Books::TITLE_FIELD=> $title,
+            Books::ID_FIELD=> $createResponse[Books::ID_FIELD]];
         /*  TODO: add more examples!
          * structure to be validated:
          * <?xml version="1.0"?>
@@ -226,7 +232,7 @@ class UtilityTest extends TestCase
         // check the values for child tags of <data>:
         $childArray = $object->data;
 
-       $this->checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag,$object->data,$rootTag);
+       $this->checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag,$object->data);
 
     }
     //
@@ -239,9 +245,9 @@ class UtilityTest extends TestCase
      * @param $xml, the xml file to be checked against.
      * @param $rootTag, authors OR books.
      */
-    public function checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag, $xml,$rootTag){
+    public function checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag, $xml){
         //if no nesting, just loop:
-        $this->validateXMLContent($headersToBeChecked[0],$childArray,$src,$rootTag);
+        $this->validateXMLContent($headersToBeChecked[0],$childArray,$src );
 
         //if nesting, you must expand again, and loop:
         if ($xml->$nestedTag){
@@ -250,7 +256,7 @@ class UtilityTest extends TestCase
             $grandChildArray = $xml->$nestedTag->data;
             //nesting only occurs once, so don't worry about recursion, just directly validate the $grandChildArray:
 
-            $this->validateXMLContent($headersToBeChecked[1],$grandChildArray,$src,$nestedTag);
+            $this->validateXMLContent($headersToBeChecked[1],$grandChildArray,$src );
 
         }
     }
@@ -261,15 +267,9 @@ class UtilityTest extends TestCase
      * @param $src , contains the expected values of each header to be checked against the XML file.
      * @param $currentTag authors OR books.
      */
-    public function validateXMLContent($headersToBeChecked,$childArray,$src,$currentTag){
+    public function validateXMLContent($headersToBeChecked,$childArray,$src){
         foreach ($headersToBeChecked as $header) {
-            if ($currentTag == "authors" && $header=="ID"){
-                $this->assertTrue($src["authorID"] == $childArray->$header);
-            } else if ($currentTag == "books" && $header=="ID"){
-                $this->assertTrue($src["bookID"] == $childArray->$header);
-            }else{
                 $this->assertTrue($src[$header] == $childArray->$header);
-            }
         }
     }
     /** When you send an invalid request, the backend returns an "invalid request" message. check for this kind of

@@ -4,14 +4,18 @@
 namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
-use App\Exports\DBExport;
+use App\Http\Controllers\AuthorsController;
+use App\Authors;
+use App\Http\Controllers\PivotController;
+use App\Books;
 
 /**
  * Class AuthorsTest
  * @package Tests\Feature
- * a class to test all requests directed to /api/authors/... endpoint
+ * a class to test /api/authors/... endpoint
  */
 class AuthorsTest extends TestCase
 {
@@ -49,11 +53,11 @@ class AuthorsTest extends TestCase
 
         $createResponse = $this->utilityTest->createABook($this->title, [$this->authors[0]] );
         //then, update an author it through its ID:
-        $this->changeAuthorNameWithValidRequest($createResponse['newAuthorsID'][0],$this->authors[0]);
+         $this->changeAuthorNameWithValidRequest($createResponse[Authors::ID_FIELD][0],$this->authors[0]);
         //update with empty body:
         $this->changeAuthorNameWithEmptyRequest();
         //update with invalid firstName and lastName:
-        $this->changeAuthorNameWithInvalidName($createResponse['newAuthorsID'][0]);
+        $this->changeAuthorNameWithInvalidName($createResponse[Authors::ID_FIELD][0]);
     }
 
     /** Changes an author's name with valid ID, firstName, and lastName.
@@ -62,21 +66,25 @@ class AuthorsTest extends TestCase
      */
     public function changeAuthorNameWithValidRequest($id, $current)
     {
-        $updateResponse = $this->json('PUT','/api/authors',['ID'=>$id,
-            'firstName' => 'Updated',
-            'lastName' =>'Updated'
+        $updateResponse = $this->json('PUT','/api/authors',
+            [ Authors::ID_FIELD =>$id,
+            Authors::FIRSTNAME_FIELD  => 'Updated',
+            Authors::LASTNAME_FIELD  =>'Updated'
         ]);
         //checks that a proper response is returned:
-        $this->utilityTest->checkOKResponseWithCustomMessage($updateResponse, "changing name succeed");
+        $this->utilityTest->checkOKResponseWithCustomMessage(
+            $updateResponse,
+            AuthorsController::CHANGE_NAME_SUCCEED_MESSAGE);
+
         //check that changes are successfully made in the database:
-        $this->assertDatabaseHas('authors', $this->authors[2]);
-        $this->assertDatabaseMissing('authors', $current);
+        $this->assertDatabaseHas(Authors::TABLE_NAME, $this->authors[2]);
+        $this->assertDatabaseMissing(Authors::TABLE_NAME, $current);
     }
 
     /** requests to change an author's name with no request body. */
     public function changeAuthorNameWithEmptyRequest()
     {
-        $updateResponse =  $this->utilityTest->sendEmptyRequest('/api/authors','PUT');
+        $updateResponse =  $this->json('PUT','/api/authors', []);
         $this->utilityTest->checkInvalidResponse($updateResponse);
     }
 
@@ -86,20 +94,26 @@ class AuthorsTest extends TestCase
     public function changeAuthorNameWithInvalidName($id)
     {
         $invalidName = ['firstName' => 123, 'lastName' => 456];
-        $updateResponse = $this->json('PUT','/api/authors',['ID'=>$id,
-            'firstName' => 123, 'lastName' => 456]);
+        $updateResponse = $this->json('PUT','/api/authors',[
+            Authors::ID_FIELD =>$id,
+            Authors::FIRSTNAME_FIELD => 123,
+            Authors::LASTNAME_FIELD => 456]);
         $this->utilityTest->checkInvalidResponse($updateResponse);
-        $this->assertDatabaseMissing('authors', $invalidName);
+        $this->assertDatabaseMissing(Authors::TABLE_NAME, $invalidName);
     }
     /** Changes an author's name with invalid ID.
      * @param $id, ID of an author that does not exist in the database.
      */
     public function changeAuthorNameWithInvalidID()
     {
-        $updateResponse = $this->json('PUT','/api/authors',['ID'=> 2,
-            'firstName' => "Updated", 'lastName' => "Wrong"]);
-        $this->utilityTest->checkOKResponseWithCustomMessage($updateResponse, "changing name failed");
-        $this->assertDatabaseMissing('authors', $this->authors[1]);
+        $updateResponse = $this->json('PUT','/api/authors',[
+            Authors::ID_FIELD =>2,
+            Authors::FIRSTNAME_FIELD =>  "Updated",
+            Authors::LASTNAME_FIELD => "Wrong"]);
+        $this->utilityTest->checkOKResponseWithCustomMessage(
+            $updateResponse,
+            AuthorsController::CHANGE_NAME_FAILED_MESSAGE);
+        $this->assertDatabaseMissing(Authors::TABLE_NAME, $this->authors[1]);
     }
 
     /**  @test  search for a book by its author. */
@@ -110,24 +124,27 @@ class AuthorsTest extends TestCase
     /** @test requests for a authors (only) content  exported as a CSV and then check its content.   */
     public function exportAuthorsToCSV()
     {
-        $this->utilityTest->exportToCSV( ['ID','firstName','lastName'] ,'/api/authors/export/CSV','authors.csv');
+        $this->utilityTest->exportToCSV( ['authorID','firstName','lastName'] ,'/api/authors/export/CSV',
+            AuthorsController::AUTHORS_EXPORT_CSV_FILENAME);
     }
     /**  @test requests for a books and authors content  exported as a CSV and then check its content. */
     public function exportAuthorsAndBooksToCSV()
     {
-        $this->utilityTest->exportToCSV( ['ID','firstName','lastName','books_ID','title'] ,'/api/authors/export/CSV/with-books',
-            'authorsAndBooks.csv');
+        $this->utilityTest->exportToCSV( ['authorID','firstName','lastName','bookID','title'] ,
+            '/api/authors/export/CSV/with-books',
+            PivotController::AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME);
     }
     /**  @test  requests for a authors (only) content  exported as XML and then check its content. */
     public function exportAuthorsToXML(){
-        $this->utilityTest->exportToXML( [['ID','firstName','lastName']],'/api/authors/export/XML',"authors");
+        $this->utilityTest->exportToXML( [['authorID','firstName','lastName']],'/api/authors/export/XML',
+            Authors::TABLE_NAME);
 
     }
 
     /**  @test requests for authors and books  content  exported as XML and then check its content. */
     public function exportAuthorsAndBooksToXML(){
-        $this->utilityTest->exportToXML( [['ID','firstName','lastName'], ['ID', 'title']],'/api/authors/export/XML/with-books',
-            "authors","books");
+        $this->utilityTest->exportToXML( [['authorID','firstName','lastName'], ['bookID', 'title']],
+            '/api/authors/export/XML/with-books', Authors::TABLE_NAME, Books::TABLE_NAME);
     }
 }
 
