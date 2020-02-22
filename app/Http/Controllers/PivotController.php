@@ -29,11 +29,11 @@ class PivotController extends Controller
     public const BOOKS_CREATION_SUCCEED_MESSAGE ="books with their associated authors created successfully";
     public const NEW_AUTHORS_REQUEST = "newAuthors";
     public const EXISTING_AUTHORS_REQUEST = "existingAuthors";
-    private $exportUtility, $export,$booksController,$authorsController;
+    private $utility, $export,$booksController,$authorsController;
 
     public function __construct()
     {
-        $this->exportUtility = new ExportUtilityController();
+        $this->utility = new UtilityController();
         $this->booksController = new BooksController();
         $this->authorsController = new AuthorsController();
 
@@ -51,8 +51,9 @@ class PivotController extends Controller
             Authors::LASTNAME_FIELD =>'required|string'
         ]);
         if ($validator->fails()) {
-            return  response()->json([ExportUtilityController::MESSAGE_RESPONSE_KEY => ExportUtilityController::INVALID_REQUEST_MESSAGE],
-                ExportUtilityController::INVALID_REQUEST_STATUS);
+            return  response()->json(
+                [UtilityController::MESSAGE_RESPONSE_KEY => UtilityController::INVALID_REQUEST_MESSAGE],
+                UtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
         return    $this->query()->where(Authors::FIRSTNAME_FIELD , '=', $request[Authors::FIRSTNAME_FIELD])
@@ -70,8 +71,7 @@ class PivotController extends Controller
             Books::TITLE_FIELD => 'required|string'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
-                ExportUtilityController::INVALID_REQUEST_STATUS);
+            return  response()->json(['message' =>UUtilityController::INVALID_REQUEST_MESSAGE], UUtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
         return $this->query()->where(Books::TITLE_FIELD , '=', $request[Books::TITLE_FIELD ])->get();
@@ -113,9 +113,9 @@ class PivotController extends Controller
                 'required_with:'.self::EXISTING_AUTHORS_REQUEST.'|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json([ExportUtilityController::MESSAGE_RESPONSE_KEY =>
-                ExportUtilityController::INVALID_REQUEST_MESSAGE],
-                ExportUtilityController::INVALID_REQUEST_STATUS);
+            return  response()->json(UUtilityController::MESSAGE_RESPONSE_KEY =>
+            UUtilityController::INVALID_REQUEST_MESSAGE],
+            UUtilityController::INVALID_REQUEST_STATUS);
         }
         //start transaction:
         return DB::transaction(function () use ($request) {
@@ -148,27 +148,22 @@ class PivotController extends Controller
                 /* returns a success message, showing the book's ID, the new authors' ID,
                  * and relationID: an ID in the pivot table that connects between each author to this book.
                  */
-                return  response()->json([
-                    ExportUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
+                return  response()->json([UUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
                     Books::ID_FIELD => $bookID,
                     self::ID_FIELD => $relationsID,
                     Authors::ID_FIELD => $newAuthorsID],
-                     ExportUtilityController::CREATED_STATUS);
+                    UUtilityController::CREATED_STATUS);
 
              //something went wrong with the transaction, rollback
             } catch (\Illuminate\Database\QueryException $e) {
                 DB::rollBack();
                 return  response()->json([
-                    ExportUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
-                    ExportUtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
-                    ExportUtilityController::INTERNAL_SERVER_ERROR_STATUS);
+                    UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
+                    UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()], UUtilityController::INTERNAL_SERVER_ERROR_STATUS);
             } catch (\Exception $e) {
                 // something went wrong elsewhere, handle gracefully
                 DB::rollBack();
-                return  response()->json([
-                    ExportUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
-                    ExportUtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
-                    ExportUtilityController::INTERNAL_SERVER_ERROR_STATUS);
+                return  response()->json([UUtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE, UUtilityController::ERROR_RESPONSE_KEY => $e->getMessage()], UUtilityController::INTERNAL_SERVER_ERROR_STATUS);
             }
          });
 
@@ -200,6 +195,6 @@ class PivotController extends Controller
     public function exportToCSV(){
         $query = $this->query();
         $this->export = new DBExport( $query->get(),$query->columns);
-        return $this->exportUtility->exportToCSV($this->export,self::AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME);
+        return $this->utility->exportToCSV($this->export,self::AUTHORS_AND_BOOKS_EXPORT_CSV_FILENAME);
     }
 }

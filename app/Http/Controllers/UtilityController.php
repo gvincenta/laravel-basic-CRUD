@@ -6,10 +6,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use XMLWriter;
 
  /**
- * Controls how to export to CSV and XML.
+ * Controls how to export to CSV and XML and define some commonly used constants.
 */
  //TODO : proper documentation of how exporting works.
-class ExportUtilityController extends Controller
+class UtilityController extends Controller
 {
     public const XML_DATA_TAG = 'data';
     public const INVALID_REQUEST_MESSAGE = "invalid request";
@@ -59,7 +59,7 @@ class ExportUtilityController extends Controller
 
         //loop through each json item in the array:
         foreach($array as $json) {
-            ExportUtilityController::constructChild($xml,$childKeys,$attributes,1,$dataTag,$nestedTags, $json);
+            UtilityController::constructChild($xml,$childKeys,$attributes,1,$dataTag,$nestedTags, $json);
         }
         //encloses the xml tags and return it:
         $xml->endElement();
@@ -87,12 +87,12 @@ class ExportUtilityController extends Controller
             //if we have child objects that needs to be parsed:
             if (count($childObjects) >0){
                 //firstly, parse the current data, but don't close it yet:
-                ExportUtilityController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], false );
+                UtilityController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], false );
                 //init the child object:
                 $xml->startElement($nestedTags[$counter]);
                 //run through each child object, in case they have further child element(s) that needs to be parsed:
                 foreach ($childObjects as $child){
-                    ExportUtilityController::constructChild($xml,$childKeys,$attributes,$counter+1,$dataTag,$nestedTags, $child);
+                    UtilityController::constructChild($xml,$childKeys,$attributes,$counter+1,$dataTag,$nestedTags, $child);
                 }
                 //close the child object:
                 $xml->endElement();
@@ -104,7 +104,7 @@ class ExportUtilityController extends Controller
             }
         }
         //if we do not expect further child elements, parse the current data:
-        ExportUtilityController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], true );
+        UtilityController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], true );
     }
     /**
      * parse a data (e.g. a book or an author) with all of its attributes.

@@ -15,13 +15,14 @@ use Illuminate\Support\Str;
 */
 class BooksController extends Controller
 {
-    private $export,$exportUtility;
+    private $export,$utility;
     public const XML_BOOKS_AND_AUTHORS_PATH = "with-authors";
     public const DELETE_A_BOOK_SUCCEED_MESSAGE = "deleting a book succeed";
     public const DELETE_A_BOOK_FAILED_MESSAGE = "deleting a book failed";
+    public const BOOKS_EXPORT_CSV_FILENAME = 'books.csv';
     public function __construct()
     {
-        $this->exportUtility = new ExportUtilityController();
+        $this->utility = new UtilityController();
 
     }
     /**
@@ -33,23 +34,23 @@ class BooksController extends Controller
         //handles request for books and authors XML file. (i.e. books nested with the respective authors).
         if ( Str::contains($request->path(), BooksController::XML_BOOKS_AND_AUTHORS_PATH )){
             $results = Books::with(Authors::TABLE_NAME)->get();
-            return $this->exportUtility->exportToXML($results,[Books::TABLE_NAME, Authors::TABLE_NAME],
-                [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], ExportUtilityController::XML_DATA_TAG);
+            return $this->utility->exportToXML($results,[Books::TABLE_NAME, Authors::TABLE_NAME],
+                [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], UtilityController::XML_DATA_TAG);
 
         }
-        return $this->exportUtility->exportToXML(Books::all(),
-            [Books::TABLE_NAME],[],[Books::FIELDS],ExportUtilityController::XML_DATA_TAG);
+        return $this->utility->exportToXML(Books::all(),
+            [Books::TABLE_NAME],[],[Books::FIELDS],UtilityController::XML_DATA_TAG);
     }
 
     /**
      * exports all books stored in the database to CSV.
-     * @returns CSV file.
+     * @returns a CSV file.
      */
     public function exportToCSV()
     {
         $data = Books::all();
-        $this->export = new DBExport( $data , $this->exportUtility->extractHeadings($data));
-        return $this->exportUtility->exportToCSV($this->export,'books.csv');
+        $this->export = new DBExport( $data , $this->utility->extractHeadings($data));
+        return $this->utility->exportToCSV($this->export,self::BOOKS_EXPORT_CSV_FILENAME);
     }
 
     /**
@@ -59,14 +60,14 @@ class BooksController extends Controller
      */
     public function store($title  )
     {
-         return DB::table(Books::TABLE_NAME)->insertGetId(["title" => $title ]);
+         return DB::table(Books::TABLE_NAME)->insertGetId([Books::TITLE_FIELD => $title ]);
     }
 
     /**
      * Remove the specified book from database.
      * @param  \Illuminate\Http\Request  $request, containing ID of the book to be deleted.
-     * @return \Illuminate\Http\Response the number of rows deleted, if request is valid.
-     * @return \Illuminate\Http\Response invalid request, if request is invalid.
+     * @return \Illuminate\Http\JsonResponse the number of rows deleted, if request is valid.
+     * @return \Illuminate\Http\JsonResponse invalid request, if request is invalid.
      */
     public function destroy(Request $request)
     {
@@ -74,8 +75,9 @@ class BooksController extends Controller
             Books::ID_FIELD => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' => ExportUtilityController::INVALID_REQUEST_MESSAGE],
-                ExportUtilityController::INVALID_REQUEST_STATUS);
+            return  response()->json(
+                [UtilityController::MESSAGE_RESPONSE_KEY => UtilityController::INVALID_REQUEST_MESSAGE],
+                UtilityController::INVALID_REQUEST_STATUS);
         }
 
         $affectedRows= DB::table(Books::TABLE_NAME)
@@ -83,12 +85,14 @@ class BooksController extends Controller
             ->delete();
          //for completed delete:
         if ($affectedRows == 1){
-            return  response()->json(['message' => self::DELETE_A_BOOK_SUCCEED_MESSAGE ],
-                ExportUtilityController::OK_STATUS);
+            return  response()->json(
+                [UtilityController::MESSAGE_RESPONSE_KEY => self::DELETE_A_BOOK_SUCCEED_MESSAGE ],
+                UtilityController::OK_STATUS);
         //for failed delete (i.e. no rows affected):
         }else{
-            return  response()->json(['message' => self::DELETE_A_BOOK_FAILED_MESSAGE ],
-                ExportUtilityController::OK_STATUS);
+            return  response()->json(
+                [UtilityController::MESSAGE_RESPONSE_KEY => self::DELETE_A_BOOK_FAILED_MESSAGE ],
+                UtilityController::OK_STATUS);
         }
     }
 }
