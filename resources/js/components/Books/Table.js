@@ -32,6 +32,8 @@ export default function(props) {
                 <div>
                     {props.value} &nbsp;
                     <Button
+                        data-step="6"
+                        data-intro="Click me to delete this book. WARNING: this will be directly applied to backend."
                         variant="danger"
                         onClick={e => {
                             e.preventDefault();
@@ -62,6 +64,8 @@ export default function(props) {
                 <div>
                     {props.value} &nbsp;
                     <Button
+                        data-step="7"
+                        data-intro="Click me to change this author's name. A form will appear below the table to change their name."
                         onClick={e => {
                             e.preventDefault();
                             //remembers the author's existing data, then display a form:

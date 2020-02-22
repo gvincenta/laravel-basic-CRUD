@@ -11,7 +11,7 @@ export default function(props) {
 
     return (
         <ListGroup.Item
-            action
+             action
             onClick={e => {
                 props.onClick(author.ID);
             }}

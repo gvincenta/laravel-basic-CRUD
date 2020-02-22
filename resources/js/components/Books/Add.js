@@ -66,7 +66,7 @@ export default function() {
             case 2:
                 return 'Assign existing authors to ' + title;
             case 3:
-                return 'Assign new authors to ' + title;
+                return 'Add new authors to the database and assign them to ' + title;
         }
     };
     //sets the form input fields for each step:
@@ -80,6 +80,7 @@ export default function() {
                         placeholder="Please enter the book's title"
                         required
                         onChange={e => setTitle(e.target.value)}
+
                     />
                 );
             //provides existing authors:
@@ -100,7 +101,7 @@ export default function() {
                                 ])
                             }
                         >
-                            Add
+                            Assign
                         </Button>
                     </ButtonGroup>
                 );
@@ -111,7 +112,8 @@ export default function() {
                     <InlineField
                         setFirstName={setFirstName}
                         setLastName={setLastName}
-                        buttonName="Add"
+                        buttonName="Assign"
+
                         onClick={e =>
                             assignNewAuthors([
                                 ...newAuthors,
@@ -150,7 +152,7 @@ export default function() {
             <Navigator step={step} min={1} max={3} setStep={setStep} />
             {//renders submit button on the last step:
             step === 3 ? (
-                <Button variant="primary" type="submit">
+                <Button variant="primary" type="submit" >
                     {' '}
                     Submit{' '}
                 </Button>
