@@ -16,14 +16,14 @@ class CreateAuthorsBooksTable extends Migration
         Schema::dropIfExists('authors_books');
 
         Schema::create('authors_books', function (Blueprint $table) {
-            $table->increments('ID');
-             $table->integer('authors_ID')->unsigned();
-            $table->integer('books_ID')->unsigned();
-            $table->foreign('books_ID')
-                ->references('ID')->on("books")
+            $table->increments('relationID');
+             $table->integer(Authors::TABLE_NAME . '_'. Authors::ID_FIELD)->unsigned();
+            $table->integer(Books::TABLE_NAME . '_'.Books::ID_FIELD)->unsigned();
+            $table->foreign(Books::TABLE_NAME . '_'.Books::ID_FIELD)
+                ->references(Books::ID_FIELD)->on(Books::TABLE_NAME)
                 ->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('authors_ID')
-                ->references('ID')->on("authors")
+            $table->foreign(Authors::TABLE_NAME . '_'. Authors::ID_FIELD)
+                ->references(Authors::ID_FIELD)->on(Authors::TABLE_NAME)
                 ->onDelete('restrict')->onUpdate('cascade');
 
         });
@@ -31,7 +31,6 @@ class CreateAuthorsBooksTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
      * @return void
      */
     public function down()

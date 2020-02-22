@@ -14,10 +14,10 @@ class CreateAuthorsTable extends Migration
      */
     public function up()
     {
-         Schema::create('authors', function (Blueprint $table) {
-            $table->increments('ID');
-            $table->string('firstName');
-             $table->string('lastName');
+         Schema::create(Authors::TABLE_NAME, function (Blueprint $table) {
+            $table->increments(Authors::ID_FIELD);
+            $table->string(Authors::FIRSTNAME_FIELD);
+             $table->string(Authors::LASTNAME_FIELD);
 
          });
     }
@@ -29,6 +29,6 @@ class CreateAuthorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('authors');
+        Schema::dropIfExists(Authors::TABLE_NAME);
     }
 }

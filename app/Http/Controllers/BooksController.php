@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Authors;
 use App\Books;
-use App\Exports\BooksExport;
 use App\Exports\DBExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
