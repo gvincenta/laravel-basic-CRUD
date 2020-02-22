@@ -5,13 +5,14 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class ExampleTest extends TestCase
+/**
+ * Class UnhandledRouteTest
+ * @package Tests\Feature
+ * make sure all unhandled routes return 404.
+ */
+class UnhandledRouteTest extends TestCase
 {
-    /**
-     * make sure all unhandled routes return 404.
-     *
-     * @test
-     */
+    /**  @test make sure all unhandled routes return 404. */
     public function unhandledRoutes()
     {
         $response = $this->get('/idontknow');
