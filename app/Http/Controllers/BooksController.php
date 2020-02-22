@@ -17,7 +17,8 @@ class BooksController extends Controller
 {
     private $export,$exportUtility;
     public const XML_BOOKS_AND_AUTHORS_PATH = "with-authors";
-
+    public const DELETE_A_BOOK_SUCCEED_MESSAGE = "deleting a book succeed";
+    public const DELETE_A_BOOK_FAILED_MESSAGE = "deleting a book failed";
     public function __construct()
     {
         $this->exportUtility = new ExportUtilityController();
@@ -31,7 +32,7 @@ class BooksController extends Controller
     {
         //handles request for books and authors XML file. (i.e. books nested with the respective authors).
         if ( Str::contains($request->path(), BooksController::XML_BOOKS_AND_AUTHORS_PATH )){
-            $results = Books::with('authors')->get();
+            $results = Books::with(Authors::TABLE_NAME)->get();
             return $this->exportUtility->exportToXML($results,[Books::TABLE_NAME, Authors::TABLE_NAME],
                 [Authors::TABLE_NAME], [Books::FIELDS,Authors::FIELDS], ExportUtilityController::XML_DATA_TAG);
 
@@ -70,21 +71,21 @@ class BooksController extends Controller
     public function destroy(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'ID' => 'required|numeric'
+            Books::ID_FIELD => 'required|numeric'
         ]);
         if ($validator->fails()) {
             return  response()->json(['message' => "invalid request"], 400);
         }
 
         $affectedRows= DB::table(Books::TABLE_NAME)
-            ->where("ID", "=", $request->input('ID'))
+            ->where(Books::ID_FIELD, "=", $request->input(Books::ID_FIELD))
             ->delete();
          //for completed delete:
         if ($affectedRows == 1){
-            return  response()->json(['message' => "deleting a book succeed"], 200);
+            return  response()->json(['message' => self::DELETE_A_BOOK_SUCCEED_MESSAGE ], 200);
         //for failed delete (i.e. no rows affected):
         }else{
-            return  response()->json(['message' => "deleting a book failed"], 200);
+            return  response()->json(['message' => self::DELETE_A_BOOK_FAILED_MESSAGE ], 200);
         }
     }
 }

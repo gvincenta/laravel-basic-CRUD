@@ -16,7 +16,9 @@ class AuthorsController extends Controller
 {
     private $export,$exportUtility;
     public const XML_AUTHORS_AND_BOOKS_PATH = "with-books";
-
+    public const AUTHORS_EXPORT_CSV_FILENAME  = 'authors.csv';
+    public const CHANGE_NAME_SUCEED_MESSAGE = "changing name succeed";
+    public const CHANGE_NAME_FAILED_MESSAGE = "changing name failed";
     public function __construct()
     {
         $this->exportUtility = new ExportUtilityController();
@@ -31,24 +33,25 @@ class AuthorsController extends Controller
     public function update(Request $request){
 
         $validator = Validator::make($request->all(), [
-            'firstName' => 'required|string',
-            'lastName' => 'required|string',
-            'ID' => 'required|numeric'
+            Authors::FIRSTNAME_FIELD => 'required|string',
+            Authors::LASTNAME_FIELD => 'required|string',
+            Authors::ID_FIELD => 'required|numeric'
         ]);
         if ($validator->fails()) {
             return  response()->json(['message' => "invalid request"], 400);
         }
-        $updateData = ["firstName" => $request->input("firstName"),"lastName" => $request->input("lastName") ];
+        $updateData = [Authors::FIRSTNAME_FIELD => $request->input(Authors::FIRSTNAME_FIELD),
+            Authors::LASTNAME_FIELD => $request->input(Authors::LASTNAME_FIELD) ];
         $affectedRows = DB::table(Authors::TABLE_NAME)
-            ->where('ID', '=',$request->input('ID'))
+            ->where(Authors::ID_FIELD, '=',$request->input(Authors::ID_FIELD))
             ->update($updateData);
 
         //for completed update:
         if ($affectedRows == 1){
-            return  response()->json(['message' => "changing name succeed"], 200);
+            return  response()->json(['message' => self::CHANGE_NAME_SUCEED_MESSAGE ], 200);
         //for failed update (i.e. no rows affected):
         }else{
-            return  response()->json(['message' => "changing name failed"], 200);
+            return  response()->json(['message' => self::CHANGE_NAME_FAILED_MESSAGE], 200);
         }
 
     }
@@ -61,7 +64,7 @@ class AuthorsController extends Controller
     {
         $data = Authors::all();
         $this->export = new DBExport( $data , $this->exportUtility->extractHeadings($data));
-        return $this->exportUtility->exportToCSV($this->export,'authors.csv');
+        return $this->exportUtility->exportToCSV($this->export,self::AUTHORS_EXPORT_CSV_FILENAME);
     }
 
     /**
@@ -73,7 +76,7 @@ class AuthorsController extends Controller
     {
         //exports all authors, along with their books, from database to XML file:
         if(Str::contains($request->path(), AuthorsController::XML_AUTHORS_AND_BOOKS_PATH )){
-            $results = Authors::with('books')->get();
+            $results = Authors::with(Books::TABLE_NAME)->get();
             return $this->exportUtility->exportToXML($results,[Authors::TABLE_NAME,Books::TABLE_NAME],
                 [Books::TABLE_NAME], [Authors::FIELDS,Books::FIELDS], ExportUtilityController::XML_DATA_TAG);
         }
@@ -90,7 +93,8 @@ class AuthorsController extends Controller
     public function store($newAuthor)
     {
         //extract only author's firstName and lastName:
-        $authorData = ["firstName" => $newAuthor["firstName"], "lastName"=>$newAuthor["lastName"]];
+        $authorData = [ Authors::FIRSTNAME_FIELD => $newAuthor[Authors::FIRSTNAME_FIELD],
+            Authors::LASTNAME_FIELD =>$newAuthor[Authors::LASTNAME_FIELD ]];
          return DB::table(Authors::TABLE_NAME)->insertGetId($authorData);
     }
 }

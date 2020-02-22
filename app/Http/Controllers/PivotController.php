@@ -72,8 +72,8 @@ class PivotController extends Controller
      */
     public function store($authorID, $bookID  )
     {
-        return DB::table(PivotController::TABLE_NAME)->insertGetId(["authors_ID" => $authorID,
-            "books_ID" => $bookID]);
+        return DB::table(PivotController::TABLE_NAME)->insertGetId(["authors_authorID" => $authorID,
+            "books_bookID" => $bookID]);
     }
     /**
      * creates a new book, and also assigns author(s) to it with database's transaction method.
@@ -95,12 +95,13 @@ class PivotController extends Controller
             'newAuthors'=>'required_without:authors', //for new authors to be added to DB.
             'newAuthors.*.firstName' => 'required_without:authors|string',
             'newAuthors.*.lastName' => 'required_without:authors|string',
-            'authors.*.ID' => 'required_without:newAuthors|numeric'
+            'authors.*.authorID' => 'required_without:newAuthors|numeric'
         ]);
         if ($validator->fails()) {
             return  response()->json(['message' => "invalid request"], 400);
         }
         //start transaction:
+        //BUG: how to rollback ?
         return DB::transaction(function () use ($request) {
             //carry out transaction
             try {
@@ -123,7 +124,7 @@ class PivotController extends Controller
                     foreach ($request->get("authors") as $existingAuthor){
                         //assign the existing authors as the authors of this book:
 
-                        $relationID = $this->store($existingAuthor["ID"],$bookID);
+                        $relationID = $this->store($existingAuthor[Authors::ID_FIELD],$bookID);
                         array_push($relationsID,$relationID);
                     }
                 }
@@ -144,6 +145,7 @@ class PivotController extends Controller
                     'error'=>$e], 500);
             } catch (\Exception $e) {
                 // something went wrong elsewhere, handle gracefully
+                DB::rollBack();
                 return  response()->json([
                     'message' => "failed to create books and their associated authors",
                     'error'=>$e], 500);
@@ -159,9 +161,9 @@ class PivotController extends Controller
     public function query(){
         //note : authors_books.books_ID is selected to avoid same columns "ID" clashing bug.
         return DB::table('authors_books')
-            ->rightJoin(Authors::TABLE_NAME, 'authors.ID', '=', 'authors_books.authors_ID')
-            ->leftJoin(Books::TABLE_NAME, 'books.ID', '=', 'authors_books.books_ID')
-            ->select('authors.ID', 'authors.firstName', 'authors.lastName', 'authors_books.books_ID',
+            ->rightJoin(Authors::TABLE_NAME, 'authors.authorID', '=', 'authors_books.authors_authorID')
+            ->leftJoin(Books::TABLE_NAME, 'books.bookID', '=', 'authors_books.books_bookID')
+            ->select('authors.authorID', 'authors.firstName', 'authors.lastName', 'books.bookID',
                 'books.title');
      }
     /**
