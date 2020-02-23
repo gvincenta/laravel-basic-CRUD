@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import Axios from 'axios';
-import {
-    Button,
-    Row,
-    Col,
-    Form} from 'react-bootstrap';
+import { Button, Row, Col, Form } from 'react-bootstrap';
 import XMLViewer from 'react-xml-viewer';
 import Spinner from './Spinner';
 import FileDownload from 'js-file-download';
@@ -81,14 +77,14 @@ export default function() {
                 //fetching data from database:
                 Axios.get(url)
                     .then(res => {
-                    //data is ready:
-                    setData(res.data);
-                    setStatus('done');
-                }).catch(e => {
-                    setStatus("error");
-                    setError("Error: " + JSON.stringify(e.message));
-
-                });
+                        //data is ready:
+                        setData(res.data);
+                        setStatus('done');
+                    })
+                    .catch(e => {
+                        setStatus('error');
+                        setError('Error: ' + JSON.stringify(e.message));
+                    });
             }}
         >
             <fieldset>
@@ -150,9 +146,9 @@ export default function() {
                 {' '}
                 submit{' '}
             </Button>
-            {error //display error when it occurs:
-                ?  <Alert message={error}/>
-            : null}
+            {error ? ( //display error when it occurs:
+                <Alert message={error} />
+            ) : null}
         </Form>
     );
 }

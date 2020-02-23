@@ -22,7 +22,7 @@ export default function(props) {
                     &lt;{' '}
                 </Button>
             ) : null}
-            { (step < max && allowNext) ? (
+            {step < max && allowNext ? (
                 <Button variant="primary" onClick={e => setStep(step + 1)}>
                     {' '}
                     &gt;{' '}

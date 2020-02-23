@@ -17,7 +17,11 @@ export default function(props) {
             options={data}
             getOptionLabel={option => {
                 return (
-                    option.authorID + ' ' + option.firstName + ' ' + option.lastName
+                    option.authorID +
+                    ' ' +
+                    option.firstName +
+                    ' ' +
+                    option.lastName
                 );
             }}
             style={{ width: 300 }}

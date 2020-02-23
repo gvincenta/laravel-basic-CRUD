@@ -42,22 +42,32 @@ export default function(props) {
                             //refresh error message:
                             setMessage(null);
                             console.log(props.value, 'ONCLICK');
-                            const {title,bookID} = props.original;
+                            const { title, bookID } = props.original;
                             //tell the user to wait while we are deleting this book:
-                            setMessage("deleting: " +title + " with bookID : " +  bookID  + " please wait... "  );
+                            setMessage(
+                                'deleting: ' +
+                                    title +
+                                    ' with bookID : ' +
+                                    bookID +
+                                    ' please wait... '
+                            );
                             setStatus('deleting');
 
                             //deletes this book in the backend:
                             Axios.delete('/api/books', {
                                 data: { bookID: props.value }
-                            }).then(res => {
-                                console.log(res, 'AFTER DELETE');
-                                //handle success / failure:
-                                window.location.reload();
-                            }).catch(e => {
-                                setMessage("Error: " + JSON.stringify(e.message));
-                                setStatus("done");
-                            });;
+                            })
+                                .then(res => {
+                                    console.log(res, 'AFTER DELETE');
+                                    //handle success / failure:
+                                    window.location.reload();
+                                })
+                                .catch(e => {
+                                    setMessage(
+                                        'Error: ' + JSON.stringify(e.message)
+                                    );
+                                    setStatus('done');
+                                });
                         }}
                     >
                         delete
@@ -77,10 +87,13 @@ export default function(props) {
                     {props.value} &nbsp;
                     <Button
                         data-step="6"
-                        data-intro="Click me to change this author's name. A form will appear below the table to change their name."
+                        data-intro={
+                            "Click me to change this author's name. A form will appear below the table " +
+                            'to change their name.'
+                        }
                         onClick={e => {
                             e.preventDefault();
-                setMessage(null);
+                            setMessage(null);
                             //remembers the author's existing data, then display a form:
                             setAuthorID(props.value);
                             setOldFirstName(props.original.firstName);
@@ -104,8 +117,7 @@ export default function(props) {
             accessor: 'bookID',
             Cell: props => displayDeleteButton(props)
         },
-        { Header: 'Title',
-            accessor: 'title' },
+        { Header: 'Title', accessor: 'title' },
         {
             Header: 'AuthorID',
             accessor: 'authorID',
@@ -116,75 +128,77 @@ export default function(props) {
     ];
     //at start (only), fetch books and authors from backend:
     useEffect(() => {
-
-            Axios.get('/api/books')
-                .then(res => {
+        Axios.get('/api/books')
+            .then(res => {
                 setData(res.data);
                 setStatus('done');
-            }).catch(e => {
-                setMessage("Error: " + JSON.stringify(e.message));
+            })
+            .catch(e => {
+                setMessage('Error: ' + JSON.stringify(e.message));
                 setStatus('done');
             });
-
-    }, ["initialOnly" ]);
+    }, ['initialOnly']);
 
     //display books and authors data:
-    if (status === "loading"){
+    if (status === 'loading') {
         //display loading animation if data hasn't been fetched yet:
         return <Spinner />;
     }
-    if (status === "deleting"){
+    if (status === 'deleting') {
         return (
             <div>
-                <Alert message={message} variant= {"info"}/>
-                <Spinner/>
-            </div>
-
-        )
-    }
-        return (
-            <div>
-                <ReactTable data={data || []} columns={columns} defaultPageSize={5} />
-                {status === 'changing' ? (
-                    <Form
-                        onSubmit={e => {
-                            //avoid reloading:
-                            e.preventDefault();
-                            console.log("SUBMIT RUNN");
-                            //update author's name:
-                            Axios.put('/api/authors', {
-                                authorID,
-                                firstName: newFirstName,
-                                lastName: newLastName
-                            }).then(res => {
-                                console.log('res', res);
-                                window.location.reload();
-                            }).catch(e => {
-                                setMessage("Error: " + JSON.stringify(e.message));
-
-                            });
-                        }}
-                    >
-                        <Form.Text className="text-muted">
-                            Changing Author with authorID : {authorID} and name :{' '}
-                            {oldFirstName + ' ' + oldLastName}
-                        </Form.Text>
-
-                        <InlineField
-                            buttonName="Submit"
-                            setFirstName={setNewFirstName}
-                            setLastName={setNewLastName}
-                            buttonType="submit"
-                            required={true}
-                        />
-                    </Form>
-                ) : null}
-                {message //display error when it occurs:
-                 ?  <Alert message={message}/>
-                : null}
+                <Alert message={message} variant={'info'} />
+                <Spinner />
             </div>
         );
+    }
+    return (
+        <div>
+            <ReactTable
+                data={data || []}
+                columns={columns}
+                defaultPageSize={5}
+            />
+            {status === 'changing' ? (
+                <Form
+                    onSubmit={e => {
+                        //avoid reloading:
+                        e.preventDefault();
+                        console.log('SUBMIT RUNN');
+                        //update author's name:
+                        Axios.put('/api/authors', {
+                            authorID,
+                            firstName: newFirstName,
+                            lastName: newLastName
+                        })
+                            .then(res => {
+                                console.log('res', res);
+                                window.location.reload();
+                            })
+                            .catch(e => {
+                                setMessage(
+                                    'Error: ' + JSON.stringify(e.message)
+                                );
+                            });
+                    }}
+                >
+                    <Form.Text className="text-muted">
+                        Changing Author with authorID : {authorID} and name :{' '}
+                        {oldFirstName + ' ' + oldLastName}
+                    </Form.Text>
 
-
-
+                    <InlineField
+                        buttonName="Submit"
+                        setFirstName={setNewFirstName}
+                        setLastName={setNewLastName}
+                        buttonType="submit"
+                        required={true}
+                    />
+                </Form>
+            ) : null}
+            {message ? ( //display error when it occurs:
+                <Alert message={message} />
+            ) : null}
+        </div>
+    );
 }

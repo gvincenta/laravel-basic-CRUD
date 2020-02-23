@@ -19,7 +19,7 @@ export default function() {
     //UI filling form step (1, 2, 3):
     const [step, setStep] = useState(1);
     //the new book's title:
-    const [title, setTitle] = useState("");
+    const [title, setTitle] = useState('');
     //existing authors to be assigned to the new book:
     const [existingAuthors, assignExistingAuthors] = useState([]);
     //new (i.e. non-existing authors) to be assigned to the new book:
@@ -54,7 +54,7 @@ export default function() {
         //empty error message:
         setError(null);
         //make sure we have at least 1 author:
-        if (existingAuthors.length + newAuthors.length === 0 ){
+        if (existingAuthors.length + newAuthors.length === 0) {
             setError('Error : Must assign at least 1 author to: ' + title);
             return;
         }
@@ -63,24 +63,32 @@ export default function() {
         //now, submit data to backend:
         console.log(uniqueExistingAuthors, 'existingAuthors');
         Axios.post('/api/books', {
-            existingAuthors : uniqueExistingAuthors,
+            existingAuthors: uniqueExistingAuthors,
             newAuthors,
             title
-        }).then(res => {
-            console.log(res, 'RES');
-            //reload page upon successful creation:
-            if (res.status === 201){
-                window.location.reload();
-
-            }
-            //error occured, warn the user:
-            else{
-                setError('Error : ' + res.status + ' ' + res.statusText + '\n' + res.data.error);
-            }
-            //error may occur, warn the user:
-        }).catch(e => {
-            setError("Error: " + JSON.stringify(e.message));
-        });
+        })
+            .then(res => {
+                console.log(res, 'RES');
+                //reload page upon successful creation:
+                if (res.status === 201) {
+                    window.location.reload();
+                }
+                //error occured, warn the user:
+                else {
+                    setError(
+                        'Error : ' +
+                            res.status +
+                            ' ' +
+                            res.statusText +
+                            '\n' +
+                            res.data.error
+                    );
+                }
+                //error may occur, warn the user:
+            })
+            .catch(e => {
+                setError('Error: ' + JSON.stringify(e.message));
+            });
     };
     //sets the header for each step:
     const headers = () => {
@@ -90,7 +98,10 @@ export default function() {
             case 2:
                 return 'Assign existing authors to: ' + title;
             case 3:
-                return 'Add new authors to the database and assign them to: ' + title;
+                return (
+                    'Add new authors to the database and assign them to: ' +
+                    title
+                );
         }
     };
     //sets the form input fields for each step:
@@ -104,7 +115,6 @@ export default function() {
                         placeholder="Please enter the book's title"
                         required
                         onChange={e => setTitle(e.target.value)}
-
                     />
                 );
             //provides existing authors:
@@ -137,7 +147,6 @@ export default function() {
                         setFirstName={setFirstName}
                         setLastName={setLastName}
                         buttonName="Assign"
-
                         onClick={e =>
                             assignNewAuthors([
                                 ...newAuthors,
@@ -173,17 +182,23 @@ export default function() {
                     existingAuthors={existingAuthors}
                 />
             ) : null}
-            <Navigator step={step} min={1} max={3} setStep={setStep} allowNext={allowNext} />
+            <Navigator
+                step={step}
+                min={1}
+                max={3}
+                setStep={setStep}
+                allowNext={allowNext}
+            />
             {//renders submit button on the last step:
             step === 3 ? (
-                <Button variant="primary" type="submit" >
+                <Button variant="primary" type="submit">
                     {' '}
                     Submit{' '}
                 </Button>
             ) : null}
-            {error //display error when it occurs:
-            ?  <Alert message={error}/>
-            : null}
+            {error ? ( //display error when it occurs:
+                <Alert message={error} />
+            ) : null}
         </Form>
     );
 }

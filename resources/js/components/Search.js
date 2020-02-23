@@ -9,7 +9,7 @@ import Alert from './Alert';
 
 /** for searching a book by its title / author: */
 
-export default function( ) {
+export default function() {
     //for a search by book's title:
     const [title, setTitle] = useState('');
     //for a search by book's author:
@@ -21,10 +21,10 @@ export default function( ) {
     const [by, setBy] = useState(null);
     //fetching status:
     const [status, setStatus] = useState('');
-    const [searched,setSearched] = useState('');
+    const [searched, setSearched] = useState('');
     const [error, setError] = useState(null);
     //fetching data from backend:
-    const getData = (e, searchBy, setStatus ) => {
+    const getData = (e, searchBy, setStatus) => {
         e.preventDefault();
         //empty error message:
         setError(null);
@@ -38,18 +38,20 @@ export default function( ) {
                 params: {
                     title
                 }
-            }).then(res => {
-                //display data:
-                console.log(res.data);
-                setData(res.data);
-                setBy(searchBy);
-                setSearched("book title: " + title);
-                setStatus('done');
-            }).catch(e => {
-                //catch any errors:
-                setError("Error: " + JSON.stringify(e.message));
-                setStatus('done');
-            });
+            })
+                .then(res => {
+                    //display data:
+                    console.log(res.data);
+                    setData(res.data);
+                    setBy(searchBy);
+                    setSearched('book title: ' + title);
+                    setStatus('done');
+                })
+                .catch(e => {
+                    //catch any errors:
+                    setError('Error: ' + JSON.stringify(e.message));
+                    setStatus('done');
+                });
         } else if (searchBy === 'author') {
             console.log('else runnn');
             //request for a search:
@@ -58,19 +60,21 @@ export default function( ) {
                     firstName,
                     lastName
                 }
-            }).then(res => {
-                //display data:
-                console.log(res.data);
-                setData(res.data);
-                setBy(searchBy);
-                setSearched("author: " + firstName + " " + lastName);
+            })
+                .then(res => {
+                    //display data:
+                    console.log(res.data);
+                    setData(res.data);
+                    setBy(searchBy);
+                    setSearched('author: ' + firstName + ' ' + lastName);
 
-                setStatus('done');
-            }).catch(e => {
-                //catch any errors:
-                setError("Error: " + JSON.stringify(e.message));
-                setStatus('done');
-            });
+                    setStatus('done');
+                })
+                .catch(e => {
+                    //catch any errors:
+                    setError('Error: ' + JSON.stringify(e.message));
+                    setStatus('done');
+                });
         }
     };
     //shows loading UI:
@@ -85,7 +89,7 @@ export default function( ) {
 
             <Form
                 onSubmit={e => {
-                    getData(e, 'title',setStatus);
+                    getData(e, 'title', setStatus);
                 }}
             >
                 <Row>
@@ -96,10 +100,10 @@ export default function( ) {
                             required
                             onChange={e => setTitle(e.target.value)}
                             data-step="3"
-                            data-intro="Enter something here for searching a book by its title"
+                            data-intro="Enter something here for searching a book by its title."
                         />
                     </Col>
-                    <Button variant="primary" type="submit" >
+                    <Button variant="primary" type="submit">
                         {' '}
                         Search by title
                     </Button>
@@ -108,7 +112,7 @@ export default function( ) {
             <br />
             <Form
                 onSubmit={e => {
-                    getData(e, 'author',setStatus);
+                    getData(e, 'author', setStatus);
                 }}
             >
                 <Row>
@@ -117,7 +121,7 @@ export default function( ) {
                             type="text"
                             placeholder="First Name (not case sensitive)"
                             data-step="4"
-                            data-intro="Or, enter here for searching a book by its author"
+                            data-intro="Or, enter here for searching a book by its author."
                             onChange={e => setFirstName(e.target.value)}
                             required
                         />
@@ -140,19 +144,16 @@ export default function( ) {
 
             {data ? ( //displays search result after fetching data from backend:
                 <div>
-                    <h2>
-                        {' '}
-                        Search results for {searched}
-                    </h2>
-                    <Table data={data} status="done"/>
+                    <h2> Search results for {searched}</h2>
+                    <Table data={data} status="done" />
                 </div>
-            ) : ( //otherwise, display Books and Authors Table
-                <Table/>
-            )
-            }
-            {error //display error when it occurs:
-                ?  <Alert message={error}/>
-            : null}
+            ) : (
+                //otherwise, display Books and Authors Table
+                <Table />
+            )}
+            {error ? ( //display error when it occurs:
+                <Alert message={error} />
+            ) : null}
         </div>
     );
 }
