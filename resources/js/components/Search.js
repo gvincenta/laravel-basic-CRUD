@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import Axios from 'axios';
 import { CsvToHtmlTable } from 'react-csv-to-table';
 import Spinner from './Spinner';
-import Table from './Books/Table';
+import Table from './Table';
 import { Button, Row, Col, Form } from 'react-bootstrap';
+import Alert from './Alert';
 
 /** for searching a book by its title / author: */
 
-export default function(props) {
+export default function( ) {
     //for a search by book's title:
     const [title, setTitle] = useState('');
     //for a search by book's author:
@@ -21,43 +22,53 @@ export default function(props) {
     //fetching status:
     const [status, setStatus] = useState('');
     const [searched,setSearched] = useState('');
+    const [error, setError] = useState(null);
     //fetching data from backend:
-    const getData = (e, searchBy) => {
-        if (e) {
-            e.preventDefault();
-        }
+    const getData = (e, searchBy, setStatus ) => {
+        e.preventDefault();
+        //empty error message:
+        setError(null);
+        //load spinning UI:
         setStatus('loading');
-        var request;
-        //construct request body:
         console.log('run', searchBy);
         if (searchBy === 'title') {
             console.log('runnn');
+            //request for a search:
             Axios.get('/api/books/with-filter', {
                 params: {
                     title
                 }
             }).then(res => {
+                //display data:
                 console.log(res.data);
                 setData(res.data);
                 setBy(searchBy);
                 setSearched("book title: " + title);
-
+                setStatus('done');
+            }).catch(e => {
+                //catch any errors:
+                setError("Error: " + JSON.stringify(e.message));
                 setStatus('done');
             });
         } else if (searchBy === 'author') {
             console.log('else runnn');
-
+            //request for a search:
             Axios.get('/api/authors/with-filter', {
                 params: {
                     firstName,
                     lastName
                 }
             }).then(res => {
+                //display data:
                 console.log(res.data);
                 setData(res.data);
                 setBy(searchBy);
                 setSearched("author: " + firstName + " " + lastName);
 
+                setStatus('done');
+            }).catch(e => {
+                //catch any errors:
+                setError("Error: " + JSON.stringify(e.message));
                 setStatus('done');
             });
         }
@@ -66,14 +77,15 @@ export default function(props) {
     if (status === 'loading') {
         return <Spinner />;
     }
-
+    //returns a form for searching by title / author:
+    //by default, also return Books and Authors table:
     return (
         <div>
             <br />
 
             <Form
                 onSubmit={e => {
-                    getData(e, 'title');
+                    getData(e, 'title',setStatus);
                 }}
             >
                 <Row>
@@ -96,7 +108,7 @@ export default function(props) {
             <br />
             <Form
                 onSubmit={e => {
-                    getData(e, 'author');
+                    getData(e, 'author',setStatus);
                 }}
             >
                 <Row>
@@ -107,7 +119,7 @@ export default function(props) {
                             data-step="4"
                             data-intro="Or, enter here for searching a book by its author"
                             onChange={e => setFirstName(e.target.value)}
-
+                            required
                         />
                     </Col>
                     <Col sm="5">
@@ -134,10 +146,13 @@ export default function(props) {
                     </h2>
                     <Table data={data} status="done"/>
                 </div>
-            ) : (
+            ) : ( //otherwise, display Books and Authors Table
                 <Table/>
-            ) //otherwise, display Books and Authors Table
+            )
             }
+            {error //display error when it occurs:
+                ?  <Alert message={error}/>
+            : null}
         </div>
     );
 }
