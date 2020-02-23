@@ -1,9 +1,9 @@
 import React  from 'react';
 import {Alert } from 'react-bootstrap';
 export default function (props) {
-    const {message} = props;
+    const {message,variant} = props;
     return(
-        <Alert variant='danger'>
+        <Alert variant={variant || 'danger'}>
             {message}
         </Alert>
     );

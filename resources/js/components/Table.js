@@ -3,9 +3,9 @@ import { Button, Form, Row, Col } from 'react-bootstrap';
 import Axios from 'axios';
 import ReactTable from 'react-table-6';
 import 'react-table-6/react-table.css';
-import Spinner from '../Spinner';
-import InlineField from './InlineField';
-
+import Spinner from './Spinner';
+import InlineField from './Books/InlineField';
+import Alert from './Alert';
 /**
  * Displays Books and Authors table
  * with functionality: deleting a book and changing an author's name.
@@ -24,6 +24,8 @@ export default function(props) {
     const [newLastName, setNewLastName] = useState('');
     //for changing an author's name: remember their ID for applying changes in backend.
     const [authorID, setAuthorID] = useState(null);
+    //for error messages or delete messages:
+    const [message, setMessage] = useState(null);
     //handles delete button:
     const displayDeleteButton = props => {
         //if the cell is not empty, then render a delete button:
@@ -37,7 +39,14 @@ export default function(props) {
                         variant="danger"
                         onClick={e => {
                             e.preventDefault();
+                            //refresh error message:
+                            setMessage(null);
                             console.log(props.value, 'ONCLICK');
+                            const {title,bookID} = props.original;
+                            //tell the user to wait while we are deleting this book:
+                            setMessage("deleting: " +title + " with bookID : " +  bookID  + " please wait... "  );
+                            setStatus('deleting');
+
                             //deletes this book in the backend:
                             Axios.delete('/api/books', {
                                 data: { bookID: props.value }
@@ -45,7 +54,10 @@ export default function(props) {
                                 console.log(res, 'AFTER DELETE');
                                 //handle success / failure:
                                 window.location.reload();
-                            });
+                            }).catch(e => {
+                                setMessage("Error: " + JSON.stringify(e.message));
+                                setStatus("done");
+                            });;
                         }}
                     >
                         delete
@@ -68,6 +80,7 @@ export default function(props) {
                         data-intro="Click me to change this author's name. A form will appear below the table to change their name."
                         onClick={e => {
                             e.preventDefault();
+                setMessage(null);
                             //remembers the author's existing data, then display a form:
                             setAuthorID(props.value);
                             setOldFirstName(props.original.firstName);
@@ -101,26 +114,43 @@ export default function(props) {
         { Header: 'First Name', accessor: 'firstName' },
         { Header: 'Last Name', accessor: 'lastName' }
     ];
-    //initially, fetch books and authors from backend:
+    //at start (only), fetch books and authors from backend:
     useEffect(() => {
-        if (status === 'loading') {
-            Axios.get('/api/books').then(res => {
+
+            Axios.get('/api/books')
+                .then(res => {
                 setData(res.data);
                 setStatus('done');
+            }).catch(e => {
+                setMessage("Error: " + JSON.stringify(e.message));
+                setStatus('done');
             });
-        }
-    }, [status]);
+
+    }, ["initialOnly" ]);
 
     //display books and authors data:
-    if (data ) {
+    if (status === "loading"){
+        //display loading animation if data hasn't been fetched yet:
+        return <Spinner />;
+    }
+    if (status === "deleting"){
         return (
             <div>
-                <ReactTable data={data} columns={columns} defaultPageSize={5} />
+                <Alert message={message} variant= {"info"}/>
+                <Spinner/>
+            </div>
+
+        )
+    }
+        return (
+            <div>
+                <ReactTable data={data || []} columns={columns} defaultPageSize={5} />
                 {status === 'changing' ? (
                     <Form
                         onSubmit={e => {
                             //avoid reloading:
                             e.preventDefault();
+                            console.log("SUBMIT RUNN");
                             //update author's name:
                             Axios.put('/api/authors', {
                                 authorID,
@@ -128,15 +158,10 @@ export default function(props) {
                                 lastName: newLastName
                             }).then(res => {
                                 console.log('res', res);
-                                //TODO: CHANGE THIS HANDLING
-                                if (res.data.affectedRows == 1) {
-                                    //sucessfully changed an author's name, re-fetch data again:
-                                    setMessage('succeed!');
-                                    setStatus('loading..');
-                                    window.location.reload();
-                                } else {
-                                    setMessage('failed');
-                                }
+                                window.location.reload();
+                            }).catch(e => {
+                                setMessage("Error: " + JSON.stringify(e.message));
+
                             });
                         }}
                     >
@@ -154,10 +179,12 @@ export default function(props) {
                         />
                     </Form>
                 ) : null}
+                {message //display error when it occurs:
+                 ?  <Alert message={message}/>
+                : null}
             </div>
         );
-    }
 
-    //display loading animation if data hasn't been fetched yet:
-    return <Spinner />;
+
+
 }
