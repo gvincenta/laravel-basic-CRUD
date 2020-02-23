@@ -9,7 +9,7 @@ import { Button, ButtonGroup } from 'react-bootstrap';
  * @param props.setStep: to increment/decrement  the UI step.
  */
 export default function(props) {
-    const { step, min, max, setStep } = props;
+    const { step, min, max, setStep, allowNext } = props;
 
     /* initial step only has a forward button.
      * last step only has a backward button (submit button handled elsewhere).
@@ -22,7 +22,7 @@ export default function(props) {
                     &lt;{' '}
                 </Button>
             ) : null}
-            {step < max ? (
+            { (step < max && allowNext) ? (
                 <Button variant="primary" onClick={e => setStep(step + 1)}>
                     {' '}
                     &gt;{' '}
