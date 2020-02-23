@@ -6,7 +6,7 @@ import AuthorList from './AuthorList';
 import Autocomplete from './Autocomplete';
 import Navigator from './Navigator';
 import InlineField from './InlineField';
-import Error from '../Error';
+import Alert from '../Alert';
 /**Handles UI forms to add a new book and assign authors to it in 3 steps format.
  * step 1: a form for enter book's title.
  * step 2: an autocompletion form to assign existing authors to the new book.
@@ -51,6 +51,8 @@ export default function() {
     //for sending data to backend:
     const onSubmit = e => {
         e.preventDefault();
+        //empty error message:
+        setError(null);
         //make sure we have at least 1 author:
         if (existingAuthors.length + newAuthors.length === 0 ){
             setError('Error : Must assign at least 1 author to: ' + title);
@@ -179,8 +181,8 @@ export default function() {
                     Submit{' '}
                 </Button>
             ) : null}
-            {error
-            ?  <Error message={error}/>
+            {error //display error when it occurs:
+            ?  <Alert message={error}/>
             : null}
         </Form>
     );
