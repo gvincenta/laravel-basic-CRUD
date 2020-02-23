@@ -4,19 +4,13 @@ import {
     Button,
     Row,
     Col,
-    ButtonGroup,
-    Form,
-    CardGroup,
-    Card,
-    ListGroup,
-    ListGroupItem
-} from 'react-bootstrap';
+    Form} from 'react-bootstrap';
 import XMLViewer from 'react-xml-viewer';
 import Spinner from './Spinner';
 import FileDownload from 'js-file-download';
 import { CSVLink, CSVDownload } from 'react-csv';
 import { CsvToHtmlTable } from 'react-csv-to-table';
-
+import Alert from './Alert';
 /** Handles exporting data to XML and CSV */
 export default function() {
     //export to either XML or CSV:
@@ -29,6 +23,8 @@ export default function() {
     const [data, setData] = useState('');
     //url for fetching data from backend:
     const [url, setURL] = useState('');
+    //for error messages:
+    const [error, setError] = useState(null);
 
     //displays loading spinner:
     if (status === 'loading') {
@@ -83,10 +79,15 @@ export default function() {
                 //for displaying spinner:
                 setStatus('loading');
                 //fetching data from database:
-                Axios.get(url).then(res => {
+                Axios.get(url)
+                    .then(res => {
                     //data is ready:
                     setData(res.data);
                     setStatus('done');
+                }).catch(e => {
+                    setStatus("error");
+                    setError("Error: " + JSON.stringify(e.message));
+
                 });
             }}
         >
@@ -149,6 +150,9 @@ export default function() {
                 {' '}
                 submit{' '}
             </Button>
+            {error //display error when it occurs:
+                ?  <Alert message={error}/>
+            : null}
         </Form>
     );
 }
