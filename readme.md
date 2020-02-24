@@ -61,12 +61,17 @@ DB_PORT =   (optional)
 3. Run `composer install` to install backend dependencies.
 4. Run `npm install` to install frontend dependencies.
 5. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
-6. Add in .env configurations as shown above to the project folder. __IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted after testing.__
+6. Add in .env configurations as shown above to the project folder. __IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted once the test runs.__
 7. Run `vendor/bin/phpunit`. Note that:
     1. *This will take a few minutes to run.*
     2. __This will overwrite all files in the reports folder.__
-8. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
-_[Click here to view the latest report](report/index.html)_
+8. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. _The functions written for this project are in:_
+    1. _Mostly at_ [HTTP/Controllers](report/Http/Controllers/index.html).
+    2. _And the rest is at_ 
+        1. [Exports](report/Exports/index.html).
+        2. [Authors Model](report/Authors.php.html)
+        3. [Books Model](report/Books.php.html)
+_[Report Overview](report/index.html)_
 
 # More information on: 
 1. [XML export methodology](documentation/XMLExport.md)
