@@ -156,14 +156,8 @@ class PivotController extends Controller
                     Authors::ID_FIELD => $newAuthorsID],
                     UtilityController::CREATED_STATUS);
 
-             //something went wrong with the transaction, rollback
-            } catch (\Illuminate\Database\QueryException $e) {
-                DB::rollBack();
-                return  response()->json([
-                    UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
-                    UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()], UtilityController::INTERNAL_SERVER_ERROR_STATUS);
+             //something went wrong with the transaction, rollback and handle gracefully.
             } catch (\Exception $e) {
-                // something went wrong elsewhere, handle gracefully
                 DB::rollBack();
                 return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
                     UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
