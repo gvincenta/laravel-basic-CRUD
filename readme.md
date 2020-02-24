@@ -56,12 +56,12 @@ DB_PORT =   (optional)
 *Note: for .env, replace  "..." with __suitable constants__.*
 
 # To run *Test Coverage* : 
-1. Clone or fork this project. 
-2. Run `composer install` to install backend dependencies.
-3. Run `npm install` to install frontend dependencies.
-4. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
-5. Add in .env configurations as shown below to the project folder. __IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted after testing.__
-6. Open your terminal and cd to this project directory.
+1. Clone this project to your xampp/htdocs directory (or anywhere you can run a PHP Laravel project in).
+2. Open your terminal and cd to this project directory.
+3. Run `composer install` to install backend dependencies.
+4. Run `npm install` to install frontend dependencies.
+5. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
+6. Add in .env configurations as shown above to the project folder. __IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted after testing.__
 7. Run `vendor/bin/phpunit`. Note that:
     1. *This will take a few minutes to run.*
     2. __This will overwrite all files in the reports folder.__
