@@ -26,8 +26,8 @@ class AuthorsController extends Controller
     /**
      * Updates an author's firstName and lastName.
      * @param  \Illuminate\Http\Request  $request, containing ID of the author to be updated.
-     * @return \Illuminate\Http\Response the number of rows deleted, if request is valid.
-     * @return \Illuminate\Http\Response invalid request, if request is invalid.
+     * @return \Illuminate\Http\JsonResponse, the number of rows deleted, if request is valid.
+     * @return \Illuminate\Http\JsonResponse, invalid request, if request is invalid.
      */
     public function update(Request $request){
 
@@ -37,7 +37,7 @@ class AuthorsController extends Controller
             Authors::ID_FIELD => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json(['message' =>UtilityController::INVALID_REQUEST_MESSAGE],
+            return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY  =>UtilityController::INVALID_REQUEST_MESSAGE],
                 UtilityController::INVALID_REQUEST_STATUS);
         }
         $updateData = [Authors::FIRSTNAME_FIELD => $request->input(Authors::FIRSTNAME_FIELD),
@@ -48,11 +48,11 @@ class AuthorsController extends Controller
 
         //for completed update:
         if ($affectedRows == 1){
-            return  response()->json(['message' => self::CHANGE_NAME_SUCCEED_MESSAGE ],
+            return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::CHANGE_NAME_SUCCEED_MESSAGE ],
                 UtilityController::OK_STATUS);
         //for failed update (i.e. no rows affected):
         }else{
-            return  response()->json(['message' => self::CHANGE_NAME_FAILED_MESSAGE],
+            return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY  => self::CHANGE_NAME_FAILED_MESSAGE],
                 UtilityController::OK_STATUS);
         }
 
@@ -60,7 +60,7 @@ class AuthorsController extends Controller
 
     /**
      * Exports all authors to csv file.
-     * @return  CSV file.
+     * @return , CSV file.
      */
     public function exportToCSV()
     {
@@ -72,7 +72,7 @@ class AuthorsController extends Controller
     /**
      * for exporting author only / with book titles from database to XML file.
       * @param  Illuminate\Http\Request $request, containing the URL to identify which file is wanted.
-     * @return the CSV file requested.
+     * @return , the CSV file requested.
      */
     public function exportToXML(Request $request)
     {
@@ -90,7 +90,7 @@ class AuthorsController extends Controller
     /**
      * Store a newly created author in database.
      * @param array  $newAuthor, containing author's firstName and lastName
-     * @return the id of the author
+     * @return integer, the id of the author
      */
     public function store($newAuthor)
     {

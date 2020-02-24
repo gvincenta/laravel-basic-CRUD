@@ -27,7 +27,7 @@ class BooksController extends Controller
     }
     /**
      * exports all books stored in the database to XML.
-     * @returns XML file.
+     * @returns , XML file.
      */
     public function exportToXML(Request $request)
     {
@@ -66,8 +66,8 @@ class BooksController extends Controller
     /**
      * Remove the specified book from database.
      * @param  \Illuminate\Http\Request  $request, containing ID of the book to be deleted.
-     * @return \Illuminate\Http\JsonResponse the number of rows deleted, if request is valid.
-     * @return \Illuminate\Http\JsonResponse invalid request, if request is invalid.
+     * @return \Illuminate\Http\JsonResponse, the number of rows deleted, if request is valid.
+     * @return \Illuminate\Http\JsonResponse, invalid request, if request is invalid.
      */
     public function destroy(Request $request)
     {

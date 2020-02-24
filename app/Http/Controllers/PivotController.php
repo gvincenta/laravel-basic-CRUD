@@ -41,8 +41,8 @@ class PivotController extends Controller
     /**
      * handles searching for a book through its author.
      * @param Illuminate\Http\Request $request, containing the   firstName and lastName.
-     * @return  Illuminate\Http\Response  the book(s) according to author, if request is valid.
-     * @return Illuminate\Http\Response  invalid request message, if request is not valid.
+     * @return  Illuminate\Http\Response,  the book(s) according to author, if request is valid.
+     * @return Illuminate\Http\Response,  invalid request message, if request is not valid.
      */
     public function showByAuthor(Request $request){
         //for search by authors, we need their firstName and lastName.
@@ -62,8 +62,8 @@ class PivotController extends Controller
     /**
      * handles searching for a book through its title.
      * @param Illuminate\Http\Request $request, containing the title.
-     * @return  Illuminate\Http\Response  the book according to title, if request is valid.
-     * @return Illuminate\Http\Response  invalid request message, if request is not valid.
+     * @return  Illuminate\Http\Response,  the book according to title, if request is valid.
+     * @return Illuminate\Http\Response,  invalid request message, if request is not valid.
      */
     public function showByTitle(Request $request){
         //for search by title, we need title only.
@@ -92,7 +92,7 @@ class PivotController extends Controller
      * creates a new book, and also assigns author(s) to it with database's transaction method.
      * if the author(s) don't exist yet in the database, then we also add them to the database.
      * @param Illuminate\Http\Request $request, containing the title of the new book and its authors.
-     * @return  Illuminate\Http\Response  success / invalid request message.
+     * @return  Illuminate\Http\JsonResponse,  success / invalid request message.
      */
     public function createNewBook(Request $request){
 
@@ -171,7 +171,6 @@ class PivotController extends Controller
      * @return \Illuminate\Database\Query\Builder, the query.
      */
     public function query(){
-        //note : authors_books.books_ID is selected to avoid same columns "ID" clashing bug.
         return DB::table(self::TABLE_NAME)
             ->rightJoin(Authors::TABLE_NAME, Authors::ID_FIELD, '=', self::AUTHORS_ID_FIELD)
             ->leftJoin(Books::TABLE_NAME, Books::ID_FIELD, '=', self::BOOKS_ID_FIELD)
@@ -188,7 +187,7 @@ class PivotController extends Controller
      }
     /**
      * exports authors and their books into CSV file.
-     * @return CSV file.
+     * @, CSV file.
      */
     public function exportToCSV(){
         $query = $this->query();
