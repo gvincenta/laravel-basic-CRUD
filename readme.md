@@ -65,5 +65,5 @@ DB_PORT =   (optional)
 2. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
 
 # I want to know more about: 
-1. [XML export methodology](documentation/XMLExport.pdf)
+1. [XML export methodology](documentation/XMLExport.md)
 2. [Database Structure Diagram](documentation/DBStructure.pdf)

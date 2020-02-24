@@ -1,5 +1,5 @@
 # XML Export Method (Handled In UtilityController) 
-#### * The structure we are trying to export is (i.e. the input to exportToXML in UtilityController) :  * 
+####  The structure we are trying to export is (i.e. the input to exportToXML in UtilityController) :  
 ```
 [{"bookID":22, 
    "title":"HALLO GILBERT ONLY1", 
@@ -26,12 +26,11 @@
 </books> 
 ```
 
-## Notice that in the code:  
-
+## Notice that:  
 1. `$rootTag` :  root element tag, *in this case is `books`*. 
-2. `$nestedTag` : *in this case is `authors`* is used to check whether the JSON contains `"authors": [{"authorID":2,"firstName":"Gilbert","lastName":"Vincenta”}] ` that needs to be parsed  into ` <authors> <data> …. </data> </authors>` (a.k.a `child objects`) as shown above.  
+2. `$nestedTag` : *in this case is `authors`* is used to check whether the JSON contains `"authors": [{...}] ` that needs to be parsed  into ` <authors> <data> …. </data> </authors>` (a.k.a `child objects`) as shown above.  
 
-## The algorithm goes as follow:  
+## The algorithm:  
 1. Initialise XML root tag (this step is done in `exportToXML`).  
     *For each JSON element found in the array:*  
 2.  (this step is done in constructChild function: 
@@ -42,19 +41,19 @@
         4. Go to step 4.  
     2. If the object has no highlighted data 
         1. go to step 3.  
-    3. Parse the data from `(1) to (10)`. Note that as the object has no highlighted data, `(4) to (9)` would not be shown in this case. 
+    3. Parse the data from `(1) to (10)`. Note that as the object has no highlighted data, `(4) to (9)` would not appear in this case. 
     4. Continue doing this until all JSON elements have been looped through.  
- ***Note that:***
-    1.  for Books  / Authors only XML, the procedure is the same. In these 2 cases, `(4) to (9)` will always be missing.  
-    2. The function needs to know how to retrieve the `"authors": [ ... ] `  by specifying its key, a.k.a `$childKeys` in the export. 
-    3. The function needs to know what `(0) and (4)` are, specified in `$nestedTags`.   
-    4. The function needs to know what tags go into `(2),(3),(6),(7),(8)` through the `$attributes`. 
-    5. *Testing this output is handled in similar fashion.* 
-    6. *** There are 2 versions of Authors and Books XML export: ***
-        1. `api/authors/export/XML/with-books` as shown in the _Figure 2_ below.
-        2. `api/books/export/XML/with-authors` as shown in the _Figure 1_ below.
-        3. __For simplicity on the frontend, the one in _Figure 1_ isn’t used,__ but is maintained *in case it is needed in the future*.  
-###### Figure 1: 
+***Note that:***
+1.  for Books  / Authors only XML, the procedure is the same. In these 2 cases, `(4) to (9)` will always be missing.  
+2. The function needs to know how to retrieve the `"authors": [ ... ] `  by specifying its key, a.k.a `$childKeys` in the export. 
+3. The function needs to know what `(0) and (4)` are, specified in `$nestedTags`.   
+4. The function needs to know what tags go into `(2),(3),(6),(7),(8)` through the `$attributes`. 
+5. *Testing this output is handled in similar fashion.* 
+6. *** There are 2 versions of Authors and Books XML export: ***
+    1. Route: `api/authors/export/XML/with-books` as shown in the _Figure 2_ below.
+    2. Route: `api/books/export/XML/with-authors` as shown in the _Figure 1_ below.
+    3. __For simplicity on the frontend, the one in _Figure 1_ isn’t used,__ but is maintained *in case it is needed in the future*.  
+###### Figure 1: Sample response from:  api/authors/export/XML/with-books
 ```        
 <?xml version="1.0"?> 
     <books>   
@@ -71,7 +70,7 @@
         </data>
     </books>  
 ```
-###### Figure 2: 
+###### Figure 2: Sample response from:  api/books/export/XML/with-authors 
 ```
 <?xml version="1.0"?> 
     <authors>   
