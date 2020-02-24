@@ -8,7 +8,6 @@ use XMLWriter;
  /**
  * Controls how to export to CSV and XML and define some commonly used constants.
 */
- //TODO : proper documentation of how exporting works.
 class UtilityController extends Controller
 {
     public const XML_DATA_TAG = 'data';
@@ -21,9 +20,9 @@ class UtilityController extends Controller
     public const ERROR_RESPONSE_KEY = "error";
     /**
      * extract the table's column names from an array of json.
+     * code adapted from : https://stackoverflow.com/questions/10914687/retrieving-array-keys-from-json-input/32778117
      * @param Array $exportData, array of json to be extracted.
      */
-    //code adapted from : https://stackoverflow.com/questions/10914687/retrieving-array-keys-from-json-input/32778117
     public function extractHeadings($exportData){
         $headings = [];
         if (count($exportData) > 0){
@@ -42,13 +41,14 @@ class UtilityController extends Controller
 
     /**
      * converts an array of array/JSON into XML file.
+     * function adapted from :
+     * https://stackoverflow.com/questions/30014960/how-can-i-store-data-from-mysql-to-xml-in-laravel-5
      * @param XMLWriter $xml, the xml writer object.
      * @param Array $array, the array of array/JSON to be converted.
      * @param Array $childKeys, where the child objects to be added to XML are located in the array.
      * @param Array $attributes, the attributes to be parsed into the XML.
      * @param String $dataTag, the tag for the data to be parsed.
      */
-    //function adapted from : https://stackoverflow.com/questions/30014960/how-can-i-store-data-from-mysql-to-xml-in-laravel-5
     public function exportToXML($array, $nestedTags, $childKeys, $attributes, $dataTag)
     {
         //init xml with parent tag:
@@ -92,7 +92,8 @@ class UtilityController extends Controller
                 $xml->startElement($nestedTags[$counter]);
                 //run through each child object, in case they have further child element(s) that needs to be parsed:
                 foreach ($childObjects as $child){
-                    UtilityController::constructChild($xml,$childKeys,$attributes,$counter+1,$dataTag,$nestedTags, $child);
+                    UtilityController::constructChild($xml,$childKeys,$attributes,$counter+1,$dataTag,
+                        $nestedTags, $child);
                 }
                 //close the child object:
                 $xml->endElement();
@@ -106,8 +107,7 @@ class UtilityController extends Controller
         //if we do not expect further child elements, parse the current data:
         UtilityController::createXMLElement($xml,$json,$dataTag,$attributes[$counter-1], true );
     }
-    /**
-     * parse a data (e.g. a book or an author) with all of its attributes.
+    /** parse a data (e.g. a book or an author) with all of its attributes.
      * @param XMLWriter $xml, the xml writer object.
      * @param Array $data,  data that needs to be parsed to XML.
      * @param String $tag, the XML tag for the data.

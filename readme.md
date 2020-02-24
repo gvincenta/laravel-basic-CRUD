@@ -66,7 +66,8 @@ DB_PORT =   (optional)
     1. *This will take a few minutes to run.*
     2. __This will overwrite all files in the reports folder.__
 8. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
+_[Click here to view the latest report](report/index.html)_
 
-# More informations on: 
+# More information on: 
 1. [XML export methodology](documentation/XMLExport.md)
 2. [Database Structure Diagram](documentation/DBStructure.md)

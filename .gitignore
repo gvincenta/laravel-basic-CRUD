@@ -128,5 +128,4 @@ fabric.properties
 .idea/basic.iml
 .idea/php.xml
 
-#report
-report/*
+  
