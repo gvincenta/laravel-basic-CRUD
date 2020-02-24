@@ -2,12 +2,12 @@
 ## On local device:
 1. Clone this project to your xampp/htdocs directory (or anywhere you can run a PHP Laravel project in).
 2. Open terminal and cd to this project directory. 
-3. Run  `composer install` to install backend dependencies
-4. Run  `npm install` to install frontend dependencies
-5. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
+3. Run `composer install` to install backend dependencies
+4. Run `npm install` to install frontend dependencies
+5. Run `php artisan key:generate` to generate APP_KEY in the .env file.
 6. Add a .env file with the configurations shown below to the project folder.
-7. Run  `php artisan migrate`.
-8. (Optional) Run  `npm run watch` in case you've changed anything in the frontend.
+7. Run `php artisan migrate`.
+8. (Optional) Run `npm run watch` in case you've changed anything in the frontend.
 8. Run `php artisan serve`.
 9. In the terminal, it will respond with : `Laravel development server started: [link] ` click on the link to run the web-app on your brower.
 10. Click on *Guide Me* to learn how to use the web-app.
@@ -59,10 +59,11 @@ DB_PORT =   (optional)
 1. Clone or fork this project. 
 2. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
 3. Add in .env configurations as shown below to the project folder. __IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted after testing.__
-4. Run `vendor/bin/phpunit`. Note that:
+4. Open your terminal and cd to this project directory.
+5. Run `vendor/bin/phpunit`. Note that:
     1. *This will take a few minutes to run.*
     2. __This will overwrite all files in the reports folder.__
-5. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
+6. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
 
 # More informations on: 
 1. [XML export methodology](documentation/XMLExport.md)
