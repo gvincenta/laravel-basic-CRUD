@@ -9,6 +9,7 @@ use App\Books;
 use App\Authors;
 use App\Http\Controllers\PivotController;
 use App\Http\Controllers\BooksController;
+use App\Http\Controllers\UtilityController;
 
 /**
  * Class BooksTest
@@ -30,12 +31,30 @@ class BooksTest extends TestCase
 
         $this->utilityTest = new UtilityTest();
         $this->authors = [
-            ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'],
-            ['firstName' => 'Michael', 'lastName' => 'AJ']
+            [Authors::FIRSTNAME_FIELD  => 'Midoriya', Authors::LASTNAME_FIELD  => 'Zoldyck'],
+            [Authors::FIRSTNAME_FIELD  => 'Michael', Authors::LASTNAME_FIELD  => 'AJ']
         ];
         $this->title = 'Alpha Beta';
         //for testing adding new book with existing authors, store the authors' ID:
         $this->authorIDs = [];
+    }
+    /**  @test  requests for a books (only) content  exported as a CSV and then check its content. */
+    public function exportBooksToCSV()
+    {
+        $this->utilityTest->exportToCSV( [Books::ID_FIELD,Books::TITLE_FIELD] ,'/api/books/export/CSV',
+            "books.csv");
+    }
+    /** @test  requests for a books (only) content to be exported as a XML and then check its content.*/
+    public function exportBooksToXML(){
+        $this->utilityTest->exportToXML([[Books::ID_FIELD, Books::TITLE_FIELD]  ], '/api/books/export/XML',
+            Books::TABLE_NAME);
+    }
+
+    /**  @test requests for a books and authors content to be exported as a XML and then check its content.   */
+    public function exportsBooksAndAuthorsToXML(){
+        $this->utilityTest->exportToXML( [[Books::ID_FIELD, Books::TITLE_FIELD],
+            [Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD] ],
+            '/api/books/export/XML/with-authors', Books::TABLE_NAME, Authors::TABLE_NAME);
     }
 
     /**
@@ -70,13 +89,10 @@ class BooksTest extends TestCase
         $this->utilityTest->checkEmptyJsonContent($response);
     }
 
-
-
     /**  @test search for a book by its title. */
     public function searchByTitle()
     {
         $this->utilityTest->searchTestFacade('/api/books/with-filter');
-
     }
     /**
      * @test adding a book and assigns authors to it.
@@ -86,15 +102,26 @@ class BooksTest extends TestCase
      */
     public function addABookWithAuthors()
     {
+        //add a book with invalid ID:
+        $this->addABookWithInvalidAuthorID();
         //add with new authors:
         $this->addABookWithNewAuthors();
         //testing with invalid inputs:
         $this->addABookWithAuthorsWithInvalidRequest();
         //valid input #2: add with existing authors:
         $this->addABookWithExistingAuthors();
+    }
+    //TODO: RUN THIS!
+    /** Sends a request to backend to make a new book with a wrong authorID.  */
+    public function addABookWithInvalidAuthorID(){
+        $response = $this->utilityTest->createABook($this->title, [$this->authors[0]], [ ["authorID" =>2] ] );
+
+        //expects DB to rollback with internal server error status:
+        $response->assertStatus(UtilityController::INTERNAL_SERVER_ERROR_STATUS);
+        $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD => $this->title]);
+        $this->assertDatabaseMissing(Authors::TABLE_NAME,$this->authors[0]);
 
     }
-
     /** Sends a request to backend to make a new book with a new (non-existing) authors.  */
     public function addABookWithNewAuthors(){
 
@@ -149,20 +176,26 @@ class BooksTest extends TestCase
     /** tests the adding a book functionality with an invalid request.
      * 1. numeric titles
      * 2. books without any authors
+     * 3. books with string authorIDs
      */
     public function addABookWithAuthorsWithInvalidRequest(){
         //invalid input #1: non-string titles
         $response = $this->utilityTest->createABook(123, $this->authors );
         $this->utilityTest->checkInvalidResponse($response);
-        $this->assertDatabaseMissing (Books::TABLE_NAME, ['title'=>123]);
+        $this->assertDatabaseMissing (Books::TABLE_NAME, [Books::TITLE_FIELD=>123]);
 
         //invalid input #2: no authors
         $response = $this->utilityTest->createABook("No Authors");
         $this->utilityTest->checkInvalidResponse($response);
-        $this->assertDatabaseMissing(Books::TABLE_NAME, ['title'=>'No Authors']);
+        $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD=>'No Authors']);
+        //TODO : TEST!
+        //invalid input #3: books with string authorID
+        $response = $this->utilityTest->createABook("String AuthorID", [],  [ [Authors::ID_FIELD => "1 string ID"]  ] );
+        $this->utilityTest->checkInvalidResponse($response);
+        $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD=>"String AuthorID"]);
     }
 
-    /**tests the adding a book functionality with existing authors in the database. */
+    /** adding a book functionality with existing authors in the database. */
     public function addABookWithExistingAuthors(){
         $title = "Never Been Added Yet";
         $response = $this->utilityTest->createABook( $title, [], $this->authorIDs );
@@ -173,7 +206,7 @@ class BooksTest extends TestCase
         $this->checkIDType([$response[Books::ID_FIELD]]);
         $this->checkIDType($response[PivotController::ID_FIELD]);
         //check that they exist in DB:
-        $this->assertDatabaseHas(Books::TABLE_NAME, ['title'=> $this->title]);
+        $this->assertDatabaseHas(Books::TABLE_NAME, [ Books::TITLE_FIELD => $this->title]);
         //check that the relationship is created in DB:
         $this->validateDBRelation($response[Books::ID_FIELD],$this->authorIDs,$response[PivotController::ID_FIELD]);
     }
@@ -194,7 +227,7 @@ class BooksTest extends TestCase
      */
     public function deleteABook()
     {
-        //try to update with valid request but DB is empty (in other words, updating with invalid ID):
+        //try to delete with valid request but DB is empty (in other words, deleting with invalid ID):
         $this->deleteABookWithInvalidID();
         //delete with a valid request:
         $this->deleteABookWithValidRequest();
@@ -227,22 +260,5 @@ class BooksTest extends TestCase
             Books::ID_FIELD => $createResponse[Books::ID_FIELD]]);
     }
 
-    /**  @test  requests for a books (only) content  exported as a CSV and then check its content. */
-    public function exportBooksToCSV()
-    {
-        $this->utilityTest->exportToCSV( [Books::ID_FIELD,Books::TITLE_FIELD] ,'/api/books/export/CSV',
-            BooksController::BOOKS_EXPORT_CSV_FILENAME);
-    }
-    /** @test  requests for a books (only) content to be exported as a XML and then check its content.*/
-    public function exportBooksToXML(){
-        $this->utilityTest->exportToXML([[Books::ID_FIELD, Books::TITLE_FIELD]  ], '/api/books/export/XML',
-            Books::TABLE_NAME);
-    }
 
-    /**  @test requests for a books and authors content to be exported as a XML and then check its content.   */
-    public function exportsBooksAndAuthorsToXML(){
-        $this->utilityTest->exportToXML( [[Books::ID_FIELD, Books::TITLE_FIELD],
-            [Authors::ID_FIELD, Authors::FIRSTNAME_FIELD, Authors::LASTNAME_FIELD] ],
-            '/api/books/export/XML/with-authors', Books::TABLE_NAME, Authors::TABLE_NAME);
-    }
 }
