@@ -1,27 +1,30 @@
 # XML Export Method (Handled In UtilityController) 
 ####  The structure we are trying to export is (i.e. the input to exportToXML in UtilityController):  
 ```
-[{"bookID":22, 
-   "title":"HALLO GILBERT ONLY1", 
-   "authors": [{"authorID":2,"firstName":"Gilbert","lastName":"Vincenta”}] 
-        … 
-}]
+[
+    {
+        "bookID":22, 
+        "title":"HALLO GILBERT ONLY1", 
+        "authors": [{"authorID":2,"firstName":"Gilbert","lastName":"Vincenta”}]     
+    }, 
+ ... 
+]
 ```
 #### Into:  
 ```
 <?xml version="1.0"?> 
 <books> (0)  
-  <data> (1) 
-    <bookID>22</bookID> (2) 
-    <title>HALLO GILBERT ONLY 1</title> (3) 
-    <authors> (4) 
-      <data> (5) 
-        <authorID>2</authorID> (6) 
-        <firstName>Gilbert</firstName> (7) 
-        <lastName>Vincenta</lastName> (8) 
-      </data>  
-    </authors> (9) 
-</data> (10)  
+    <data> (1) 
+        <bookID>22</bookID> (2) 
+        <title>HALLO GILBERT ONLY 1</title> (3) 
+        <authors> (4) 
+            <data> (5) 
+                <authorID>2</authorID> (6) 
+                <firstName>Gilbert</firstName> (7) 
+                <lastName>Vincenta</lastName> (8) 
+            </data>  
+        </authors> (9) 
+    </data> (10)  
     …
 </books> 
 ```
