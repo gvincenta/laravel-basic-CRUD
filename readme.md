@@ -1,23 +1,23 @@
 # How to deploy: 
 ## On local device:
-1. clone this project to your xampp/htdocs directory (or anywhere you can run a PHP Laravel project in).
-2. open terminal and cd to this project directory. 
-3. run  `composer install` to install backend dependencies
-4. run  `npm install` to install frontend dependencies
-5. run  `php artisan key:generate` to generate APP_KEY in the .env file.
-6. add a .env file with the configurations shown below to the project folder.
-7. run  `php artisan migrate`.
-8. (optional) run  `npm run watch` in case you've changed anything in the frontend.
-8. run the command `php artisan serve`.
+1. Clone this project to your xampp/htdocs directory (or anywhere you can run a PHP Laravel project in).
+2. Open terminal and cd to this project directory. 
+3. Run  `composer install` to install backend dependencies
+4. Run  `npm install` to install frontend dependencies
+5. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
+6. Add a .env file with the configurations shown below to the project folder.
+7. Run  `php artisan migrate`.
+8. (Optional) Run  `npm run watch` in case you've changed anything in the frontend.
+8. Run `php artisan serve`.
 9. In the terminal, it will respond with : `Laravel development server started: [link] ` click on the link to run the web-app on your brower.
 10. Click on *Guide Me* to learn how to use the web-app.
 
 ## On the cloud servers: 
-1. clone or fork this project. 
-2. run  `php artisan key:generate` to generate APP_KEY in the .env file.
-3. add in .env configurations as shown below to the cloud server and to the project folder.
-4. run  `php artisan migrate`. 
-5. deploy to your desired hosting services, not forgetting to include the Procfile (it has been included in this project) to specify the server and where to serve the website.
+1. Clone or fork this project. 
+2. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
+3. Add in .env configurations as shown below to the cloud server and to the project folder.
+4. Run  `php artisan migrate`. 
+5. Deploy to your desired hosting services, not forgetting to include the Procfile (it has been included in this project) to specify the server and where to serve the website.
 
 *To improve the web-app experience, please open the web-app on Google Chrome / Opera.*
 
@@ -40,7 +40,7 @@ DB_PORT =   ...
 ### .env configurations (for *Cloud Server Deployment*):
 ```
 APP_DEBUG = true
-APP_ENV =  
+APP_ENV =  production
 APP_KEY = (to be generated through php artisan key:generate)
 APP_NAME = LARAVEL
 APP_URL= ...
@@ -56,14 +56,14 @@ DB_PORT =   (optional)
 *Note: for .env, replace  "..." with __suitable constants__.*
 
 # To run *Test Coverage* : 
-1. clone or fork this project. 
-2. run  `php artisan key:generate` to generate APP_KEY in the .env file.
-3. add in .env configurations as shown below to the project folder.
-4. run `vendor/bin/phpunit`. Note that:
+1. Clone or fork this project. 
+2. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
+3. Add in .env configurations as shown below to the project folder. *** IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted after testing. ***
+4. Run `vendor/bin/phpunit`. Note that:
     1. *This will take a few minutes to run.*
     2. __This will overwrite all files in the reports folder.__
-2. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
+5. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
 
-# I want to know more about: 
+# More informations on: 
 1. [XML export methodology](documentation/XMLExport.md)
 2. [Database Structure Diagram](documentation/DBStructure.md)
