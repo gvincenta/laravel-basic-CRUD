@@ -66,4 +66,4 @@ DB_PORT =   (optional)
 
 # I want to know more about: 
 1. [XML export methodology](documentation/XMLExport.md)
-2. [Database Structure Diagram](documentation/DBStructure.pdf)
+2. [Database Structure Diagram](documentation/DBStructure.md)
