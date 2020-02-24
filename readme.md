@@ -32,11 +32,11 @@
 
  
 
-### .env configurations (for __Local Device Deployment__ / __Test Coverage__):
+### .env configurations (for *Local Device Deployment* / *Test Coverage*):
 ```
 APP_DEBUG = true
 APP_ENV = local 
-APP_KEY =  (to be generated through `php artisan key:generate`)
+APP_KEY =  (to be generated through php artisan key:generate)
 APP_NAME = LARAVEL
 APP_URL=http://127.0.0.1:[port number]
 
@@ -48,11 +48,11 @@ DB_PASSWORD = ...
 DB_USERNAME = ...
 DB_PORT =   ...
 ```
-### .env configurations (for __Cloud Server Deployment__):
+### .env configurations (for *Cloud Server Deployment*):
 ```
 APP_DEBUG = true
 APP_ENV =  
-APP_KEY = (to be generated through `php artisan key:generate`)
+APP_KEY = (to be generated through php artisan key:generate)
 APP_NAME = LARAVEL
 APP_URL= ...
 
@@ -64,7 +64,7 @@ DB_PASSWORD = ...
 DB_USERNAME = ...
 DB_PORT =   (optional)
 ```
-*Note: replace  "..." with __suitable constants__.*
+*Note: for .env, replace  "..." with __suitable constants__.*
 
 XML export methodology.
 Database Structure.
