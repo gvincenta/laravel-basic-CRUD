@@ -1,6 +1,6 @@
 # DB Structure Diagram 
 
-![DB Structure](/DBStructure.png)
+![DB Structure](DBStructure.png)
 
 ## Addition: 
 1. To avoid spamming the authors_books table, a pair of `(authorID, bookID)` is set as an index called `Authorship` and is unique. 
