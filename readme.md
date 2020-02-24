@@ -58,7 +58,7 @@ DB_PORT =   (optional)
 # To run *Test Coverage* : 
 1. Clone or fork this project. 
 2. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
-3. Add in .env configurations as shown below to the project folder. *** IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted after testing. ***
+3. Add in .env configurations as shown below to the project folder. __IMPORTANT: Do not use your live/production database for testing, as all data in database will be deleted after testing.__
 4. Run `vendor/bin/phpunit`. Note that:
     1. *This will take a few minutes to run.*
     2. __This will overwrite all files in the reports folder.__
