@@ -21,17 +21,6 @@
 
 *To improve the web-app experience, please open the web-app on Google Chrome / Opera.*
 
-## To run *Test Coverage* : 
-1. clone or fork this project. 
-2. run  `php artisan key:generate` to generate APP_KEY in the .env file.
-3. add in .env configurations as shown below to the project folder.
-4. run `vendor/bin/phpunit`. Note that:
-    1. *This will take a few minutes to run.*
-    2. __This will overwrite all files in the reports folder.__
-2. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
-
- 
-
 ### .env configurations (for *Local Device Deployment* / *Test Coverage*):
 ```
 APP_DEBUG = true
@@ -66,5 +55,15 @@ DB_PORT =   (optional)
 ```
 *Note: for .env, replace  "..." with __suitable constants__.*
 
-XML export methodology.
-Database Structure.
+# To run *Test Coverage* : 
+1. clone or fork this project. 
+2. run  `php artisan key:generate` to generate APP_KEY in the .env file.
+3. add in .env configurations as shown below to the project folder.
+4. run `vendor/bin/phpunit`. Note that:
+    1. *This will take a few minutes to run.*
+    2. __This will overwrite all files in the reports folder.__
+2. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
+
+# I want to know more about: 
+[XML export methodology](./documentation/XML_EXPORT.pdf)
+[Database Structure Diagram](./documentation/DBStructure.pdf)
