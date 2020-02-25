@@ -7,7 +7,7 @@ This project is built with:
 # How to deploy: 
 ## On local device:
 1. Clone this project to your xampp/htdocs directory (or anywhere you can run a PHP Laravel project in).
-2. Open terminal and cd to this project directory. 
+2. Open terminal and `cd` to this project directory. 
 3. Run `composer install` to install backend dependencies.
 4. Run `npm install` to install frontend dependencies.
 5. Run `php artisan key:generate` to generate APP_KEY in the .env file.
@@ -16,17 +16,18 @@ This project is built with:
 8. (Optional) Run `npm run watch` in case you've changed anything in the frontend.
 8. Run `php artisan serve`.
 9. In the terminal, it will respond with : `Laravel development server started: [link] ` click on the link to run the web-app on your brower.
-10. Click on *Guide Me* to learn how to use the web-app.
 
 ## On the cloud servers: 
 1. Clone or fork this project. 
-2. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
-3. Add in .env configurations as shown below to the cloud server and to the project folder.
-4. Open terminal and cd to this project directory.
-4. Run  `php artisan migrate`. 
-5. Deploy to your desired hosting services, not forgetting to include the Procfile (it has been included in this project) to specify the server and where to serve the website.
+2. Open terminal and `cd` to this project directory.
+3. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
+4. Add in .env configurations as shown below to the cloud server and to the project folder.
+5. Run  `php artisan migrate`. 
+6. Deploy to your desired hosting services, not forgetting to include the Procfile (it has been included in this project) to specify the server and where to serve the website.
 
-*To improve the web-app experience, please open the web-app on Google Chrome / Opera.*
+*Note*:
+1. *Click on Guide Me to learn how to use the web-app*
+2. *To improve the web-app experience, please open the web-app on Google Chrome / Opera.*
 
 ### .env configurations (for *Local Device Deployment* / *Test Coverage*):
 ```

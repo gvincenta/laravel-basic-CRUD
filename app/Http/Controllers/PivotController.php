@@ -123,50 +123,52 @@ class PivotController extends Controller
             UtilityController::INVALID_REQUEST_STATUS);
         }
         //start transaction:
-        return DB::transaction(function () use ($request) {
-            try {
-                //firstly, create new book:
-                $bookID = $this->booksController->store($request->get(Books::TITLE_FIELD));
-                $newAuthorsID = []; // to show that new Authors have been added.
-                $relationsID = []; //to show that the authors have been linked with the book.
-                //then, create new authors and assign them as the new book's authors:
-                if ( $request->get(self::NEW_AUTHORS_REQUEST) ){
-                    foreach ($request->get(self::NEW_AUTHORS_REQUEST) as $newAuthor){
-                        //make new authors and get their IDs:
-                        $newAuthorID =  $this->authorsController->store($newAuthor);
-                        //store their ID to be returned later:
-                        array_push($newAuthorsID,$newAuthorID);
-                        //assign the to this book:
-                        $relationID = $this->store($newAuthorID,$bookID);
-                        //store this ID to be returned later:
-                        array_push($relationsID,$relationID);
-                    }
-                }
-                if ($request->get( self::EXISTING_AUTHORS_REQUEST) ){
-                    foreach ($request->get( self::EXISTING_AUTHORS_REQUEST) as $existingAuthor){
-                        //assign the existing authors as the authors of this book:
-                        $relationID = $this->store($existingAuthor[Authors::ID_FIELD],$bookID);
-                        //store this ID to be returned later:
-                        array_push($relationsID,$relationID);
-                    }
-                }
-                /* returns a success message, showing the book's ID, the new authors' ID,
-                 * and relationID: an ID in the pivot table that connects between each author to this book.
-                 */
-                return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
-                    Books::ID_FIELD => $bookID,
-                    self::ID_FIELD => $relationsID,
-                    Authors::ID_FIELD => $newAuthorsID],
-                    UtilityController::CREATED_STATUS);
+        DB::beginTransaction();
 
-             //something went wrong with the transaction, rollback and handle gracefully.
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
-                    UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
-                    UtilityController::INTERNAL_SERVER_ERROR_STATUS);
+        try {
+            //firstly, create new book:
+            $bookID = $this->booksController->store($request->get(Books::TITLE_FIELD));
+            $newAuthorsID = []; // to show that new Authors have been added.
+            $relationsID = []; //to show that the authors have been linked with the book.
+            //then, create new authors and assign them as the new book's authors:
+            if ( $request->get(self::NEW_AUTHORS_REQUEST) ){
+                foreach ($request->get(self::NEW_AUTHORS_REQUEST) as $newAuthor){
+                    //make new authors and get their IDs:
+                    $newAuthorID =  $this->authorsController->store($newAuthor);
+                    //store their ID to be returned later:
+                    array_push($newAuthorsID,$newAuthorID);
+                    //assign the to this book:
+                    $relationID = $this->store($newAuthorID,$bookID);
+                    //store this ID to be returned later:
+                    array_push($relationsID,$relationID);
+                }
             }
-         });
+            if ($request->get( self::EXISTING_AUTHORS_REQUEST) ){
+                foreach ($request->get( self::EXISTING_AUTHORS_REQUEST) as $existingAuthor){
+                    //assign the existing authors as the authors of this book:
+                    $relationID = $this->store($existingAuthor[Authors::ID_FIELD],$bookID);
+                    //store this ID to be returned later:
+                    array_push($relationsID,$relationID);
+                }
+            }
+            //action done, commit:
+            DB::commit();
+            /* returns a success message, showing the book's ID, the new authors' ID,
+             * and relationID: an ID in the pivot table that connects between each author to this book.
+             */
+            return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
+                Books::ID_FIELD => $bookID,
+                self::ID_FIELD => $relationsID,
+                Authors::ID_FIELD => $newAuthorsID],
+                UtilityController::CREATED_STATUS);
+
+            //something went wrong with the transaction, rollback and handle gracefully.
+        } catch (\Exception $e) {
+            DB::rollback();
+            return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_FAILED_MESSAGE,
+                UtilityController::ERROR_RESPONSE_KEY => $e->getMessage()],
+                UtilityController::INTERNAL_SERVER_ERROR_STATUS);
+        }
 
     }
     /**

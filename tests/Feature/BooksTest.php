@@ -103,8 +103,8 @@ class BooksTest extends TestCase
      */
     public function addABookWithAuthors()
     {
-        //add a book with invalid ID:
-        //$this->addABookWithInvalidAuthorID();
+        //add a book with invalid ID (commented out, as it affects RefreshDatabase functionality):
+        $this->addABookWithInvalidAuthorID();
         //add with new authors:
         $this->addABookWithNewAuthors();
         //testing with invalid inputs:
