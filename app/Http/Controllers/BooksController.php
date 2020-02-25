@@ -10,9 +10,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-/** Controls the books stored on database.
+/**
+ * Class BooksController
+ * @package App\Http\Controllers
+ * Controls the books stored in the database.
  *  A book has a title and at least 1 author.
-*/
+ */
 class BooksController extends Controller
 {
     private $export,$utility;
@@ -27,7 +30,7 @@ class BooksController extends Controller
     }
     /**
      * exports all books stored in the database to XML.
-     * @returns , XML file.
+     * @returns \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response, XML file.
      */
     public function exportToXML(Request $request)
     {
@@ -44,7 +47,7 @@ class BooksController extends Controller
 
     /**
      * exports all books stored in the database to CSV.
-     * @returns a CSV file.
+     * @returns \Symfony\Component\HttpFoundation\BinaryFileResponse, a CSV file.
      */
     public function exportToCSV()
     {
@@ -55,8 +58,8 @@ class BooksController extends Controller
 
     /**
      * Stores a new book in database.
-     * @param   String $title, the title of the book.
-     * @return Integer,   id of the book.
+     * @param   string $title, the title of the book.
+     * @return integer,   id of the book.
      */
     public function store($title  )
     {

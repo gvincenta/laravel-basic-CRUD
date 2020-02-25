@@ -13,9 +13,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 /**
- * In order to avoid confusion, Pivot refers to the authors_books table that handles the many to many relationship\
- * between them. This controls reading and exporting the authors_books table.
-*/
+ * Class PivotController
+ * @package App\Http\Controllers
+ * In order to avoid confusion, Pivot refers to the authors_books table that handles the many to many relationship
+ * between authors and books. This controls reading and exporting the authors_books table in the database.
+ */
 class PivotController extends Controller
 {
 
@@ -56,7 +58,8 @@ class PivotController extends Controller
                 UtilityController::INVALID_REQUEST_STATUS);
         }
         //for simplicity, do an exact matching search (not case sensitive):
-        return    $this->query()->where(Authors::FIRSTNAME_FIELD , '=', $request[Authors::FIRSTNAME_FIELD])
+        return    $this->query()->where(Authors::FIRSTNAME_FIELD , '=',
+            $request[Authors::FIRSTNAME_FIELD])
             ->where(Authors::LASTNAME_FIELD , '=', $request[Authors::LASTNAME_FIELD] )->get();
     }
     /**
@@ -187,7 +190,7 @@ class PivotController extends Controller
      }
     /**
      * exports authors and their books into CSV file.
-     * @, CSV file.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse, CSV file.
      */
     public function exportToCSV(){
         $query = $this->query();

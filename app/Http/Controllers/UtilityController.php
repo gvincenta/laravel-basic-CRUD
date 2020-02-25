@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Maatwebsite\Excel\Facades\Excel;
 use XMLWriter;
 
- /**
+/**
+ * Class UtilityController
+ * @package App\Http\Controllers
  * Controls how to export to CSV and XML and define some commonly used constants.
-*/
+ */
 class UtilityController extends Controller
 {
     public const XML_DATA_TAG = 'data';
@@ -18,10 +20,12 @@ class UtilityController extends Controller
     public const INTERNAL_SERVER_ERROR_STATUS = 500;
     public const MESSAGE_RESPONSE_KEY = "message";
     public const ERROR_RESPONSE_KEY = "error";
+
     /**
-     * extract the table's column names from an array of json.
-     * code adapted from : https://stackoverflow.com/questions/10914687/retrieving-array-keys-from-json-input/32778117
-     * @param Array $exportData, array of json to be extracted.
+     * extract the table's column names from an array of JSON.
+     * function adapted from:
+     * https://stackoverflow.com/questions/10914687/retrieving-array-keys-from-json-input/32778117
+     * @param array $exportData, array of json to be extracted.
      */
     public function extractHeadings($exportData){
         $headings = [];
@@ -34,6 +38,12 @@ class UtilityController extends Controller
         return $headings;
     }
 
+    /** Exporting a book and/or author content to csv.
+     * @param $export, the export object that has the collection to be exported.
+     * @param $fileName, the desired CSV filename.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse, the csv file.
+     */
+
      public function exportToCSV(  $export, $fileName )
     {
          return Excel::download($export, $fileName );
@@ -44,10 +54,11 @@ class UtilityController extends Controller
      * function adapted from :
      * https://stackoverflow.com/questions/30014960/how-can-i-store-data-from-mysql-to-xml-in-laravel-5
      * @param XMLWriter $xml, the xml writer object.
-     * @param Array $array, the array of array/JSON to be converted.
-     * @param Array $childKeys, where the child objects to be added to XML are located in the array.
-     * @param Array $attributes, the attributes to be parsed into the XML.
-     * @param String $dataTag, the tag for the data to be parsed.
+     * @param array $array, the array of array/JSON to be converted.
+     * @param array $childKeys, where the child objects to be added to XML are located in the array.
+     * @param array $attributes, the attributes to be parsed into the XML.
+     * @param string $dataTag, the tag for the data to be parsed.
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response, the XML file.
      */
     public function exportToXML($array, $nestedTags, $childKeys, $attributes, $dataTag)
     {
@@ -73,11 +84,12 @@ class UtilityController extends Controller
      * recursively runs through a JSON object to detect if it has a child (in an array of JSON object format)
      * that needs to be parsed into separate XML tag.
      * @param XMLWriter $xml, the xml writer object.
-     * @param Array $childKeys, where the child objects to be added to XML are located in the array.
-     * @param Array $attributes, the attributes to be parsed into the XML.
-     * @param String $dataTag, the tag for the data to be parsed.
-     * @param Array $nestedTags, contains root element tag, with its children tags as well.
-     * @param Array $json, the current element to be inspected for possible nesting children.
+     * @param array $childKeys, where the child objects to be added to XML are located in the array.
+     * @param array $attributes, the attributes to be parsed into the XML.
+     * @param string $dataTag, the tag for the data to be parsed.
+     * @param array $nestedTags, contains root element tag, with its children tags as well.
+     * @param array $json, the current element to be inspected for possible nesting children.
+     * @param integer $counter, the current index of the arrays to be used for parsing XML.
      */
     private function constructChild($xml, $childKeys, $attributes, $counter, $dataTag, $nestedTags, $json)
     {
@@ -100,8 +112,6 @@ class UtilityController extends Controller
                 //close current data tag:
                 $xml->endElement();
                 return;
-
-
             }
         }
         //if we do not expect further child elements, parse the current data:
@@ -109,9 +119,9 @@ class UtilityController extends Controller
     }
     /** parse a data (e.g. a book or an author) with all of its attributes.
      * @param XMLWriter $xml, the xml writer object.
-     * @param Array $data,  data that needs to be parsed to XML.
-     * @param String $tag, the XML tag for the data.
-     * @param Array $attributes, the attributes of the data to be parsed.
+     * @param array $data,  data that needs to be parsed to XML.
+     * @param string $tag, the XML tag for the data.
+     * @param array $attributes, the attributes of the data to be parsed.
      * @param Boolean $closeTag, whether the tag is immediately closed or not.
      */
      private function createXMLElement($xml,$data,$tag,$attributes, $closeTag)

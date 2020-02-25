@@ -4,6 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Authors
+ * @package App
+ * Defines many to many relationship between books and authors.
+ */
 class Authors extends Model
 {
     protected $table = 'authors';

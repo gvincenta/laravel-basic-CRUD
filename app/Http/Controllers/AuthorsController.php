@@ -9,8 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use XMLWriter;
 
+/**
+ * Class AuthorsController
+ * @package App\Http\Controllers
+ * Controls the authors stored in the database.
+ * An author has an ID, firstName and lastName.
+ */
 class AuthorsController extends Controller
 {
     private $export,$utility;
@@ -37,7 +42,8 @@ class AuthorsController extends Controller
             Authors::ID_FIELD => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY  =>UtilityController::INVALID_REQUEST_MESSAGE],
+            return  response()->json(
+                [UtilityController::MESSAGE_RESPONSE_KEY  =>UtilityController::INVALID_REQUEST_MESSAGE],
                 UtilityController::INVALID_REQUEST_STATUS);
         }
         $updateData = [Authors::FIRSTNAME_FIELD => $request->input(Authors::FIRSTNAME_FIELD),
@@ -60,7 +66,7 @@ class AuthorsController extends Controller
 
     /**
      * Exports all authors to csv file.
-     * @return , CSV file.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse , CSV file.
      */
     public function exportToCSV()
     {
@@ -72,7 +78,7 @@ class AuthorsController extends Controller
     /**
      * for exporting author only / with book titles from database to XML file.
       * @param  Illuminate\Http\Request $request, containing the URL to identify which file is wanted.
-     * @return , the CSV file requested.
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response, the XML file requested.
      */
     public function exportToXML(Request $request)
     {
