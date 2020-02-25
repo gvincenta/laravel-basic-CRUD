@@ -22,6 +22,7 @@ This project is built with:
 1. Clone or fork this project. 
 2. Run  `php artisan key:generate` to generate APP_KEY in the .env file.
 3. Add in .env configurations as shown below to the cloud server and to the project folder.
+4. Open terminal and cd to this project directory.
 4. Run  `php artisan migrate`. 
 5. Deploy to your desired hosting services, not forgetting to include the Procfile (it has been included in this project) to specify the server and where to serve the website.
 
