@@ -19,9 +19,7 @@ use App\Http\Controllers\PivotController;
  */
 class UtilityTest extends TestCase
 {
-    use RefreshDatabase;
-    use WithoutMiddleware;
-
+     use WithoutMiddleware;
 
     public function __construct()
     {

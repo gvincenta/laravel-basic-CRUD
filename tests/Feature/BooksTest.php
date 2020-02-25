@@ -31,10 +31,11 @@ class BooksTest extends TestCase
 
         $this->utilityTest = new UtilityTest();
         $this->authors = [
-            [Authors::FIRSTNAME_FIELD  => 'Midoriya', Authors::LASTNAME_FIELD  => 'Zoldyck'],
-            [Authors::FIRSTNAME_FIELD  => 'Michael', Authors::LASTNAME_FIELD  => 'AJ']
+            [Authors::FIRSTNAME_FIELD  => 'Kimberly', Authors::LASTNAME_FIELD  => 'Winson'],
+            [Authors::FIRSTNAME_FIELD  => 'Michael', Authors::LASTNAME_FIELD  => 'AJ'],
+            [Authors::FIRSTNAME_FIELD  => 'Ten', Authors::LASTNAME_FIELD  => 'Shi']
         ];
-        $this->title = 'Alpha Beta';
+        $this->title = ['Alpha Beta','GAmma',"Exist Auth"];
         //for testing adding new book with existing authors, store the authors' ID:
         $this->authorIDs = [];
     }
@@ -68,7 +69,7 @@ class BooksTest extends TestCase
         $this->getEmptyBooksAndAuthors();
 
         //then, create a book with an author:
-        $createResponse = $this->utilityTest->createABook($this->title, [$this->authors[0]] );
+        $createResponse = $this->utilityTest->createABook($this->title[0], [$this->authors[0]] );
 
         //now test that they are returned when doing a get request, and nothing else is returned besides that:
         $response = $this->get('api/books');
@@ -78,7 +79,7 @@ class BooksTest extends TestCase
                 Authors::ID_FIELD=> $createResponse[Authors::ID_FIELD][0],
                 Authors::FIRSTNAME_FIELD=> $this->authors[0][Authors::FIRSTNAME_FIELD],
                 Authors::LASTNAME_FIELD=> $this->authors[0][Authors::LASTNAME_FIELD],
-                Books::TITLE_FIELD=> $this->title,
+                Books::TITLE_FIELD=> $this->title[0],
                 Books::ID_FIELD=> $createResponse[Books::ID_FIELD]
             ] ]);
     }
@@ -103,7 +104,7 @@ class BooksTest extends TestCase
     public function addABookWithAuthors()
     {
         //add a book with invalid ID:
-        $this->addABookWithInvalidAuthorID();
+        //$this->addABookWithInvalidAuthorID();
         //add with new authors:
         $this->addABookWithNewAuthors();
         //testing with invalid inputs:
@@ -111,21 +112,21 @@ class BooksTest extends TestCase
         //valid input #2: add with existing authors:
         $this->addABookWithExistingAuthors();
     }
-    //TODO: RUN THIS!
+
     /** Sends a request to backend to make a new book with a wrong authorID.  */
     public function addABookWithInvalidAuthorID(){
-        $response = $this->utilityTest->createABook($this->title, [$this->authors[0]], [ ["authorID" =>2] ] );
+        $response = $this->utilityTest->createABook($this->title[1], [$this->authors[0]], [ ["authorID" =>2] ] );
 
         //expects DB to rollback with internal server error status:
         $response->assertStatus(UtilityController::INTERNAL_SERVER_ERROR_STATUS);
-        $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD => $this->title]);
+        $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD => $this->title[1]]);
         $this->assertDatabaseMissing(Authors::TABLE_NAME,$this->authors[0]);
 
     }
     /** Sends a request to backend to make a new book with a new (non-existing) authors.  */
     public function addABookWithNewAuthors(){
 
-        $response = $this->utilityTest->createABook($this->title, $this->authors );
+        $response = $this->utilityTest->createABook($this->title[1], [$this->authors[1],$this->authors[2]] );
         /*note that testing the response of this API in the following lines below are very crucial, as most of other
         tests functions  need to initially make a book with this endpoint. */
 
@@ -148,9 +149,9 @@ class BooksTest extends TestCase
         }
 
         //check that they exist in DB:
-        $this->assertDatabaseHas(Books::TABLE_NAME, [Books::TITLE_FIELD => $this->title]);
-        $this->assertDatabaseHas(Authors::TABLE_NAME, $this->authors[0]);
+        $this->assertDatabaseHas(Books::TABLE_NAME, [Books::TITLE_FIELD => $this->title[1]]);
         $this->assertDatabaseHas(Authors::TABLE_NAME, $this->authors[1]);
+        $this->assertDatabaseHas(Authors::TABLE_NAME, $this->authors[2]);
         //check that the relationship is created in DB:
        $this->validateDBRelation($response[Books::ID_FIELD],$this->authorIDs,$response[PivotController::ID_FIELD]);
 
@@ -188,17 +189,12 @@ class BooksTest extends TestCase
         $response = $this->utilityTest->createABook("No Authors");
         $this->utilityTest->checkInvalidResponse($response);
         $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD=>'No Authors']);
-        //TODO : TEST!
-        //invalid input #3: books with string authorID
-        $response = $this->utilityTest->createABook("String AuthorID", [],  [ [Authors::ID_FIELD => "1 string ID"]  ] );
-        $this->utilityTest->checkInvalidResponse($response);
-        $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD=>"String AuthorID"]);
     }
 
     /** adding a book functionality with existing authors in the database. */
     public function addABookWithExistingAuthors(){
-        $title = "Never Been Added Yet";
-        $response = $this->utilityTest->createABook( $title, [], $this->authorIDs );
+
+        $response = $this->utilityTest->createABook( $this->title[2], [], $this->authorIDs );
         //make sure status is correct:
         $response->assertStatus(201);
         $this->assertTrue(count($response[PivotController::ID_FIELD]) == 2); // both authors assigned to the book in pivot table.
@@ -206,7 +202,7 @@ class BooksTest extends TestCase
         $this->checkIDType([$response[Books::ID_FIELD]]);
         $this->checkIDType($response[PivotController::ID_FIELD]);
         //check that they exist in DB:
-        $this->assertDatabaseHas(Books::TABLE_NAME, [ Books::TITLE_FIELD => $this->title]);
+        $this->assertDatabaseHas(Books::TABLE_NAME, [ Books::TITLE_FIELD => $this->title[2]]);
         //check that the relationship is created in DB:
         $this->validateDBRelation($response[Books::ID_FIELD],$this->authorIDs,$response[PivotController::ID_FIELD]);
     }
@@ -250,14 +246,17 @@ class BooksTest extends TestCase
     /** requests to delete a book with an ID that exists in the books table. */
     public function deleteABookWithValidRequest(){
         //firstly, must create a book.
-        $createResponse = $this->utilityTest->createABook($this->title, [$this->authors[0]] );
+        $title = 'To Be Deleted';
+        $createResponse = $this->utilityTest->createABook($title, [$this->authors[0]] );
         //then delete it:
         $deleteResponse = $this->json('DELETE','/api/books',[Books::ID_FIELD => $createResponse[Books::ID_FIELD]]);
         $this->utilityTest->checkOKResponseWithCustomMessage($deleteResponse,
             BooksController::DELETE_A_BOOK_SUCCEED_MESSAGE);
 
-        $this->assertDatabaseMissing('books', [Books::TITLE_FIELD=> 'To Be Deleted',
-            Books::ID_FIELD => $createResponse[Books::ID_FIELD]]);
+        $this->assertDatabaseMissing(Books::TABLE_NAME, [Books::TITLE_FIELD=> 'To Be Deleted',
+            Books::ID_FIELD => $createResponse[Books::ID_FIELD] ]);
+        $this->assertDatabaseMissing(PivotController::TABLE_NAME, [PivotController::ID_FIELD=>
+            $createResponse[PivotController::ID_FIELD][0]  ]);
     }
 
 
