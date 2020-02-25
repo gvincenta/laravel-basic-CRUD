@@ -1,3 +1,9 @@
+# About the Project:
+This project is built with:
+1. Backend : PHP Laravel
+2. Database : MySQL
+3. Frontend : React.js
+
 # How to deploy: 
 ## On local device:
 1. Clone this project to your xampp/htdocs directory (or anywhere you can run a PHP Laravel project in).
@@ -53,7 +59,7 @@ DB_PASSWORD = ...
 DB_USERNAME = ...
 DB_PORT =   (optional)
 ```
-*Note: for .env, replace  "..." with __suitable constants__.*
+*Note: for .env, replace  "..." with __suitable configurations__.*
 
 # To run *Test Coverage* : 
 1. Clone this project to your xampp/htdocs directory (or anywhere you can run a PHP Laravel project in).
@@ -68,7 +74,7 @@ DB_PORT =   (optional)
 8. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. _The functions written for this project are in:_
     1. _Mostly at_ [HTTP/Controllers](report/Http/Controllers/index.html).
     2. _And the rest is at_ 
-        1. [Exports](report/Exports/index.html).
+        1. [Exports](report/Exports/index.html)
         2. [Authors Model](report/Authors.php.html)
         3. [Books Model](report/Books.php.html)
 _[Report Overview](report/index.html)_
