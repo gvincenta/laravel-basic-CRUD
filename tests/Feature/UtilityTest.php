@@ -2,6 +2,7 @@
 
 
 namespace Tests\Feature;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
@@ -18,7 +19,9 @@ use App\Http\Controllers\PivotController;
  */
 class UtilityTest extends TestCase
 {
+    use RefreshDatabase;
     use WithoutMiddleware;
+
 
     public function __construct()
     {
