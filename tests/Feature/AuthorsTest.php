@@ -22,24 +22,23 @@ class AuthorsTest extends TestCase
 
     //cleans up the DB before and after testing:
     use RefreshDatabase;
-    // use without the need to send CSRF tokens to simplify http requests like post, put and delete.
-
+    // use without the need to send CSRF tokens to simplify http post, put and delete requests.
     use WithoutMiddleware;
 
     private $utilityTest,$title,$authors;
 
     /**
      * AuthorsTest constructor.
-     * initiates helper class instance and also some sample data to be used in the test.
+     * initiates helper class instance and populates some sample data to be used in the test.
      */
     public function __construct()
     {
         parent::__construct();
         $this->utilityTest = new UtilityTest();
         $this->authors = [
-            ['firstName' => 'Midoriya', 'lastName' => 'Zoldyck'],
-            ["firstName" => "Updated", 'lastName' => "Wrong"],
-            ['firstName' => 'Updated', 'lastName' =>'Updated']
+            [Authors::FIRSTNAME_FIELD => 'Midoriya', Authors::LASTNAME_FIELD  => 'Zoldyck'],
+            [Authors::FIRSTNAME_FIELD => "Updated", Authors::LASTNAME_FIELD  => "Wrong"],
+            [Authors::FIRSTNAME_FIELD => 'Updated', Authors::LASTNAME_FIELD  =>'Updated']
         ];
         $this->title = "Change Author Name";
 
@@ -50,11 +49,10 @@ class AuthorsTest extends TestCase
         //try to update with valid request but DB is empty (in other words, updating with invalid ID):
         $this->changeAuthorNameWithInvalidID();
         //create a book with an author:
-
         $createResponse = $this->utilityTest->createABook($this->title, [$this->authors[0]] );
-        //then, update an author it through its ID:
+        //then, update an author through its ID:
          $this->changeAuthorNameWithValidRequest($createResponse[Authors::ID_FIELD][0],$this->authors[0]);
-        //update with empty body:
+        //update with empty request body:
         $this->changeAuthorNameWithEmptyRequest();
         //update with invalid firstName and lastName:
         $this->changeAuthorNameWithInvalidName($createResponse[Authors::ID_FIELD][0]);
