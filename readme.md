@@ -74,9 +74,9 @@ DB_PORT =   (optional)
     1. *This will take about 5 minutes to run.*
     2. __This will overwrite all files in the reports folder.__
 8. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. _The functions written for this project are in:_
-    1. _Mostly at_ [HTTP/Controllers](report/Http/Controllers/index.html).
+    1. _Mostly at_ [HTTP/Controllers](report/Http/Controllers/index.html).![report/Exports/index.html](documentation/Controllers.png)
     2. _And the rest is at_ 
-        1. [Exports](report/Exports/index.html).![report/Exports/index.html](documentation/Controllers.png)
+        1. [Exports](report/Exports/index.html).
         2. [Authors Model](report/Authors.php.html).
         3. [Books Model](report/Books.php.html).
 
