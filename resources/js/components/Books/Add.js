@@ -150,7 +150,7 @@ export default function() {
                         onClick={e =>
                             assignNewAuthors([
                                 ...newAuthors,
-                                { ID: nextId(), firstName, lastName }
+                                { authorID: nextId(), firstName, lastName }
                             ])
                         }
                         required={false}

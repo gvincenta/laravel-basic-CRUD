@@ -78,6 +78,7 @@ export default function() {
                                 'Click here for adding a new book as well as assigning authors to it. ' +
                                 'Click Assign to assign authors to the new book. ' +
                                 "In the assigned table, click on  the author's name to unassign them from the new book."
+                                + 'For mononymous names, enter their first name in the "Last Name" field as well. '
                             }
                         >
                             Add a new book
@@ -106,6 +107,7 @@ export default function() {
                     </Accordion.Collapse>
                 </Card>
             </Accordion>
+            <p> <i> Notice: </i> The book titles and author names filled in this app are fictitious. Any similarity to any person living or dead, or any book titles, is merely coincidental. </p>
         </div>
     );
 }
