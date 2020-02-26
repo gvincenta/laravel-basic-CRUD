@@ -55,7 +55,7 @@ export default function() {
                             eventKey="0"
                             data-step="2"
                             data-intro={
-                                'Click me to show all the books and authors available in the database. ' +
+                                'Click here to show all the books and authors available in the database. ' +
                                 'If a row has no book, It means that the author of that row is currently not ' +
                                 'assigned to any books. ' +
                                 'If the same BookID appears more than once, that book has multiple authors. ' +
@@ -76,7 +76,7 @@ export default function() {
                             eventKey="1"
                             data-step="7"
                             data-intro={
-                                'Click here for adding a new book as well as assigning authors to it. ' +
+                                'Click here to add a new book as well as assigning authors to it. ' +
                                 'Click Assign to assign authors to the new book. ' +
                                 "In the assigned table, click on  the author's name to unassign them from the new book." +
                                 'For mononymous names, enter their first name in the "Last Name" field as well. '

@@ -35,7 +35,7 @@ export default function(props) {
                     {props.value} &nbsp;
                     <Button
                         data-step="5"
-                        data-intro="Click me to delete this book. WARNING: this will be directly applied to backend."
+                        data-intro="Click here to delete this book. WARNING: this will be directly applied to backend."
                         variant="danger"
                         onClick={e => {
                             e.preventDefault();
@@ -88,7 +88,7 @@ export default function(props) {
                     <Button
                         data-step="6"
                         data-intro={
-                            "Click me to change this author's name. A form will appear below the table " +
+                            "Click here to change this author's name. A form will appear below the table " +
                             'to change their name.'
                         }
                         onClick={e => {
