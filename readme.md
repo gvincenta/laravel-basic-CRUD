@@ -76,12 +76,12 @@ DB_PORT =   (optional)
 8. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. _The functions written for this project are in:_
     1. _Mostly at_ [HTTP/Controllers](report/Http/Controllers/index.html).
     2. _And the rest is at_ 
-        1. [Exports](report/Exports/index.html).![report/Exports/index.html](Controllers.png)
+        1. [Exports](report/Exports/index.html).![report/Exports/index.html](documentation/Controllers.png)
         2. [Authors Model](report/Authors.php.html).
         3. [Books Model](report/Books.php.html).
 
 _[Report Overview](report/index.html)_
-![report/index.html](Overview.png)
+![report/index.html](documentation/Overview.png)
 # More information on: 
 1. [XML export methodology](documentation/XMLExport.md)
 2. [Database Structure Diagram](documentation/DBStructure.md)
