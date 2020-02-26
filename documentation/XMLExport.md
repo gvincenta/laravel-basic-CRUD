@@ -58,7 +58,7 @@
     2. Route: `api/books/export/XML/with-authors` as shown in _Figure 1_ below.
     3. __For simplicity on the frontend, `api/books/export/XML/with-authors`  _(Figure 1)_ isn’t used,__ but is maintained *in case it is needed in the future*. 
 
-###### Figure 1: Sample response From:  api/authors/export/XML/with-books
+###### Figure 1: Sample response from:  api/authors/export/XML/with-books
 ```        
 <?xml version="1.0"?> 
     <books>   
@@ -75,7 +75,7 @@
         </data>
     </books>  
 ```
-###### Figure 2: Sample response From:  api/books/export/XML/with-authors 
+###### Figure 2: Sample response from:  api/books/export/XML/with-authors 
 ```
 <?xml version="1.0"?> 
     <authors>   
