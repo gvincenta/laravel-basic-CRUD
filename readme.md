@@ -80,3 +80,6 @@ _[Report Overview](report/index.html)_
 1. [XML export methodology](documentation/XMLExport.md)
 2. [Database Structure Diagram](documentation/DBStructure.md)
 3. [Report : which one matters? ](documentation/AboutReport.md)
+
+
+_Content Disclaimer:_ The book titles and author names filled in this repository are fictitious. Any resemblance to any person living or dead, or any book titles, is entirely coincidental.

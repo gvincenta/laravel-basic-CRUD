@@ -110,7 +110,7 @@ export default function() {
             </Accordion>
             <p>
                 {' '}
-                <i> Notice: </i> The book titles and author names filled in this
+                <i> Content Disclaimer: </i> The book titles and author names filled in this
                 app are fictitious. Any resemblance to any person living or dead,
                 or any book titles, is entirely coincidental.{' '}
             </p>
