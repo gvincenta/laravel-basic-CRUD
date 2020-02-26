@@ -14,15 +14,17 @@ use App\Http\Controllers\UtilityController;
 /**
  * Class UtilityTest
  * @package Tests\Feature\
- * used to make helper functions to be used by other feature testing classes.
- * TODO: be more specific on the XML testing method?
+ * contains helper functions to be used by other feature testing classes.
  */
 class UtilityTest extends TestCase
 {
     use WithoutMiddleware;
     private $authors,$titles;
 
-    //populate data for testing:
+    /**
+     * UtilityTest constructor.
+     * populates some sample data to be used in the test.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -36,11 +38,11 @@ class UtilityTest extends TestCase
         $this->titles = ['Search','Hello','Goodbye'];
     }
 
-    ################################## Commonly Used Functions: ###############################################
+    ####################################### Commonly Used Functions ####################################################
     /** Used to post to /api/books route to make a new book and assign authors to it.
      * @param string $title, required to specify the new book's title.
-     * @param array $newAuthor, to assign non-existing authors to this new book. (optional)
-     * @param array $existingAuthors, to assign existing authors (in database) to this new book. (optional)
+     * @param array $newAuthor, to assign non-existing authors to this new book.
+     * @param array $existingAuthors, to assign existing authors to this new book.
      * @return mixed, the response from the route.
      */
     public function createABook($title, $newAuthor = [], $existingAuthors = [] ){
@@ -68,7 +70,7 @@ class UtilityTest extends TestCase
     }
 
     /** checks for empty json response.
-     * @param $response, the response from backend to be checked.
+     * @param \Illuminate\Http\Response $response, the response from backend to be checked.
      */
     public function checkEmptyJsonContent($response){
         $response
@@ -76,9 +78,9 @@ class UtilityTest extends TestCase
             ->assertExactJson([]);
     }
 
-    /** When you send an invalid request, the backend returns an "invalid request" message. check for this kind of
+    /** When you send an invalid request, the backend returns "invalid request" message. check for this kind of
      * response here.
-     * @param $response, the response from backend to be checked against.
+     * @param \Illuminate\Http\Response $response, the response from backend to be checked against.
      */
     public function checkInvalidResponse($response){
         $response
@@ -86,10 +88,10 @@ class UtilityTest extends TestCase
             ->assertExactJson([UtilityController::MESSAGE_RESPONSE_KEY => UtilityController::INVALID_REQUEST_MESSAGE]);
     }
 
-    /** When you send a valid requests, backend may repsonse with OK status with a customised message. check for this
-     * kind of message here.
-     * @param $response the response from backend to be checked against.
-     * @param $message the customised message expected from backend (usually a success / failure message).
+    /** When you send a valid requests, backend may respond with OK status with a customised message. check for this
+     * kind of response here.
+     * @param \Illuminate\Http\Response response, the response from backend to be checked against.
+     * @param string $message, the customised message expected from backend (usually a success / failure message).
      */
     public function checkOKResponseWithCustomMessage($response, $message){
         $response
@@ -97,15 +99,16 @@ class UtilityTest extends TestCase
             ->assertExactJson([UtilityController::MESSAGE_RESPONSE_KEY => $message]);
     }
 
-    ################################## Export To CSV: ###############################################
+    ############################################ Export To CSV #########################################################
     /** Tests an exported CSV file according to the headers that need to be checked against.
      * @param array $headersToBeChecked, the headers to be checked against the CSV file
      * @param string $url, specifies where to get the CSV file.
      * @param string $fileName, the name of the CSV file that is (assumed to be) downloaded.
      * */
     public function exportToCSV($headersToBeChecked, $url, $fileName){
+        //when db is empty, expect for empty XML:
         $this->exportEmptyCSV($url,$fileName);
-
+        //make a book in the database:
         $createResponse = $this->createABook($this->titles[1], [$this->authors[1]],[]);
 
         //construct the values to be checked against:
@@ -124,16 +127,19 @@ class UtilityTest extends TestCase
         Excel::assertDownloaded($fileName, function(DBExport $export) use($src,$headersToBeChecked) {
             // loop through each header and check the values recorded in CSV file:
             foreach($headersToBeChecked as $header){
+                //if the content is wrong, abort:
                 if (! $export->collection()->contains($header, $src[$header] )){
                     return false;
                 }
             }
+            //all contents have been checked:
             return true;
         });
     }
 
     /** Tests whether an exported CSV file is empty or not.
-     * @param $url specifies where to get the CSV file from.
+     * @param string $url, specifies where to get the CSV file.
+     * @param string $fileName, the name of the CSV file that is (assumed to be) downloaded.
      * */
     public function exportEmptyCSV($url,$fileName){
         Excel::fake();
@@ -143,16 +149,16 @@ class UtilityTest extends TestCase
         $response->assertStatus(UtilityController::OK_STATUS);
         //check CSV content and check if it's downloaded or not:
         Excel::assertDownloaded( $fileName, function(DBExport $export)  {
-            // expect collection to be empty:
+            // expect contents to be empty:
             return $export->collection()->isEmpty();
         });
     }
-    ################################## Search by title / author: ###############################################
+    ###################################### Search by Title / Author ####################################################
     /** Conducts tests for searching  by an author or a book's title:
-     * 1. tests for with valid request
+     * 1. tests with valid request
      * 2. tests with non-exact request
      * 3. tests with invalid request
-     * @param $url the url to send the search request to.
+     * @param string $url, the url to send the search request to.
      */
     public function searchTestFacade($url){
 
@@ -192,7 +198,7 @@ class UtilityTest extends TestCase
         $this->checkJsonContent($searchResponse,$src);
     }
 
-    /** make sure search for a book only works with  exact matches. this is tested by sending non-exact match requests.
+    /** make sure search for a book only works with exact matches. this is tested by sending non-exact match requests.
      * @param string $url, the route to send the request to.
      * @param array $src, the source that has the exact matching values for the book's title or author.
      */
@@ -206,7 +212,7 @@ class UtilityTest extends TestCase
         $this->checkEmptyJsonContent($searchResponse);
     }
 
-    ################################## Export To XML: ###############################################
+    ############################################# Export To XML ########################################################
 
     /** checks the content of exported XML file.
      * @param array $headersToBeChecked, contains the headers to be checked against the XML file.
@@ -220,12 +226,11 @@ class UtilityTest extends TestCase
         //now, get the xml output:
         $response = $this->get($url);
         //load it as an object:
-
         $object = simplexml_load_string($response->getContent());
         //check for a proper object type:
         $this->assertNotFalse($object);
         $this->assertInstanceOf( \SimpleXMLElement::class, $object);
-
+        //combine all resources:
         $src = [ Authors::ID_FIELD=> $createResponse[Authors::ID_FIELD][0],
             Authors::FIRSTNAME_FIELD=> $this->authors[2][Authors::FIRSTNAME_FIELD],
             Authors::LASTNAME_FIELD=> $this->authors[2][Authors::LASTNAME_FIELD],
@@ -235,7 +240,7 @@ class UtilityTest extends TestCase
          * structure to be validated:
          * <?xml version="1.0"?>
             <authors>
-              <data>
+              <data> --- (0)
                 <ID>102</ID>
                 <firstName>Hello</firstName>
                 <lastName>World</lastName>
@@ -250,7 +255,7 @@ class UtilityTest extends TestCase
         $this->assertTrue($object->getName() == $rootTag);
         //look for corresponding <data>:
         $this->assertObjectHasAttribute("data", $object);
-        // check the values for child tags of <data>:
+        // check the values for child tags of (0):
         $childArray = $object->data;
 
        $this->checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag,$object->data);
@@ -258,18 +263,17 @@ class UtilityTest extends TestCase
     }
 
     /** check if the xml has a nested element, e.g. books under authors or vice versa:
-     * @param array $headersToBeChecked, contains the headers to be checked against the XML file.
-     * @param array $childArray, " <data> ...  </data> " section parsed as array.
+     * @param array $headersToBeChecked, the headers to be checked against the XML file.
+     * @param array $childArray, the elements under "<data> .. </data>" parsed as "[key1 => val1, key2 => val2, ...]".
      * @param array $src, contains the expected values of each header to be checked against the XML file.
      * @param string $nestedTag, the tag that indicates the XML has a nested element that needs to be checked again.
      * @param $xml, the xml file to be checked against.
-
      */
     public function checkNestedXML($headersToBeChecked,$childArray,$src,$nestedTag, $xml){
-        //if no nesting, just loop:
+        //if no nesting, just loop to check the content under <data>:
         $this->validateXMLContent($headersToBeChecked[0],$childArray,$src );
 
-        //if nesting, you must expand again, and loop:
+        //if there is nesting, you must look for <data> again, and then run a loop to check its content:
         if ($xml->$nestedTag){
              //look for corresponding <data>:
             $this->assertObjectHasAttribute("data", $xml->$nestedTag);
@@ -280,10 +284,9 @@ class UtilityTest extends TestCase
     }
 
     /** check that current xml elements under <data> are valid:
-     * @param $headersToBeChecked the headers to be checked against in the XML file.
-     * @param $childArray
-     * @param $src , contains the expected values of each header to be checked against the XML file.
-     * @param $currentTag authors OR books.
+     * @param array $headersToBeChecked , the headers to be checked against in the XML file.
+     * @param array $childArray, the elements under "<data> .. </data>" parsed as "[key1 => val1, key2 => val2, ...]".
+     * @param array $src , contains the expected values of each header to be checked against the XML file.
      */
     public function validateXMLContent($headersToBeChecked,$childArray,$src){
         foreach ($headersToBeChecked as $header) {
