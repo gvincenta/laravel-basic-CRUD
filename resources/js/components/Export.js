@@ -103,7 +103,6 @@ export default function() {
                         type.toUpperCase() +
                         '/with-books';
                 }
-                console.log('URL', url);
                 setURL(url);
                 //fetching data from database:
                 Axios.get(url)

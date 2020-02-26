@@ -41,7 +41,6 @@ export default function(props) {
                             e.preventDefault();
                             //refresh error message:
                             setMessage(null);
-                            console.log(props.value, 'ONCLICK');
                             const { title, bookID } = props.original;
                             //tell the user to wait while we are deleting this book:
                             setMessage(
@@ -58,7 +57,6 @@ export default function(props) {
                                 data: { bookID: props.value }
                             })
                                 .then(res => {
-                                    console.log(res, 'AFTER DELETE');
                                     //handle success / failure:
                                     window.location.reload();
                                 })
@@ -166,7 +164,6 @@ export default function(props) {
                     onSubmit={e => {
                         //avoid reloading:
                         e.preventDefault();
-                        console.log('SUBMIT RUNN');
                         //update author's name:
                         Axios.put('/api/authors', {
                             authorID,
@@ -174,7 +171,6 @@ export default function(props) {
                             lastName: newLastName
                         })
                             .then(res => {
-                                console.log('res', res);
                                 window.location.reload();
                             })
                             .catch(e => {

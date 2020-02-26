@@ -37,7 +37,6 @@ export default function() {
      https://stackoverflow.com/questions/57341541/removing-object-from-array-using-hooks-usestate
       */
     const onExistingAuthorRemove = removeID => {
-        console.log(removeID, 'ID RECORDED');
         assignExistingAuthors(
             existingAuthors.filter(item => item.authorID !== removeID)
         );
@@ -61,14 +60,12 @@ export default function() {
         //if we have, then remove duplicates in existing authors:
         const uniqueExistingAuthors = Array.from(new Set(existingAuthors));
         //now, submit data to backend:
-        console.log(uniqueExistingAuthors, 'existingAuthors');
         Axios.post('/api/books', {
             existingAuthors: uniqueExistingAuthors,
             newAuthors,
             title
         })
             .then(res => {
-                console.log(res, 'RES');
                 //reload page upon successful creation:
                 if (res.status === 201) {
                     window.location.reload();
@@ -161,7 +158,6 @@ export default function() {
     //initially, fetch the existing authors list for 2nd step:
     useEffect(() => {
         Axios.get('/api/books').then(res => {
-            console.log('Main', res);
             setAuthorsData(res.data);
             setStatus('done');
         });

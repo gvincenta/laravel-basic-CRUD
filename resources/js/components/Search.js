@@ -30,9 +30,7 @@ export default function() {
         setError(null);
         //load spinning UI:
         setStatus('loading');
-        console.log('run', searchBy);
         if (searchBy === 'title') {
-            console.log('runnn');
             //request for a search:
             Axios.get('/api/books/with-filter', {
                 params: {
@@ -41,7 +39,6 @@ export default function() {
             })
                 .then(res => {
                     //display data:
-                    console.log(res.data);
                     setData(res.data);
                     setBy(searchBy);
                     setSearched('book title: ' + title);
@@ -53,7 +50,6 @@ export default function() {
                     setStatus('done');
                 });
         } else if (searchBy === 'author') {
-            console.log('else runnn');
             //request for a search:
             Axios.get('/api/authors/with-filter', {
                 params: {
@@ -63,7 +59,6 @@ export default function() {
             })
                 .then(res => {
                     //display data:
-                    console.log(res.data);
                     setData(res.data);
                     setBy(searchBy);
                     setSearched('author: ' + firstName + ' ' + lastName);

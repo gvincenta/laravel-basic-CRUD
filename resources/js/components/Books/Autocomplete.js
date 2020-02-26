@@ -53,9 +53,6 @@ export default function(props) {
     );
 }
 function extractAuthor(authorString) {
-    console.log(authorString, 'authorString');
-    console.log(typeof authorString, 'authorString');
-
     var author = authorString.split(' ');
     return { authorID: author[0], firstName: author[1], lastName: author[2] };
 }
