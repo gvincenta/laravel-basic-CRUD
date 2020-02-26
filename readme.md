@@ -21,7 +21,7 @@ This project is built with:
 2. Deploy to your desired hosting services, not forgetting to include the _Procfile_ (it has been included in this project) to specify the server type.
 
 *Note*:
-1. *Click on **Guide Me** to learn how to use the web-app*
+1. *Click on **Guide Me** to learn how to use the web-app*.
 2. *Please open the web-app with Google Chrome.*
 
 ### .env configurations (for *Local Device Deployment* / *Code Coverage Test*):
