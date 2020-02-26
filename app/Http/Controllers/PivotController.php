@@ -154,7 +154,7 @@ class PivotController extends Controller
             //action done, commit:
             DB::commit();
             /* returns a success message, showing the book's ID, the new authors' ID,
-             * and relationID: an ID in the pivot table that connects between each author to this book.
+             * and relationID: an ID in the authors_books table that connects between each author to this book.
              */
             return  response()->json([UtilityController::MESSAGE_RESPONSE_KEY => self::BOOKS_CREATION_SUCCEED_MESSAGE,
                 Books::ID_FIELD => $bookID,
