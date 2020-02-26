@@ -23,13 +23,13 @@ export default function() {
     //for error messages:
     const [error, setError] = useState(null);
     //for display heading:
-    const [downloadedContent, setDownloadedContent] = useState("");
+    const [downloadedContent, setDownloadedContent] = useState('');
     //remember what file (XML / CSV) you downloaded:
-    const [downloadedType, setDownloadedType] = useState("");
+    const [downloadedType, setDownloadedType] = useState('');
     //step 1 : display forms, step 2: diplay downloaded content.
-    const [step,setStep] = useState(1);
+    const [step, setStep] = useState(1);
 
-    const allowNext =  data !== null;
+    const allowNext = data !== null;
 
     //displays loading spinner:
     if (status === 'loading') {
@@ -41,17 +41,29 @@ export default function() {
             <div>
                 <h2> Displaying {downloadedContent} XML </h2>
                 <XMLViewer xml={data} />
-                <a href="" onClick={e => {e.preventDefault();setStatus('download');}}>
+                <a
+                    href=""
+                    onClick={e => {
+                        e.preventDefault();
+                        setStatus('download');
+                    }}
+                >
                     {' '}
                     Download me (in compact format){' '}
                 </a>
-                <br/>
-                <Navigator step={step} min={1} max={2} setStep={setStep} allowNext={allowNext} />
+                <br />
+                <Navigator
+                    step={step}
+                    min={1}
+                    max={2}
+                    setStep={setStep}
+                    allowNext={allowNext}
+                />
             </div>
         );
     }
     //displays the csv file with download option:
-    if (status === 'done' && downloadedType === 'csv'  && step === 2) {
+    if (status === 'done' && downloadedType === 'csv' && step === 2) {
         return (
             <div>
                 <h2> Displaying {downloadedContent} CSV as a plain text : </h2>
@@ -59,14 +71,20 @@ export default function() {
                 <CsvToHtmlTable data={data} csvDelimiter="," />
 
                 <CSVLink data={data}>Download me</CSVLink>
-                <br/>
-                <Navigator step={step} min={1} max={2} setStep={setStep} allowNext={allowNext} />
-        </div>
+                <br />
+                <Navigator
+                    step={step}
+                    min={1}
+                    max={2}
+                    setStep={setStep}
+                    allowNext={allowNext}
+                />
+            </div>
         );
     }
     //downloads the xml file:
-    if (status === 'download' && downloadedType === 'xml'  && step === 2) {
-        setStatus("done");
+    if (status === 'download' && downloadedType === 'xml' && step === 2) {
+        setStatus('done');
         return FileDownload(data, content + '.xml');
     }
 
@@ -96,7 +114,6 @@ export default function() {
                         setDownloadedType(type);
                         setStatus('done');
                         setStep(2);
-
                     })
                     .catch(e => {
                         setStatus('error');
@@ -161,9 +178,15 @@ export default function() {
             </fieldset>
             <Button variant="primary" type="submit">
                 {' '}
-                export {' '}
+                export{' '}
             </Button>
-            <Navigator step={step} min={1} max={2} setStep={setStep} allowNext={allowNext} />
+            <Navigator
+                step={step}
+                min={1}
+                max={2}
+                setStep={setStep}
+                allowNext={allowNext}
+            />
             {error ? ( //display error when it occurs:
                 <Alert message={error} />
             ) : null}

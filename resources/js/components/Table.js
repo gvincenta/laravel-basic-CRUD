@@ -128,7 +128,7 @@ export default function(props) {
     ];
     //at start (only), fetch books and authors from backend:
     useEffect(() => {
-        if (status === "loading"){
+        if (status === 'loading') {
             Axios.get('/api/books')
                 .then(res => {
                     setData(res.data);
@@ -139,7 +139,6 @@ export default function(props) {
                     setStatus('done');
                 });
         }
-
     }, ['initialOnly']);
 
     //display books and authors data:
@@ -187,7 +186,9 @@ export default function(props) {
                 >
                     <Form.Text className="text-muted">
                         Changing Author with authorID : {authorID} and name :{' '}
-                        {oldFirstName + ' ' + oldLastName} , Note: for mononymous names, enter their first name in the Last Name field as well.
+                        {oldFirstName + ' ' + oldLastName} , Note: for
+                        mononymous names, enter their first name in the Last
+                        Name field as well.
                     </Form.Text>
 
                     <InlineField

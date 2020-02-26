@@ -18,14 +18,15 @@ import 'intro.js/introjs.css';
  * 1. Books and Authors table,
  * 2. Adding a book,
  * 3. Export to.
- * @returns a main page with 3 vertical tabs (using accordion).
+ * @returns a page with 3 vertical tabs (using accordion).
  */
 import Alert from './Alert';
 function renderTooltip(props) {
     return (
         <Tooltip {...props}>
             For the Guide Me to load up properly, please wait for the Books and
-            Authors table to finish loading.
+            Authors table to finish loading, and make sure that the Books and
+            Authors tab is opened.
         </Tooltip>
     );
 }
@@ -77,8 +78,8 @@ export default function() {
                             data-intro={
                                 'Click here for adding a new book as well as assigning authors to it. ' +
                                 'Click Assign to assign authors to the new book. ' +
-                                "In the assigned table, click on  the author's name to unassign them from the new book."
-                                + 'For mononymous names, enter their first name in the "Last Name" field as well. '
+                                "In the assigned table, click on  the author's name to unassign them from the new book." +
+                                'For mononymous names, enter their first name in the "Last Name" field as well. '
                             }
                         >
                             Add a new book
@@ -107,7 +108,12 @@ export default function() {
                     </Accordion.Collapse>
                 </Card>
             </Accordion>
-            <p> <i> Notice: </i> The book titles and author names filled in this app are fictitious. Any similarity to any person living or dead, or any book titles, is merely coincidental. </p>
+            <p>
+                {' '}
+                <i> Notice: </i> The book titles and author names filled in this
+                app are fictitious. Any similarity to any person living or dead,
+                or any book titles, is merely coincidental.{' '}
+            </p>
         </div>
     );
 }

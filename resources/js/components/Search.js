@@ -121,8 +121,10 @@ export default function() {
                             type="text"
                             placeholder="First Name (not case sensitive)"
                             data-step="4"
-                            data-intro= {"Or, enter here for searching a book by its author. "
-                                        + 'For mononymous names, enter their first name in the "Last Name" field as well.'}
+                            data-intro={
+                                'Or, enter here for searching a book by its author. ' +
+                                'For mononymous names, enter their first name in the "Last Name" field as well.'
+                            }
                             onChange={e => setFirstName(e.target.value)}
                             required
                         />
