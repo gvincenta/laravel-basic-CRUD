@@ -111,8 +111,8 @@ export default function() {
             <p>
                 {' '}
                 <i> Notice: </i> The book titles and author names filled in this
-                app are fictitious. Any similarity to any person living or dead,
-                or any book titles, is merely coincidental.{' '}
+                app are fictitious. Any resemblance to any person living or dead,
+                or any book titles, is entirely coincidental.{' '}
             </p>
         </div>
     );
