@@ -64,6 +64,7 @@ DB_PORT =   (optional)
     1. *This will take about 5 minutes to run.*
     2. __This will overwrite all files in the reports folder.__
 3. Go to *reports* folder and open *index.html* file in your browser to view the test coverage report. 
+
 _[Report Overview](report/index.html)_
 ![report/index.html](documentation/Overview.png)
 # More information on: 
